@@ -16,6 +16,16 @@
     <!-- Enable responsiveness on mobile devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- I'm sorry. It's necessary* -->
+
+    <!-- Set script root for JQuery -->
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+
+
     <title>{% block title %}{% endblock %} &middot; Gavel</title>
     {% block head %}
     {% endblock %}
