@@ -44,7 +44,6 @@
     </table>
   </div>
 </div>
-
 <div class="item">
   <div class="banner">
     <h2>Judges</h2>
@@ -66,41 +65,9 @@
           <th class="no-sort">Delete</th>
         </tr>
       </thead>
-      <tbody>
-        {% for annotator in annotators %}
-        <tr class="{{ 'disabled' if not annotator.active else '' }}">
-          <td><a href="{{ url_for('annotator_detail', annotator_id=annotator.id) }}" class="colored">{{ annotator.id }}</a></td>
-          <td>{{ annotator.name | safe }}</td>
-          <td>{{ annotator.email | safe }}</td>
-          <td>{{ annotator.description | safe }}</td>
-          <td>{{ counts.get(annotator.id, 0) }}</td>
-          <td data-sort="{{ annotator.next_id or -1 }}">{{ annotator.next_id }}</td>
-          <td data-sort="{{ annotator.prev_id or -1 }}">{{ annotator.prev_id }}</td>
-          <td data-sort="{{ annotator.updated | utcdatetime_epoch }}">{{ annotator.updated | utcdatetime_local }}</td>
-          <td class="compact">
-            <form action="/admin/annotator" method="post">
-              <input type="submit" name="action" value="Email" class="neutral">
-              <input type="hidden" name="annotator_id" value="{{ annotator.id }}">
-              <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-            </form>
-          </td>
-          <td class="compact" data-sort="{{ annotator.active }}">
-            <form action="/admin/annotator" method="post">
-              <input type="submit" name="action" value="{{ 'Disable' if annotator.active else 'Enable' }}" class="{{ 'negative' if annotator.active else 'positive' }}">
-              <input type="hidden" name="annotator_id" value="{{ annotator.id }}">
-              <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-            </form>
-          </td>
-          <td class="compact">
-            <form action="/admin/annotator" method="post">
-              <input type="submit" name="action" value="Delete" class="negative">
-              <input type="hidden" name="annotator_id" value="{{ annotator.id }}">
-              <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
+      {% with annotators=annotators %}
+        {% include "_judgetable.html" %}
+      {% endwith %}
     </table>
   </div>
 </div>
