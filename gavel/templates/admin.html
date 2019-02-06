@@ -153,7 +153,7 @@
   </script>
   <script>
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-    $.getJSON($SCRIPT_ROOT + '/get_items',
+    $.getJSON($SCRIPT_ROOT + '/admin/get_items',
       function (data) {
         const annotators = data.annotators;
         const counts = data.counts;
@@ -162,10 +162,10 @@
         const items = data.items;
         const votes = data.votes;
         const setting_closed = data.settings_closed;
-
         $.each(items, function(i, item) {
+           {#let url = {{ url_for('item_detail') }};#}
           const item_html = `<tr class="${ !item.active ? 'disabled' : item.prioritized ? 'prioritized' : '' }">
-            <td><a href="{{ url_for('item_detail', item_id=item.id) }}" class="colored">{{ item.id }}</a></td>
+            <td><a href="${ $SCRIPT_ROOT + '/admin/item/' + item.id }" class="colored">${ item.id }</a></td>
             <td>${item.name}</td>
             <td>${item.location}</td>
             <td class="preserve-formatting">${item.description}</td>
