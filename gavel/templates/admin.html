@@ -164,7 +164,7 @@
         const setting_closed = data.settings_closed;
 
         $.each(items, function(i, item) {
-          const item_html = `<tr class="{{ 'disabled' if not item.active else 'prioritized' if item.prioritized else '' }}">
+          const item_html = `<tr class="${ !item.active ? 'disabled' : item.prioritized ? 'prioritized' : '' }">
             <td><a href="{{ url_for('item_detail', item_id=item.id) }}" class="colored">{{ item.id }}</a></td>
             <td>${item.name}</td>
             <td>${item.location}</td>
