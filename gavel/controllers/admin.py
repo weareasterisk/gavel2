@@ -57,7 +57,7 @@ def admin():
 @app.route('/admin/get_items', methods=['GET'])
 @utils.requires_auth
 def get_items():
-    annotators = Annotator.query.order_by(Annotator.id).all()
+    annotators = [value for value, in Annotator.query.order_by(Annotator.id)]
     items = Item.query.order_by(Item.id).all()
     decisions = Decision.query.all()
     counts = {}
