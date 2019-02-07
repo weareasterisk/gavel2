@@ -63,14 +63,24 @@ def admin():
 @utils.requires_auth
 def get_items():
     annotators = Annotator.query.order_by(Annotator.id).all()
-    annotators_serialized = []
-    for annot in annotators:
-        annotators_serialized.append(annot.to_dict())
-    print(annotators_serialized)
     items = Item.query.order_by(Item.id).all()
     decisions = Decision.query.all()
     counts = {}
     item_counts = {}
+
+    annotators_serialized = []
+    items_serialized = []
+    decisions_serialized = []
+
+    for annot in annotators:
+        annotators_serialized.append(annot.to_dict())
+
+    for ite in items:
+        items_serialized.append(ite.to_dict())
+
+    for dec in decisions:
+        decisions_serialized.append(dec.to_dict())
+
     for d in decisions:
         a = d.annotator_id
         w = d.winner_id
@@ -91,7 +101,7 @@ def get_items():
         counts=counts,
         item_counts=item_counts,
         skipped=skipped,
-        items=items,
+        items=items_serialized,
         votes=len(decisions),
         setting_closed=setting_closed
     )

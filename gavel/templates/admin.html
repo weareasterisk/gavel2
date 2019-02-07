@@ -162,6 +162,7 @@
         const items = data.items;
         const votes = data.votes;
         const setting_closed = data.settings_closed;
+        console.log(annotators);
         $.each(items, function(i, item) {
            {#let url = {{ url_for('item_detail') }};#}
           const item_html = `<tr class="${ !item.active ? 'disabled' : item.prioritized ? 'prioritized' : '' }">
