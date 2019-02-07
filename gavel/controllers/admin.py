@@ -9,6 +9,7 @@ from flask import (
     request,
     url_for,
     jsonify,
+    json,
 )
 
 try:
@@ -53,6 +54,10 @@ def admin():
         votes=len(decisions),
         setting_closed=setting_closed,
     )
+
+
+# TODO: Separate each item into different routes
+# TODO: e.x.: annorators has /admin/get_annotators. etc.
 
 @app.route('/admin/get_items', methods=['GET'])
 @utils.requires_auth
