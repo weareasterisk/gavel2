@@ -1,13 +1,16 @@
 from gavel.models import db
 import gavel.crowd_bt as crowd_bt
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy_serializer import SerializerMixin
+
 
 view_table = db.Table('view',
     db.Column('item_id', db.Integer, db.ForeignKey('item.id')),
     db.Column('annotator_id', db.Integer, db.ForeignKey('annotator.id'))
 )
 
-class Item(db.Model):
+
+class Item(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.Text, nullable=False)
     location = db.Column(db.Text, nullable=False)

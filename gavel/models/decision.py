@@ -1,7 +1,9 @@
 from gavel.models import db
 from datetime import datetime
+from sqlalchemy_serializer import SerializerMixin
 
-class Decision(db.Model):
+
+class Decision(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     annotator_id = db.Column(db.Integer, db.ForeignKey('annotator.id'))
     annotator = db.relationship('Annotator', foreign_keys=[annotator_id], uselist=False)

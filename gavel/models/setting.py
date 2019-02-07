@@ -1,7 +1,9 @@
 from gavel.models import db
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy_serializer import SerializerMixin
 
-class Setting(db.Model):
+
+class Setting(db.Model, SerializerMixin):
     key = db.Column(db.Text, unique=True, nullable=False, primary_key=True)
     value = db.Column(db.Text, nullable=False)
 

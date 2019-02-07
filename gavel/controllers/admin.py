@@ -62,7 +62,11 @@ def admin():
 @app.route('/admin/get_items', methods=['GET'])
 @utils.requires_auth
 def get_items():
-    annotators = [value for value, in Annotator.query.order_by(Annotator.id)]
+    annotators = Annotator.query.order_by(Annotator.id).all()
+    annotators_serialized = []
+    for annot in annotators:
+        annotators_serialized.append(annot.to_dict())
+    print(annotators_serialized)
     items = Item.query.order_by(Item.id).all()
     decisions = Decision.query.all()
     counts = {}
@@ -83,7 +87,7 @@ def get_items():
     # settings
     setting_closed = Setting.value_of(SETTING_CLOSED) == SETTING_TRUE
     return jsonify(
-        annotators=annotators,
+        annotators=annotators_serialized,
         counts=counts,
         item_counts=item_counts,
         skipped=skipped,

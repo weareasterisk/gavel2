@@ -3,13 +3,15 @@ import gavel.utils as utils
 import gavel.crowd_bt as crowd_bt
 from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime
+from sqlalchemy_serializer import SerializerMixin
 
 ignore_table = db.Table('ignore',
     db.Column('annotator_id', db.Integer, db.ForeignKey('annotator.id')),
     db.Column('item_id', db.Integer, db.ForeignKey('item.id'))
 )
 
-class Annotator(db.Model):
+
+class Annotator(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), nullable=False)
