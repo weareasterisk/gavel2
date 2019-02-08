@@ -12,6 +12,8 @@ from flask import (
     json,
 )
 
+from sqlalchemy.ext.serializer import loads, dumps
+
 try:
     import urllib
 except ImportError:
@@ -72,14 +74,11 @@ def get_items():
     items_serialized = []
     decisions_serialized = []
 
-    for annot in annotators:
-        annotators_serialized.append(annot.to_dict())
+    for a in annotators:
+        annotators_serialized.append(a)
 
-    for ite in items:
-        items_serialized.append(ite.to_dict())
-
-    for dec in decisions:
-        decisions_serialized.append(dec.to_dict())
+    for i in items:
+        items_serialized.append(i)
 
     for d in decisions:
         a = d.annotator_id
