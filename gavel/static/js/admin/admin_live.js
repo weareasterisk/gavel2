@@ -16,6 +16,9 @@ async function refresh(token) {
             await data;
         }
     });
+
+    const now = new Date();
+
     const annotators = data.annotators;
     const counts = data.counts;
     const item_counts = data.item_counts;
@@ -30,8 +33,6 @@ async function refresh(token) {
     const viewed = data.viewed;
     const sigma = data.average_sigma;
     const seen = data.average_seen;
-
-    console.log(data);
 
     // Populate vote count
     let vote_count = document.getElementById("total-votes");
@@ -51,6 +52,7 @@ async function refresh(token) {
     // Populate reports
     let reports_table = document.getElementById("reports-body");
     reports_table.innerHTML = "";
+
     for (let i = 0; i < flags.length; i++) {
 
         try {
@@ -58,6 +60,7 @@ async function refresh(token) {
 
             if (!flag.id)
                 continue;
+
             const reports_template = `
             <tr class="${flag.resolved ? "open" : "resolve"}">
               <td><input id="${flag.id}" type="checkbox" name="item" value="${flag.item.id}" class="admin-check"/></td>
@@ -176,7 +179,7 @@ async function refresh(token) {
               <td>${(counts[annotator.id] || 0)}</td>
               <td>${(annotator.next_id || 'None')}</td>
               <td>${(annotator.prev_id || 'None')}</td>
-              <td>${(annotator.updated || 'Undefined')}</td>
+              <td>${(annotator.updated ? (((now - (Date.parse(annotator.updated) - now.getTimezoneOffset()*60*1000))/60)/1000).toFixed(0) + " min ago" : "Undefined")}</td>
               <td data-sort="${annotator.active}">
                 <span onclick="openJudge(${annotator.id})" class="inline-block tooltip">
                   <button class="nobackgroundnoborder">
