@@ -17,6 +17,8 @@ from flask import (
     url_for,
     json)
 
+import asyncio
+
 try:
     import urllib
 except ImportError:
@@ -350,13 +352,13 @@ def annotator():
                 db.session.add(annotator)
             db.session.commit()
             try:
-                email_invite_links(added)
+                asyncio.run(email_invite_links(added))
             except Exception as e:
                 return utils.server_error(str(e))
     elif action == 'Email':
         annotator_id = request.form['annotator_id']
         try:
-            email_invite_links(Annotator.by_id(annotator_id))
+            asyncio.run(email_invite_links(Annotator.by_id(annotator_id)))
         except Exception as e:
             return utils.server_error(str(e))
     elif action == 'Disable' or action == 'Enable':
