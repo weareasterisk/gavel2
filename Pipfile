@@ -43,7 +43,6 @@ Werkzeug = "==0.14.1"
 python-dotenv = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
-flask-minify = "*"
 
 [requires]
 python_version = "3.7"

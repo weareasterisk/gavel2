@@ -5,68 +5,48 @@
 import os
 
 from flask import Flask
-from htmlmin.main import minify
 
 app = Flask(__name__)
 
 app.config['DEBUG'] = os.environ.get('DEBUG', False)
 
 import gavel.settings as settings
-
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.DB_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = settings.SECRET_KEY
 
 from flask_assets import Environment, Bundle
-
 assets = Environment(app)
 assets.config['pyscss_style'] = 'expanded'
 assets.url = app.static_url_path
 scss = Bundle(
-  'css/style.scss',
-  depends='**/*.scss',
-  filters=('pyscss',),
-  output='all.css'
+    'css/style.scss',
+    depends='**/*.scss',
+    filters=('pyscss',),
+    output='all.css'
 )
 assets.register('scss_all', scss)
 
 from celery import Celery
-
 app.config['CELERY_BROKER_URL'] = settings.BROKER_URI
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
 from gavel.models import db, ma
-
 db.app = app
 db.init_app(app)
 ma.app = app
 ma.init_app(app)
 
-import gavel.template_filters  # registers template filters
+import gavel.template_filters # registers template filters
 
-import gavel.controllers  # registers controllers
+import gavel.controllers # registers controllers
 
 # send usage stats
 import gavel.utils
-
 gavel.utils.send_telemetry('gavel-boot', {
-  'base-url': settings.BASE_URL or '',
-  'min-views': settings.MIN_VIEWS,
-  'timeout': settings.TIMEOUT,
-  'disable-email': settings.DISABLE_EMAIL
+    'base-url': settings.BASE_URL or '',
+    'min-views': settings.MIN_VIEWS,
+    'timeout': settings.TIMEOUT,
+    'disable-email': settings.DISABLE_EMAIL
 })
-
-
-@app.after_request
-def response_minify(response):
-  """
-  minify html response to decrease site traffic
-  """
-  if response.content_type == u'text/html; charset=utf-8':
-    response.set_data(
-      minify(response.get_data(as_text=True))
-    )
-
-    return response
-  return response
