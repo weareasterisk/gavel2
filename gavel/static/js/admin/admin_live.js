@@ -71,7 +71,7 @@ async function refresh(token) {
               <td>${flag.reason}</td>
               <td>
                 <form action="/admin/report" method="post" class="inline-block">
-                  <button type="submit" class="button-full background-purple h-32 text-12 text-bold uppercase">Resolve Flag</button>
+                  ${(flag.resolved) ? '<button type="submit" class="button-full background-grey h-32 text-12 text-bold uppercase">Open Flag</button>' : '<button type="submit" class="button-full background-purple h-32 text-12 text-bold uppercase">Resolve Flag</button>'}
                   <input type="hidden" name="action" value="${flag.resolved ? "open" : "resolve"}"
                          class="${flag.resolved ? "negative" : "positive"}">
                   <input type="hidden" name="flag_id" value="${flag.id}">
