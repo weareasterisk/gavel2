@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "610872189baa217a8f1f61b508fa047e6d2e2d7a0822bdaa31e0086a0c4ac564"
+            "sha256": "f8d70aa4794ee25ecc1afc35542187e71b47cec1802f010c4a73e2550fc5d80c"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.7"
+            "python_version": "3.6"
         },
         "sources": [
             {
@@ -86,6 +86,13 @@
             "index": "pypi",
             "version": "==0.12"
         },
+        "flask-compress": {
+            "hashes": [
+                "sha256:468693f4ddd11ac6a41bca4eb5f94b071b763256d54136f77957cfee635badb3"
+            ],
+            "index": "pypi",
+            "version": "==1.4.0"
+        },
         "flask-marshmallow": {
             "hashes": [
                 "sha256:4f507f883838b397638a3a36c7d36ee146b255a49db952f5d9de3f6f4522e8a8",
@@ -93,6 +100,13 @@
             ],
             "index": "pypi",
             "version": "==0.10.1"
+        },
+        "flask-minify": {
+            "hashes": [
+                "sha256:666957ee8621eaad0ead4e71e7c193ea8cf9f8f550ad02497ae55a82050c2c5e"
+            ],
+            "index": "pypi",
+            "version": "==0.11"
         },
         "flask-sqlalchemy": {
             "hashes": [
@@ -109,6 +123,12 @@
             ],
             "index": "pypi",
             "version": "==19.9.0"
+        },
+        "htmlmin": {
+            "hashes": [
+                "sha256:50c1ef4630374a5d723900096a961cff426dff46b48f34d194a81bbe14eca178"
+            ],
+            "version": "==0.1.12"
         },
         "humanize": {
             "hashes": [
@@ -141,6 +161,12 @@
             "index": "pypi",
             "version": "==2.10"
         },
+        "jsmin": {
+            "hashes": [
+                "sha256:b6df99b2cd1c75d9d342e4335b535789b8da9107ec748212706ef7bbe5c2553b"
+            ],
+            "version": "==2.2.2"
+        },
         "kombu": {
             "hashes": [
                 "sha256:1ef049243aa05f29e988ab33444ec7f514375540eaa8e0b2e1f5255e81c5e56d",
@@ -148,6 +174,13 @@
             ],
             "index": "pypi",
             "version": "==4.2.2.post1"
+        },
+        "lesscpy": {
+            "hashes": [
+                "sha256:72a38c751681e91e258825c1e826c38508c183f48b2e420e1a65d01eaa04bac3",
+                "sha256:f3c6d0b544c5bcdadcd3d8319feccb4128d06676d4117c6c9396ab39c25372ad"
+            ],
+            "version": "==0.13.0"
         },
         "markdown": {
             "hashes": [
@@ -239,6 +272,13 @@
             ],
             "index": "pypi",
             "version": "==1.15.4"
+        },
+        "ply": {
+            "hashes": [
+                "sha256:00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3",
+                "sha256:096f9b8350b65ebd2fd1346b12452efe5b9607f7482813ffca50c22722a807ce"
+            ],
+            "version": "==3.11"
         },
         "psycopg2": {
             "hashes": [

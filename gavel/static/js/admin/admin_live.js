@@ -230,8 +230,8 @@ async function refresh(token) {
 * END REFRESH FUNCTION
 * */
 
-function toggleSelector() {
-    const selectorModal = document.getElementById("selector");
+async function toggleSelector() {
+    const selectorModal = await document.getElementById("selector");
     selectorModal.style.display = selectorModal.style.display === "block" ? "none" : "block";
 }
 
@@ -271,7 +271,7 @@ function showTab(e) {
     setAddButtonState();
 }
 
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("DOMContentLoaded", async function () {
     showTab(localStorage.getItem("currentTab") || "admin-reports");
 });
 
@@ -404,7 +404,7 @@ $('#batchDelete').click(async function () {
 
     }
     const full = await form;
-    await full.submit();
+    full.submit();
 
 });
 
@@ -426,5 +426,5 @@ $('#batchDisable').click(async function () {
 
     }
     const full = await form;
-    await full.submit();
+    full.submit();
 });

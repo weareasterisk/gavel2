@@ -153,19 +153,19 @@
   </div>
 {% endblock %}
 {% block end %}
-  <script src="{{ url_for('static', filename="js/jquery-3.3.1.min.js") }}"></script>
-  <script src="{{ url_for('static', filename="js/jquery.tablesorter.min.js") }}"></script>
-  <script src="{{ url_for('static', filename="js/jquery.tablesorter.widgets.js") }}"></script>
   <script src="{{ url_for('static', filename="js/admin/admin_live.js") }}"></script>
-  <script src="{{ url_for('static', filename="js/vendor/fontawesome/js/all.js") }}"></script>
-  <script src="{{ url_for('static', filename="js/baloon.css") }}"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.min.js" integrity="sha256-uC1JMW5e1U5D28+mXFxzTz4SSMCywqhxQIodqLECnfU=" crossorigin="anonymous" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.widgets.min.js" integrity="sha256-Xx4HRK+CKijuO3GX6Wx7XOV2IVmv904m0HKsjgzvZiY=" crossorigin="anonymous" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/js/all.min.js" integrity="sha256-iZGp5HAiwRmkbOKVYv5FUER4iXp5QbiEudkZOdwLrjw=" crossorigin="anonymous" async></script>
+{#  <script src="{{ url_for('static', filename="js/baloon.css") }}"></script>#}
   <script>
     let initial_response = refresh("{{ csrf_token() }}");
     {#    let checkbox = document.getElementById('fs');
         let c = "{{ setting_closed }}";
         c === "True" ? checkbox.checked = false : checkbox.checked = true;#}
 
-    let responseInterval = function () {
+    let responseInterval = async function () {
       let response = refresh("{{ csrf_token() }}");
     };
 
