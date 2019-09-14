@@ -18,7 +18,6 @@ COMPRESS_MIMETYPES = [
 ]
 COMPRESS_LEVEL = 6
 COMPRESS_MIN_SIZE = 500
-CACHE_TYPE = 'simple'
 
 compress = Compress()
 
@@ -28,6 +27,8 @@ def start_app():
   compress.init_app(gavel)
 
   minify(app=gavel)
+
+  gavel.url_map.strict_slashes = False
 
   return gavel
 
