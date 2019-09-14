@@ -17,8 +17,6 @@ from flask import (
   url_for,
   json)
 
-import asyncio
-
 try:
   import urllib
 except ImportError:
@@ -110,28 +108,104 @@ def admin():
   )
 
 
-@app.route('/admin/live')
+@app.route('/admin/items')
+@utils.requires_auth
+def admin_items():
+  items = Item.query.order_by(Item.id).all()
+  annotators = Annotator.query.order_by(Annotator.id).all()
+  decisions = Decision.query.all()
+
+  viewed = {i.id: {a.id for a in i.viewed} for i in items}
+
+  skipped = {}
+  for a in annotators:
+    for i in a.ignore:
+      if a.id not in viewed[i.id]:
+        skipped[i.id] = skipped.get(i.id, 0) + 1
+
+  item_count = len(items)
+
+  item_counts = {}
+
+  for d in decisions:
+    a = d.annotator_id
+    w = d.winner_id
+    l = d.loser_id
+    item_counts[w] = item_counts.get(w, 0) + 1
+    item_counts[l] = item_counts.get(l, 0) + 1
+
+  dump_data = {
+    "items": [ItemSchema().dump(it) if it else {'null': 'null'} for it in items],
+    "skipped": skipped,
+    "item_count": item_count,
+    "item_counts": item_counts
+  }
+
+  response = app.response_class(
+    response=json.dumps(dump_data),
+    status=200,
+    mimetype='application/json'
+  )
+
+  return response
+
+
+@app.route('/admin/flags')
+@utils.requires_auth
+def admin_flags():
+  flags = Flag.query.order_by(Flag.id).all()
+  flag_count = len(flags)
+
+  dump_data = {
+    "flags": [FlagSchema().dump(fl) if fl else {'null': 'null'} for fl in flags],
+    "flag_count": flag_count
+  }
+
+  response = app.response_class(
+    response=json.dumps(dump_data),
+    status=200,
+    mimetype='application/json'
+  )
+
+  return response
+
+
+@app.route('/admin/annotators')
+@utils.requires_auth
+def admin_annotators():
+  annotators = Annotator.query.order_by(Annotator.id).all()
+  decisions = Decision.query.all()
+
+  counts = {}
+
+  for d in decisions:
+    a = d.annotator_id
+    w = d.winner_id
+    l = d.loser_id
+    counts[a] = counts.get(a, 0) + 1
+
+  dump_data = {
+    "annotators": [AnnotatorSchema().dump(an) if an else {'null': 'null'} for an in annotators],
+    "counts": counts
+  }
+
+  response = app.response_class(
+    response=json.dumps(dump_data),
+    status=200,
+    mimetype='application/json'
+  )
+
+  return response
+
+
+@app.route('/admin/auxiliary')
 @utils.requires_auth
 def admin_live():
   annotators = Annotator.query.order_by(Annotator.id).all()
   items = Item.query.order_by(Item.id).all()
   flags = Flag.query.order_by(Flag.id).all()
   decisions = Decision.query.all()
-  counts = {}
-  item_counts = {}
-  for d in decisions:
-    a = d.annotator_id
-    w = d.winner_id
-    l = d.loser_id
-    counts[a] = counts.get(a, 0) + 1
-    item_counts[w] = item_counts.get(w, 0) + 1
-    item_counts[l] = item_counts.get(l, 0) + 1
-  viewed = {i.id: {a.id for a in i.viewed} for i in items}
-  skipped = {}
-  for a in annotators:
-    for i in a.ignore:
-      if a.id not in viewed[i.id]:
-        skipped[i.id] = skipped.get(i.id, 0) + 1
+
   # settings
   setting_closed = Setting.value_of(SETTING_CLOSED) == SETTING_TRUE
   setting_stop_queue = Setting.value_of(SETTING_STOP_QUEUE) == SETTING_TRUE
@@ -160,17 +234,11 @@ def admin_live():
     average_seen = 0
 
   dump_data = {
-    "annotators": [AnnotatorSchema().dump(an) if an else {'null', 'null'} for an in annotators],
-    "counts": counts,
-    "item_counts": item_counts,
-    "item_count": item_count,
-    "skipped": skipped,
-    "items": [ItemSchema().dump(it) if it else {'null': 'null'} for it in items],
     "votes": votes,
     "setting_closed": setting_closed,
     "setting_stop_queue": setting_stop_queue,
-    "flags": [FlagSchema().dump(fl) if fl else {'null': 'null'} for fl in flags],
     "flag_count": flag_count,
+    "item_count": item_count,
     "average_sigma": average_sigma,
     "average_seen": average_seen
   }
@@ -354,13 +422,13 @@ def annotator():
         db.session.add(annotator)
       db.session.commit()
       try:
-        asyncio.run(email_invite_links(added))
+        email_invite_links(added)
       except Exception as e:
         return utils.server_error(str(e))
   elif action == 'Email':
     annotator_id = request.form['annotator_id']
     try:
-      asyncio.run(email_invite_links(Annotator.by_id(annotator_id)))
+      email_invite_links(Annotator.by_id(annotator_id))
     except Exception as e:
       return utils.server_error(str(e))
   elif action == 'Disable' or action == 'Enable':

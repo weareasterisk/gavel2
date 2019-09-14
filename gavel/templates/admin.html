@@ -45,11 +45,11 @@
         <span id="admin-switcher-content">Manage Reports</span>
         <a class="admin-drop-single-chevron center"></a>
         <div class="admin-switcher-modal modal-autoclose" id="selector">
-          <div class="full" onclick="showTab('reports')"><h3 class="admin-switcher-modal-text">Manage Reports</h3>
+          <div class="full" onclick="showTab('flags')"><h3 class="admin-switcher-modal-text">Manage Reports</h3>
           </div>
-          <div class="full" onclick="showTab('projects')"><h3 class="admin-switcher-modal-text">Manage Projects</h3>
+          <div class="full" onclick="showTab('items')"><h3 class="admin-switcher-modal-text">Manage Projects</h3>
           </div>
-          <div class="full" onclick="showTab('judges')"><h3 class="admin-switcher-modal-text">Manage Judges</h3></div>
+          <div class="full" onclick="showTab('annotators')"><h3 class="admin-switcher-modal-text">Manage Judges</h3></div>
         </div>
       </div>
         <div class="admin-add-button" id="add">
@@ -61,76 +61,13 @@
       </div>
     </div>
     <div class="admin-tabs live-table">
-      <div id="admin-reports" class="admin-table live-table">
-        <table id="reports">
-          <thead class="admin-header">
-          <tr>
-            <th class="admin-head-check no-sort">
-              <label>
-                <input onclick="checkAllReports()" id="check-all-reports" type="checkbox" class="admin-check">
-              </label>
-            </th>
-            <th class="admin-head-id">Id<a></a></th>
-            <th class="admin-head-judge">Judge Name<a></a></th>
-            <th class="admin-head-project">Project Name<a></a></th>
-            <th class="admin-head-project">Project Location<a></a></th>
-            <th class="admin-head-standard">Reason<a></a></th>
-            <th class="admin-head-standard no-sort">Actions</th>
-          </tr>
+      <div id="admin-table-wrapper" class="admin-table live-table">
+        <table id="admin-table">
+          <thead class="admin-header" id="admin-table-head">
+          {# Auto populates with header #}
           </thead>
-          <tbody id="reports-body">
-          {# Auto populates with reports #}
-          </tbody>
-        </table>
-      </div>
-      <div id="admin-projects" class="admin-table live-table">
-        <table id="projects">
-          <thead class="admin-header">
-          <tr>
-            <th class="no-sort admin-head-check">
-              <label>
-                <input onclick="checkAllProjects()" id="check-all-projects" type="checkbox" class="admin-check">
-              </label>
-            </th>
-            <th class="admin-head-id">Id<a></a></th>
-            <th class="admin-head-project">Project Name<a></a></th>
-            <th class="admin-head-standard">Location<a></a></th>
-            <th class="admin-head-double">Description<a></a></th>
-            <th class="sort-default admin-head-standard">Mu<a></a></th>
-            <th class="admin-head-standard">Sigma<sup>2</sup><a></a></th>
-            <th class="admin-head-standard">Votes<a></a></th>
-            <th class="admin-head-standard">Seen<a></a></th>
-            <th class="admin-head-standard">Skipped<a></a></th>
-            <th class="admin-head-standard no-sort">Actions<a></a></th>
-          </tr>
-          </thead>
-          <tbody id="items-body">
-          {# Auto populates with projects #}
-          </tbody>
-        </table>
-      </div>
-      <div id="admin-judges" class="admin-table live-table">
-        <table id="judges">
-          <thead class="admin-header">
-          <tr>
-            <th class="no-sort admin-head-check">
-              <label>
-                <input onclick="checkAllJudges()" id="check-all-judges" type="checkbox" class="admin-check">
-              </label>
-            </th>
-            <th class="sort-default admin-head-id">Id<a></a></th>
-            <th class="admin-head-project">Name<a></a></th>
-            <th class="admin-head-project">Email<a></a></th>
-            <th class="admin-head-double">Description<a></a></th>
-            <th class="admin-head-standard">Votes<a></a></th>
-            <th class="admin-head-standard">Next (Id)<a></a></th>
-            <th class="admin-head-standard">Prev. (Id)<a></a></th>
-            <th class="admin-head-standard">Updated<a></a></th>
-            <th class="no-sort admin-head-standard">Actions<a></a></th>
-          </tr>
-          </thead>
-          <tbody id="judges-body">
-          {#Auto populates with judges#}
+          <tbody id="admin-table-body">
+          {# Auto populates with body #}
           </tbody>
         </table>
       </div>
@@ -153,60 +90,48 @@
   </div>
 {% endblock %}
 {% block end %}
-  <script src="{{ url_for('static', filename="js/admin/admin_live.js") }}"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.min.js" integrity="sha256-uC1JMW5e1U5D28+mXFxzTz4SSMCywqhxQIodqLECnfU=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.widgets.min.js" integrity="sha256-Xx4HRK+CKijuO3GX6Wx7XOV2IVmv904m0HKsjgzvZiY=" crossorigin="anonymous" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.widgets.min.js" integrity="sha256-Xx4HRK+CKijuO3GX6Wx7XOV2IVmv904m0HKsjgzvZiY=" crossorigin="anonymous" ></script>
+{#  <script src="{{ url_for('static', filename="js/jquery-3.3.1.min.js") }}"></script>#}
+{#  <script src="{{ url_for('static', filename="js/jquery.tablesorter.min.js") }}"></script>#}
+{#  <script src="{{ url_for('static', filename="js/jquery.tablesorter.widgets.js") }}"></script>#}
+  <script src="{{ url_for('static', filename="js/admin/admin_live.js") }}"></script>
+  <script>
+    setToken("{{ csrf_token() }}");
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/js/all.min.js" integrity="sha256-iZGp5HAiwRmkbOKVYv5FUER4iXp5QbiEudkZOdwLrjw=" crossorigin="anonymous" async></script>
 {#  <script src="{{ url_for('static', filename="js/baloon.css") }}"></script>#}
   <script>
-    let initial_response = refresh("{{ csrf_token() }}");
+    let initialTableResponse = spawnTable(localStorage.getItem("currentTab"));
+    let initialRefreshResponse = refresh();
     {#    let checkbox = document.getElementById('fs');
         let c = "{{ setting_closed }}";
         c === "True" ? checkbox.checked = false : checkbox.checked = true;#}
-
     let responseInterval = async function () {
-      let response = refresh("{{ csrf_token() }}");
+      await Promise.all([
+        spawnTable(localStorage.getItem("currentTab")),
+        refresh()
+      ]);
     };
 
     let intervalid = window.setInterval(responseInterval, 5000);
     let livereload = true;
-    let currentTab = "reports";
+    let currentTab = "flags";
 
-    function toggleAutoRefresh() {
-      livereload = !livereload;
+    function toggleAutoRefresh(state) {
+      livereload = state || !livereload;
       !livereload ? window.clearInterval(intervalid) : intervalid = window.setInterval(responseInterval, 5000);
       let rel = document.getElementById("live");
       rel.classList = livereload ? ['live-active'] : ['live-inactive'];
     }
 
-    $('#judges').tablesorter({
-      cssAsc: 'up',
-      cssDesc: 'down',
-      headers: {
-        '.no-sort': {
-          sorter: false,
-        }
-      }
-    });
-    $('#reports').tablesorter({
-      cssAsc: 'up',
-      cssDesc: 'down',
-      headers: {
-        '.no-sort': {
-          sorter: false,
-        }
-      }
-    });
-    $('#projects').tablesorter({
-      cssAsc: 'up',
-      cssDesc: 'down',
-      headers: {
-        '.no-sort': {
-          sorter: false,
-        }
-      }
-    });
+    function triggerTableUpdate() {
+      toggleAutoRefresh(false);
+      initialTableResponse = spawnTable(localStorage.getItem("currentTab"));
+      initialRefreshResponse = refresh();
+      toggleAutoRefresh(true);
+    }
 
     $('.admin-check').click(function(e){
       localStorage.e.target.id = !!e.target.checked;
