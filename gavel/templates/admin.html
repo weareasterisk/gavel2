@@ -138,10 +138,12 @@
       initialTableResponse = spawnTable(localStorage.getItem("currentTab"));
       initialRefreshResponse = refresh();
       toggleAutoRefresh(true);
+      return false;
     }
 
     $('.admin-check').click(function(e){
       localStorage.e.target.id = !!e.target.checked;
+      return false;
     })
 
   </script>

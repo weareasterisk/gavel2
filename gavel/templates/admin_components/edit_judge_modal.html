@@ -4,7 +4,7 @@
       <div class="admin-modal-content edit-modal">
         <div class="admin-close-button" onclick="openModal('close')"></div>
         <div>
-          <iframe onload="autoResizeJudge('annotatorframe')" width=100% height="400px" src="/admin/annotator/1/" scrolling="no" id="annotatorframe" sandbox="allow-top-navigation allow-scripts allow-forms allow-same-origin"></iframe>
+          <iframe onload="autoResizeJudge('annotatorframe')" width=100% height="400px" scrolling="no" id="annotatorframe" sandbox="allow-top-navigation allow-scripts allow-forms allow-same-origin"></iframe>
         </div>
       </div>
     </div>
@@ -13,7 +13,6 @@
     async function openJudge(id) {
       const editJudge = document.getElementById('annotatorframe');
       editJudge.src = `/admin/annotator/${id}/`;
-      await autoResizeJudge('annotatorframe');
       openModal('edit-judge');
     }
 
