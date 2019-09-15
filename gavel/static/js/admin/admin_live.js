@@ -281,7 +281,7 @@ async function populateFlags(data) {
 }
 
 async function spawnTable(id) {
-  const data = await $.ajax({
+  const data = $.ajax({
     url: `/admin/${id}`,
     type: "get",
     dataType: "json",
@@ -319,7 +319,7 @@ async function spawnTable(id) {
 }
 
 async function refresh() {
-    const data = await $.ajax({
+    const data = $.ajax({
         url: "/admin/auxiliary",
         type: "get",
         dataType: "json",
