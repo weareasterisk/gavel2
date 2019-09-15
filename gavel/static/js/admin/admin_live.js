@@ -94,6 +94,7 @@ function initTableSorter() {
 
 function setTableHead(head) {
   tableHead.innerHTML = head;
+  $('#admin-table').trigger('updateHeaders');
 }
 
 async function populateItems(data) {
@@ -395,10 +396,6 @@ function showTab(e) {
     triggerTableUpdate();
 }
 
-window.addEventListener("DOMContentLoaded", async function () {
-    showTab(localStorage.getItem("currentTab") || "flags");
-});
-
 function setAddButtonState() {
     const tab = localStorage.getItem("currentTab");
     const text = document.getElementById('add-text');
@@ -445,12 +442,12 @@ $(".full-modal").click(function (event) {
 function checkAllReports() {
     let check = document.getElementById('check-all-reports');
     if (check.checked) {
-        $('#reports').find('input[type=checkbox]').each(function () {
+        $('#admin-table').find('input[type=checkbox]').each(function () {
             this.checked = true;
         });
         check.checked = true;
     } else {
-        $('#reports').find('input[type=checkbox]:checked').each(function () {
+        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
             this.checked = false;
         });
         check.checked = false;
@@ -460,12 +457,12 @@ function checkAllReports() {
 function checkAllProjects() {
     let check = document.getElementById('check-all-projects');
     if (check.checked) {
-        $('#projects').find('input[type=checkbox]').each(function () {
+        $('#admin-table').find('input[type=checkbox]').each(function () {
             this.checked = true;
         });
         check.checked = true;
     } else {
-        $('#projects').find('input[type=checkbox]:checked').each(function () {
+        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
             this.checked = false;
         });
         check.checked = false;
@@ -475,12 +472,12 @@ function checkAllProjects() {
 function checkAllJudges() {
     let check = document.getElementById('check-all-judges');
     if (check.checked) {
-        $('#judges').find('input[type=checkbox]').each(function () {
+        $('#admin-table').find('input[type=checkbox]').each(function () {
             this.checked = true;
         });
         check.checked = true;
     } else {
-        $('#judges').find('input[type=checkbox]:checked').each(function () {
+        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
             this.checked = false;
         });
         check.checked = false;
@@ -509,15 +506,16 @@ let judgeIds = [];
 let projectIds = [];
 let form = null;
 $('#batchDelete').click(async function () {
+    const tab = localStorage.getItem("currentTab");
     projectIds = [];
     judgeIds = [];
     form = null;
-    if (currentTab === 'projects') {
+    if (tab === 'items') {
         form = document.getElementById('batchDeleteItems');
-    } else if (currentTab === 'judges') {
+    } else if (tab === 'annotators') {
         form = document.getElementById('batchDeleteAnnotators');
     }
-    $('#' + currentTab).find('input[type="checkbox"]:checked').each(function () {
+    $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
         form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
     });
     try {
@@ -531,15 +529,16 @@ $('#batchDelete').click(async function () {
 });
 
 $('#batchDisable').click(async function () {
+    const tab = localStorage.getItem("currentTab");
     projectIds = [];
     judgeIds = [];
     form = null;
-    if (currentTab === 'projects') {
+    if (tab === 'items') {
         form = document.getElementById('batchDisableItems');
-    } else if (currentTab === 'judges') {
+    } else if (tab === 'annotators') {
         form = document.getElementById('batchDisableAnnotators');
     }
-    $('#' + currentTab).find('input[type="checkbox"]:checked').each(function () {
+    $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
         form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
     });
     try {
