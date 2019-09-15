@@ -80,7 +80,7 @@ function clearTableHead() {
   tableHead.innerHTML = "";
 }
 
-function initTableSorter() {
+async function initTableSorter() {
   $('#admin-table').tablesorter({
     cssAsc: 'up',
     cssDesc: 'down',
@@ -95,6 +95,10 @@ function initTableSorter() {
 function setTableHead(head) {
   tableHead.innerHTML = head;
   $('#admin-table').trigger('updateHeaders');
+}
+
+async function updateTableSorter() {
+  $('#admin-table').trigger('update').trigger('updateHeaders');
 }
 
 async function populateItems(data) {
@@ -315,6 +319,8 @@ async function spawnTable(id) {
         ]);
         break;
     }
+  }).then(() => {
+    updateTableSorter();
   });
 
 }
@@ -358,8 +364,8 @@ async function refresh() {
 * END REFRESH FUNCTION
 * */
 
-async function toggleSelector() {
-    const selectorModal = await document.getElementById("selector");
+function toggleSelector() {
+    const selectorModal = document.getElementById("selector");
     selectorModal.style.display = selectorModal.style.display === "block" ? "none" : "block";
 }
 
