@@ -10,24 +10,24 @@
     </div>
   </div>
   <script>
-    function autoResizeProject(id){
+    async function openProject(id) {
+      const editProject = document.getElementById('itemframe');
+      editProject.src = `/admin/item/${id}/`;
+      await autoResizeProject('itemframe');
+      openModal('edit-project');
+    }
+
+    async function autoResizeProject(id){
       let newheight;
       let newwidth;
 
       if(document.getElementById){
-        newheight=document.getElementById(id).contentWindow.document .getElementById("content").scrollHeight;
-        newwidth=document.getElementById(id).contentWindow.document .getElementById("content").scrollWidth;
+        newheight = await document.getElementById(id).contentWindow.document .getElementById("content").scrollHeight;
+        newwidth = await document.getElementById(id).contentWindow.document .getElementById("content").scrollWidth;
       }
 
-      document.getElementById(id).height= (newheight/2 + "px");
-      document.getElementById(id).width= ((newwidth < 380) ? 380 : newwidth) + "px";
-    }
-
-    function openProject(id) {
-      const editProject = document.getElementById('itemframe');
-      editProject.src = `/admin/item/${id}/`;
-      autoResizeProject('itemframe');
-      openModal('edit-project');
+      document.getElementById(id).height= `${(newheight + 16)}px`;
+      document.getElementById(id).width= `${((newwidth < 400) ? 416 : newwidth)}px` ;
     }
   </script>
 {% endblock %}

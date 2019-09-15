@@ -10,24 +10,24 @@
     </div>
   </div>
   <script>
-    function openJudge(id) {
+    async function openJudge(id) {
       const editJudge = document.getElementById('annotatorframe');
       editJudge.src = `/admin/annotator/${id}/`;
-      autoResizeJudge('annotatorframe');
+      await autoResizeJudge('annotatorframe');
       openModal('edit-judge');
     }
 
-    function autoResizeJudge(id){
+    async function autoResizeJudge(id){
       let newheight;
       let newwidth;
 
       if(document.getElementById){
-        newheight=document.getElementById(id).contentWindow.document .getElementById("content").scrollHeight;
-        newwidth=document.getElementById(id).contentWindow.document .getElementById("content").scrollWidth;
+        newheight = await document.getElementById(id).contentWindow.document .getElementById("content").scrollHeight;
+        newwidth = await document.getElementById(id).contentWindow.document .getElementById("content").scrollWidth;
       }
 
-      document.getElementById(id).height= (newheight/2 + "px");
-      document.getElementById(id).width= ((newwidth < 350) ? 350 : newwidth) + "px";
+      document.getElementById(id).height= `${(newheight + 16)}px`;
+      document.getElementById(id).width= `${((newwidth < 400) ? 416 : newwidth)}px` ;
     }
   </script>
 {% endblock %}
