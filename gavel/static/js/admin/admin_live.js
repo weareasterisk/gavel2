@@ -4,9 +4,325 @@ let currentItems;
 /*
 * BEGIN REFRESH FUNCTION
 * */
-async function refresh(token) {
+
+let token;
+
+function setToken (t) { token = t }
+
+const tableBody = document.getElementById("admin-table-body");
+const tableHead = document.getElementById("admin-table-head");
+
+const itemsHead = `
+  <tr>
+    <th class="no-sort admin-head-check">
+      <label>
+        <input onclick="checkAllProjects()" id="check-all-projects" type="checkbox" class="admin-check">
+      </label>
+    </th>
+    <th class="admin-head-id">Id<a></a></th>
+    <th class="admin-head-project">Project Name<a></a></th>
+    <th class="admin-head-standard">Location<a></a></th>
+    <th class="admin-head-double">Description<a></a></th>
+    <th class="sort-default admin-head-standard">Mu<a></a></th>
+    <th class="admin-head-standard">Sigma<sup>2</sup><a></a></th>
+    <th class="admin-head-standard">Votes<a></a></th>
+    <th class="admin-head-standard">Seen<a></a></th>
+    <th class="admin-head-standard">Skipped<a></a></th>
+    <th class="admin-head-standard no-sort">Actions<a></a></th>
+  </tr>
+`;
+
+const annotatorsHead = `
+  <tr>
+    <th class="no-sort admin-head-check">
+      <label>
+        <input onclick="checkAllJudges()" id="check-all-judges" type="checkbox" class="admin-check">
+      </label>
+    </th>
+    <th class="sort-default admin-head-id">Id<a></a></th>
+    <th class="admin-head-project">Name<a></a></th>
+    <th class="admin-head-project">Email<a></a></th>
+    <th class="admin-head-double">Description<a></a></th>
+    <th class="admin-head-standard">Votes<a></a></th>
+    <th class="admin-head-standard">Next (Id)<a></a></th>
+    <th class="admin-head-standard">Prev. (Id)<a></a></th>
+    <th class="admin-head-standard">Updated<a></a></th>
+    <th class="no-sort admin-head-standard">Actions<a></a></th>
+  </tr>
+`;
+
+const flagsHead = `
+  <tr>
+    <th class="admin-head-check no-sort">
+      <label>
+        <input onclick="checkAllReports()" id="check-all-reports" type="checkbox" class="admin-check">
+      </label>
+    </th>
+    <th class="admin-head-id">Id<a></a></th>
+    <th class="admin-head-judge">Judge Name<a></a></th>
+    <th class="admin-head-project">Project Name<a></a></th>
+    <th class="admin-head-project">Project Location<a></a></th>
+    <th class="admin-head-standard">Reason<a></a></th>
+    <th class="admin-head-standard no-sort">Actions</th>
+  </tr>
+`;
+
+async function clearTable() {
+  tableHead.innerHTML = "";
+  tableBody.innerHTML = "";
+}
+
+function clearTableBody() {
+  tableBody.innerHTML = "";
+}
+
+function clearTableHead() {
+  tableHead.innerHTML = "";
+}
+
+function initTableSorter() {
+  $('#admin-table').tablesorter({
+    cssAsc: 'up',
+    cssDesc: 'down',
+    headers: {
+      '.no-sort': {
+        sorter: false,
+      }
+    }
+  });
+}
+
+function setTableHead(head) {
+  tableHead.innerHTML = head;
+  $('#admin-table').trigger('updateHeaders');
+}
+
+async function populateItems(data) {
+  try {
+    const items = data.items;
+    const skipped = data.skipped;
+    const item_count = data.item_count;
+    const item_counts = data.item_counts;
+
+    for (let i = 0; i < items.length; i++) {
+      try {
+        const item = items[i];
+
+        if (!item.id)
+          continue;
+
+        const item_template = `
+        <tr class="${(item.active ? item.prioritized ? 'prioritized' : '' : 'disabled')}">
+          <td id="project-check-container"><input id="${item.id}" type="checkbox" name="item" value="${item.id}" class="admin-check"/></td>
+          <td><a onclick="openProject(${item.id})" class="colored">${item.id}</a></td>
+          <td>${item.name}</td>
+          <td>${item.location}</td>
+          <td class="preserve-formatting">${item.description}</td>
+          <td>${item.mu.toFixed(4)}</td>
+          <td>${item.sigma_sq.toFixed(4)}</td>
+          <td>${item_counts[item.id]}</td>
+          <td>${item.viewed.length}</td>
+          <td>${skipped[item.id]}</td>
+          <td data-sort="${item.prioritized}">
+            <span onclick="openProject(${item.id})" class="inline-block tooltip">
+              <button class="nobackgroundnoborder">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+              <span class="tooltiptext">Edit Project</span>
+            </span>
+            <form action="/admin/item" method="post" class="inline-block tooltip">
+              <button type="submit" class="nobackgroundnoborder"><i class="fas ${(item.prioritized ? 'fa-chevron-down' : 'fa-chevron-up')}"></i></button>
+              <span class="tooltiptext">${(item.prioritized ? 'Cancel' : 'Prioritize')}</span>
+              <input type="hidden" name="action" value="${(item.prioritized ? 'Cancel' : 'Prioritize')}"
+                     class="${(item.prioritized ? 'negative' : 'positive')}">
+              <input type="hidden" name="item_id" value="${item.id}">
+              <input type="hidden" name="_csrf_token" value="${token}">
+            </form>
+            <form action="/admin/item" method="post" class="inline-block tooltip">
+              <button type="submit" class="nobackgroundnoborder"><i class="fas ${(item.active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+              <span class="tooltiptext">${(item.active ? 'Deactivate' : 'Activate')}</span>
+              <input type="hidden" name="action" value="${(item.active ? 'Disable' : 'Enable')}"
+                     class="${(item.active ? 'negative' : 'positive')}">
+              <input type="hidden" name="item_id" value="${item.id}">
+              <input type="hidden" name="_csrf_token" value="${token}">
+            </form>
+            <form action="/admin/item" method="post" class="inline-block tooltip">
+              <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash-alt"></i></button>
+              <span class="tooltiptext">Delete</span>
+              <input type="hidden" name="action" value="Delete" class="negative">
+              <input type="hidden" name="item_id" value="${item.id}">
+              <input type="hidden" name="_csrf_token" value="${token}">
+            </form>
+          </td>
+        </tr>`;
+
+        const newRow = tableBody.insertRow(tableBody.rows.length);
+        newRow.innerHTML = item_template;
+      } catch (e) {
+        console.error(`Error populating item at index ${i}`);
+        console.log(e)
+      }
+
+    }
+
+  } catch (e) {
+    console.error("Error populating items");
+    console.log(e);
+  }
+}
+
+async function populateAnnotators(data) {
+  try {
+    const annotators = data.annotators;
+    const counts = data.counts;
+
+    const now = new Date();
+
+    for (let i = 0; i < annotators.length; i++) {
+      try {
+        const annotator = annotators[i];
+
+        const annotator_template = `
+        <tr class=${annotator.active ? '' : 'disabled'}>
+          <td id="judge-check-container"><input id="${annotator.id}" type="checkbox" name="annotator" value="${annotator.id}" class="admin-check"/></td>
+          <td><a onclick="openJudge(${annotator.id})" class="colored">${annotator.id}</a></td>
+          <td>${annotator.name}</td>
+          <td>${annotator.email}</td>
+          <td class="preserve-formatting">${annotator.description}</td>
+          <td>${(counts[annotator.id] || 0)}</td>
+          <td>${(annotator.next_id || 'None')}</td>
+          <td>${(annotator.prev_id || 'None')}</td>
+          <td>${(annotator.updated ? (((now - (Date.parse(annotator.updated) - now.getTimezoneOffset() * 60 * 1000)) / 60) / 1000).toFixed(0) + " min ago" : "Undefined")}</td>
+          <td data-sort="${annotator.active}">
+            <span onclick="openJudge(${annotator.id})" class="inline-block tooltip">
+              <button class="nobackgroundnoborder">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+              <span class="tooltiptext">Edit Judge</span>
+            </span>
+            <form action="/admin/annotator" method="post" class="inline-block tooltip">
+              <button type="submit" class="nobackgroundnoborder"><i class="fas fa-envelope"></i></button>
+              <span class="tooltiptext">Send Email</span>
+              <input type="hidden" name="action" value="Email" class="neutral">
+              <input type="hidden" name="annotator_id" value="${annotator.id}">
+              <input type="hidden" name="_csrf_token" value="${token}">
+            </form>
+            <form action="/admin/annotator" method="post" class="inline-block tooltip">
+              <button type="submit" class="nobackgroundnoborder"><i class="fas ${(annotator.active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+              <span class="tooltiptext">${(annotator.active ? 'De-Activate' : 'Activate')}</span>
+              <input type="hidden" name="action" value="${(annotator.active ? 'Disable' : 'Enable')}"
+                     class="${(annotator.active ? 'negative' : 'positive')}">
+              <input type="hidden" name="annotator_id" value="${annotator.id}">
+              <input type="hidden" name="_csrf_token" value="${token}">
+            </form>
+            <form action="/admin/annotator" method="post" class="inline-block tooltip">
+              <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash-alt"></i></button>
+              <input type="hidden" name="action" value="Delete" class="negative">
+              <span class="tooltiptext">Delete</span>
+              <input type="hidden" name="annotator_id" value="${annotator.id}">
+              <input type="hidden" name="_csrf_token" value="${token}">
+            </form>
+          </td>
+        </tr>`;
+        const newRow = tableBody.insertRow(tableBody.rows.length);
+        newRow.innerHTML = annotator_template;
+      } catch (e) {
+        console.error(`Error populating annotator at index ${i}`);
+        console.log(e)
+      }
+    }
+
+  } catch (e) {
+    console.error("Error populating annotators");
+    console.log(e);
+  }
+
+}
+
+async function populateFlags(data) {
+  try {
+    const flags = data.flags;
+    const flag_count = data.flags;
+
+    for (let i = 0; i < flags.length; i++) {
+      try {
+        const flag = flags[i];
+
+        const flag_template = `
+          <tr class="${flag.resolved ? "open" : "resolve"}">
+            <td><input id="${flag.id}" type="checkbox" name="item" value="${flag.item.id}" class="admin-check"/></td>
+            <td>${flag.id}</td>
+            <td><a onclick="openJudge(${flag.annotator.id})" href="#" class="colored">${flag.annotator.name}</a></td>
+            <td><a onclick="openProject(${flag.item.id})" href="#" class="colored">${flag.item.name}</a></td>
+            <td>${flag.item.location}</td>
+            <td>${flag.reason}</td>
+            <td>
+              <form action="/admin/report" method="post" class="inline-block">
+                ${(flag.resolved) ? '<button type="submit" class="button-full background-grey h-32 text-12 text-bold uppercase">Open Flag</button>' : '<button type="submit" class="button-full background-purple h-32 text-12 text-bold uppercase">Resolve Flag</button>'}
+                <input type="hidden" name="action" value="${flag.resolved ? "open" : "resolve"}"
+                       class="${flag.resolved ? "negative" : "positive"}">
+                <input type="hidden" name="flag_id" value="${flag.id}">
+                <input type="hidden" name="_csrf_token" value="${token}">
+              </form>
+            </td>
+          </tr>`;
+        const newRow = tableBody.insertRow(tableBody.rows.length);
+        newRow.innerHTML = flag_template;
+      } catch (e) {
+        console.error(`Error populating flag at index ${i}`);
+        console.log(e);
+      }
+    }
+
+  } catch (e) {
+    console.error("Error populating flags");
+    console.log(e);
+  }
+}
+
+async function spawnTable(id) {
+  const data = await $.ajax({
+    url: `/admin/${id}`,
+    type: "get",
+    dataType: "json",
+    error: function (error) {
+      return error;
+    },
+    success: async function (data) {
+      await data;
+    }
+  });
+
+  switch(id) {
+    case "items":
+      await Promise.all([
+        clearTableBody(),
+        populateItems(data)
+      ]);
+      break;
+
+    case "annotators":
+      await Promise.all([
+        clearTableBody(),
+        populateAnnotators(data)
+      ]);
+      break;
+
+    case "flags":
+      await Promise.all([
+        clearTableBody(),
+        populateFlags(data)
+      ]);
+      break;
+  }
+
+  $("#admin-table").trigger("update");
+
+}
+
+async function refresh() {
     const data = await $.ajax({
-        url: "/admin/live",
+        url: "/admin/auxiliary",
         type: "get",
         dataType: "json",
         error: function (error) {
@@ -17,20 +333,9 @@ async function refresh(token) {
         }
     });
 
-    const now = new Date();
-
-    const annotators = data.annotators;
-    const counts = data.counts;
-    const item_counts = data.item_counts;
     const flag_count = data.flag_count;
-    const flags = data.flags;
     const item_count = data.item_count;
-    const items = data.items;
-    const setting_closed = data.setting_closed;
-    const setting_stop_queue = data.setting_stop_queue;
-    const skipped = data.skipped;
     const votes = data.votes;
-    const viewed = data.viewed;
     const sigma = data.average_sigma;
     const seen = data.average_seen;
 
@@ -48,254 +353,68 @@ async function refresh(token) {
 
     let average_seen = document.getElementById("average-seen");
     average_seen.innerText = seen.toFixed(2);
-
-    // Populate reports
-    let reports_table = document.getElementById("reports-body");
-    reports_table.innerHTML = "";
-
-    for (let i = 0; i < flags.length; i++) {
-
-        try {
-            const flag = flags[i];
-
-            if (!flag.id)
-                continue;
-
-            const reports_template = `
-            <tr class="${flag.resolved ? "open" : "resolve"}">
-              <td><input id="${flag.id}" type="checkbox" name="item" value="${flag.item.id}" class="admin-check"/></td>
-              <td>${flag.id}</td>
-              <td><a onclick="openJudge(${flag.annotator.id})" href="#" class="colored">${flag.annotator.name}</a></td>
-              <td><a onclick="openProject(${flag.item.id})" href="#" class="colored">${flag.item.name}</a></td>
-              <td>${flag.item.location}</td>
-              <td>${flag.reason}</td>
-              <td>
-                <form action="/admin/report" method="post" class="inline-block">
-                  ${(flag.resolved) ? '<button type="submit" class="button-full background-grey h-32 text-12 text-bold uppercase">Open Flag</button>' : '<button type="submit" class="button-full background-purple h-32 text-12 text-bold uppercase">Resolve Flag</button>'}
-                  <input type="hidden" name="action" value="${flag.resolved ? "open" : "resolve"}"
-                         class="${flag.resolved ? "negative" : "positive"}">
-                  <input type="hidden" name="flag_id" value="${flag.id}">
-                  <input type="hidden" name="_csrf_token" value="${token}">
-                </form>
-              </td>
-            </tr>`;
-
-
-            const newRow = reports_table.insertRow(reports_table.rows.length);
-            newRow.innerHTML = reports_template;
-
-
-        } catch (e) {
-            console.log(e);
-        }
-
-    }
-
-    // Populate projects
-    let projects_table = document.getElementById("items-body");
-    projects_table.innerHTML = "";
-    currentItems = items;
-    for (let i = 0; i < items.length; i++) {
-        try {
-            const item = items[i];
-
-            if (!item.id)
-                continue;
-
-            // language=HTML
-            const items_template = `
-            <tr class="${(item.active ? item.prioritized ? 'prioritized' : '' : 'disabled')}">
-              <td id="project-check-container"><input id="${item.id}" type="checkbox" name="item" value="${item.id}" class="admin-check"/></td>
-              <td><a onclick="openProject(${item.id})" class="colored">${item.id}</a></td>
-              <td>${item.name}</td>
-              <td>${item.location}</td>
-              <td class="preserve-formatting">${item.description}</td>
-              <td>${item.mu.toFixed(4)}</td>
-              <td>${item.sigma_sq.toFixed(4)}</td>
-              <td>${item_counts[item.id]}</td>
-              <td>${item.viewed.length}</td>
-              <td>${skipped[item.id]}</td>
-              <td data-sort="${item.prioritized}">
-                <span onclick="openProject(${item.id})" class="inline-block tooltip">
-                  <button class="nobackgroundnoborder">
-                    <i class="fas fa-pencil-alt"></i>
-                  </button>
-                  <span class="tooltiptext">Edit Project</span>
-                </span>
-                <form action="/admin/item" method="post" class="inline-block tooltip">
-                  <button type="submit" class="nobackgroundnoborder"><i class="fas ${(item.prioritized ? 'fa-chevron-down' : 'fa-chevron-up')}"></i></button>
-                  <span class="tooltiptext">${(item.prioritized ? 'Cancel' : 'Prioritize')}</span>
-                  <input type="hidden" name="action" value="${(item.prioritized ? 'Cancel' : 'Prioritize')}"
-                         class="${(item.prioritized ? 'negative' : 'positive')}">
-                  <input type="hidden" name="item_id" value="${item.id}">
-                  <input type="hidden" name="_csrf_token" value="${token}">
-                </form>
-                <form action="/admin/item" method="post" class="inline-block tooltip">
-                  <button type="submit" class="nobackgroundnoborder"><i class="fas ${(item.active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
-                  <span class="tooltiptext">${(item.active ? 'Deactivate' : 'Activate')}</span>
-                  <input type="hidden" name="action" value="${(item.active ? 'Disable' : 'Enable')}"
-                         class="${(item.active ? 'negative' : 'positive')}">
-                  <input type="hidden" name="item_id" value="${item.id}">
-                  <input type="hidden" name="_csrf_token" value="${token}">
-                </form>
-                <form action="/admin/item" method="post" class="inline-block tooltip">
-                  <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash-alt"></i></button>
-                  <span class="tooltiptext">Delete</span>
-                  <input type="hidden" name="action" value="Delete" class="negative">
-                  <input type="hidden" name="item_id" value="${item.id}">
-                  <input type="hidden" name="_csrf_token" value="${token}">
-                </form>
-              </td>
-            </tr>`;
-
-            const newRow = projects_table.insertRow(projects_table.rows.length);
-            newRow.innerHTML = items_template;
-        } catch (e) {
-            console.log(e)
-        }
-
-    }
-
-    // Populate Judges
-    let judges_table = document.getElementById("judges-body");
-    judges_table.innerHTML = "";
-    currentAnnotators = annotators;
-
-    for (let i = 0; i < annotators.length; i++) {
-        try {
-            const annotator = annotators[i];
-
-            if (!annotator.id)
-                continue;
-
-            // language=HTML
-            const annotator_template = `
-            <tr class=${annotator.active ? '' : 'disabled'}>
-              <td id="judge-check-container"><input id="${annotator.id}" type="checkbox" name="annotator" value="${annotator.id}" class="admin-check"/></td>
-              <td><a onclick="openJudge(${annotator.id})" class="colored">${annotator.id}</a></td>
-              <td>${annotator.name}</td>
-              <td>${annotator.email}</td>
-              <td class="preserve-formatting">${annotator.description}</td>
-              <td>${(counts[annotator.id] || 0)}</td>
-              <td>${(annotator.next_id || 'None')}</td>
-              <td>${(annotator.prev_id || 'None')}</td>
-              <td>${(annotator.updated ? (((now - (Date.parse(annotator.updated) - now.getTimezoneOffset()*60*1000))/60)/1000).toFixed(0) + " min ago" : "Undefined")}</td>
-              <td data-sort="${annotator.active}">
-                <span onclick="openJudge(${annotator.id})" class="inline-block tooltip">
-                  <button class="nobackgroundnoborder">
-                    <i class="fas fa-pencil-alt"></i>
-                  </button>
-                  <span class="tooltiptext">Edit Judge</span>
-                </span>
-                <form action="/admin/annotator" method="post" class="inline-block tooltip">
-                  <button type="submit" class="nobackgroundnoborder"><i class="fas fa-envelope"></i></button>
-                  <span class="tooltiptext">Send Email</span>
-                  <input type="hidden" name="action" value="Email" class="neutral">
-                  <input type="hidden" name="annotator_id" value="${annotator.id}">
-                  <input type="hidden" name="_csrf_token" value="${token}">
-                </form>
-                <form action="/admin/annotator" method="post" class="inline-block tooltip">
-                  <button type="submit" class="nobackgroundnoborder"><i class="fas ${(annotator.active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
-                  <span class="tooltiptext">${(annotator.active ? 'De-Activate' : 'Activate')}</span>
-                  <input type="hidden" name="action" value="${(annotator.active ? 'Disable' : 'Enable')}"
-                         class="${(annotator.active ? 'negative' : 'positive')}">
-                  <input type="hidden" name="annotator_id" value="${annotator.id}">
-                  <input type="hidden" name="_csrf_token" value="${token}">
-                </form>
-                <form action="/admin/annotator" method="post" class="inline-block tooltip">
-                  <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash-alt"></i></button>
-                  <input type="hidden" name="action" value="Delete" class="negative">
-                  <span class="tooltiptext">Delete</span>
-                  <input type="hidden" name="annotator_id" value="${annotator.id}">
-                  <input type="hidden" name="_csrf_token" value="${token}">
-                </form>
-              </td>
-            </tr>`;
-
-            const newRow = judges_table.insertRow(judges_table.rows.length);
-            newRow.innerHTML = annotator_template;
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    $('#judges').trigger("update");
-    $('#reports').trigger("update");
-    $('#projects').trigger("update");
-
-    //document.querySelector('.admin-check').checked = localStorage.e.target.checked
 }
 
 /*
 * END REFRESH FUNCTION
 * */
 
-function toggleSelector() {
-    const selectorModal = document.getElementById("selector");
+async function toggleSelector() {
+    const selectorModal = await document.getElementById("selector");
     selectorModal.style.display = selectorModal.style.display === "block" ? "none" : "block";
 }
 
 function showTab(e) {
-    const judges = document.getElementById("admin-judges");
-    const projects = document.getElementById("admin-projects");
-    const reports = document.getElementById("admin-reports");
     const content = document.getElementById("admin-switcher-content");
     const batch = document.getElementById("batchPanel");
     currentTab = e;
-    judges.style.display = "none";
-    projects.style.display = "none";
-    reports.style.display = "none";
     content.innerText = "none";
     batch.style.display = "none";
     localStorage.setItem("currentTab", e);
+    clearTable();
     switch (localStorage.getItem("currentTab")) {
-        case "judges":
-            judges.style.display = "block";
+        case "annotators":
             content.innerText = "Manage Judges";
             batch.style.display = "inline-block";
+            setTableHead(annotatorsHead);
             break;
-        case "projects":
-            projects.style.display = "block";
+        case "items":
             content.innerText = "Manage Projects";
             batch.style.display = "inline-block";
+            setTableHead(itemsHead);
             break;
-        case "reports":
-            reports.style.display = "block";
+        case "flags":
             content.innerText = "Manage Reports";
+            setTableHead(flagsHead);
             break;
         default:
-            reports.style.display = "block";
             content.innerText = "Manage Reports";
+            setTableHead(flagsHead);
             break;
     }
     setAddButtonState();
+    triggerTableUpdate();
 }
 
-window.addEventListener("DOMContentLoaded", function () {
-    showTab(localStorage.getItem("currentTab") || "admin-reports");
-});
-
 function setAddButtonState() {
-    const judges = document.getElementById("admin-judges").style.display === "block";
-    const projects = document.getElementById("admin-projects").style.display === "block";
-    const reports = document.getElementById("admin-reports").style.display === "block";
+    const tab = localStorage.getItem("currentTab");
     const text = document.getElementById('add-text');
     const add = document.getElementById('add');
-    if (!!judges) {
+    if (tab === "annotators") {
         text.innerText = "+ Add Judges";
         text.onclick = function () {
             openModal('add-judges')
         };
         //text.addEventListener('onclick', openModal('add-judges'));
     }
-    if (!!projects) {
+    if (tab === "items") {
         text.innerText = "+ Add Projects";
         text.onclick = function () {
             openModal('add-projects')
         };
         //text.addEventListener('onclick', openModal('add-projects'));
     }
-    if (!!reports) {
+    if (tab === "flags") {
         text.innerText = "";
         text.onclick = null;
     }
@@ -323,12 +442,12 @@ $(".full-modal").click(function (event) {
 function checkAllReports() {
     let check = document.getElementById('check-all-reports');
     if (check.checked) {
-        $('#reports').find('input[type=checkbox]').each(function () {
+        $('#admin-table').find('input[type=checkbox]').each(function () {
             this.checked = true;
         });
         check.checked = true;
     } else {
-        $('#reports').find('input[type=checkbox]:checked').each(function () {
+        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
             this.checked = false;
         });
         check.checked = false;
@@ -338,12 +457,12 @@ function checkAllReports() {
 function checkAllProjects() {
     let check = document.getElementById('check-all-projects');
     if (check.checked) {
-        $('#projects').find('input[type=checkbox]').each(function () {
+        $('#admin-table').find('input[type=checkbox]').each(function () {
             this.checked = true;
         });
         check.checked = true;
     } else {
-        $('#projects').find('input[type=checkbox]:checked').each(function () {
+        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
             this.checked = false;
         });
         check.checked = false;
@@ -353,12 +472,12 @@ function checkAllProjects() {
 function checkAllJudges() {
     let check = document.getElementById('check-all-judges');
     if (check.checked) {
-        $('#judges').find('input[type=checkbox]').each(function () {
+        $('#admin-table').find('input[type=checkbox]').each(function () {
             this.checked = true;
         });
         check.checked = true;
     } else {
-        $('#judges').find('input[type=checkbox]:checked').each(function () {
+        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
             this.checked = false;
         });
         check.checked = false;
@@ -387,15 +506,16 @@ let judgeIds = [];
 let projectIds = [];
 let form = null;
 $('#batchDelete').click(async function () {
+    const tab = localStorage.getItem("currentTab");
     projectIds = [];
     judgeIds = [];
     form = null;
-    if (currentTab === 'projects') {
+    if (tab === 'items') {
         form = document.getElementById('batchDeleteItems');
-    } else if (currentTab === 'judges') {
+    } else if (tab === 'annotators') {
         form = document.getElementById('batchDeleteAnnotators');
     }
-    $('#' + currentTab).find('input[type="checkbox"]:checked').each(function () {
+    $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
         form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
     });
     try {
@@ -404,20 +524,21 @@ $('#batchDelete').click(async function () {
 
     }
     const full = await form;
-    await full.submit();
+    full.submit();
 
 });
 
 $('#batchDisable').click(async function () {
+    const tab = localStorage.getItem("currentTab");
     projectIds = [];
     judgeIds = [];
     form = null;
-    if (currentTab === 'projects') {
+    if (tab === 'items') {
         form = document.getElementById('batchDisableItems');
-    } else if (currentTab === 'judges') {
+    } else if (tab === 'annotators') {
         form = document.getElementById('batchDisableAnnotators');
     }
-    $('#' + currentTab).find('input[type="checkbox"]:checked').each(function () {
+    $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
         form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
     });
     try {
@@ -426,5 +547,5 @@ $('#batchDisable').click(async function () {
 
     }
     const full = await form;
-    await full.submit();
+    full.submit();
 });

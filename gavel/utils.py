@@ -64,6 +64,7 @@ def send_emails(emails):
         server.ehlo()
         server.starttls()
         server.ehlo()
+
     elif settings.EMAIL_AUTH_MODE == 'ssl':
         server = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
     else:

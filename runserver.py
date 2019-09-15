@@ -13,8 +13,11 @@ if __name__ == '__main__':
         app.debug = True
         extra_files.append('./config.yaml')
 
+    app.jinja_env.cache = {}
+    
     app.run(
         host='0.0.0.0',
         port=PORT,
-        extra_files=extra_files
+        extra_files=extra_files,
+        threaded=True
     )
