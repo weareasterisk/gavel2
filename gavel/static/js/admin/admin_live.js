@@ -291,32 +291,30 @@ async function spawnTable(id) {
     success: async function (data) {
       await data;
     }
+  }).then(async (data) => {
+    switch(id) {
+      case "items":
+        Promise.all([
+          clearTableBody(),
+          populateItems(data)
+        ]);
+        break;
+
+      case "annotators":
+        Promise.all([
+          clearTableBody(),
+          populateAnnotators(data)
+        ]);
+        break;
+
+      case "flags":
+        Promise.all([
+          clearTableBody(),
+          populateFlags(data)
+        ]);
+        break;
+    }
   });
-
-  switch(id) {
-    case "items":
-      await Promise.all([
-        clearTableBody(),
-        populateItems(data)
-      ]);
-      break;
-
-    case "annotators":
-      await Promise.all([
-        clearTableBody(),
-        populateAnnotators(data)
-      ]);
-      break;
-
-    case "flags":
-      await Promise.all([
-        clearTableBody(),
-        populateFlags(data)
-      ]);
-      break;
-  }
-
-  $("#admin-table").trigger("update");
 
 }
 
@@ -331,28 +329,28 @@ async function refresh() {
         success: async function (data) {
             await data;
         }
+    }).then((data) => {
+      const flag_count = data.flag_count;
+      const item_count = data.item_count;
+      const votes = data.votes;
+      const sigma = data.average_sigma;
+      const seen = data.average_seen;
+
+      // Populate vote count
+      let vote_count = document.getElementById("total-votes");
+      vote_count.innerText = votes;
+
+      // Populate total active projects
+      let total_active = document.getElementById("total-active");
+      total_active.innerText = item_count;
+
+      // Populate avg. sigma^2
+      let average_sigma = document.getElementById("average-sigma");
+      average_sigma.innerText = sigma.toFixed(4);
+
+      let average_seen = document.getElementById("average-seen");
+      average_seen.innerText = seen.toFixed(2);
     });
-
-    const flag_count = data.flag_count;
-    const item_count = data.item_count;
-    const votes = data.votes;
-    const sigma = data.average_sigma;
-    const seen = data.average_seen;
-
-    // Populate vote count
-    let vote_count = document.getElementById("total-votes");
-    vote_count.innerText = votes;
-
-    // Populate total active projects
-    let total_active = document.getElementById("total-active");
-    total_active.innerText = item_count;
-
-    // Populate avg. sigma^2
-    let average_sigma = document.getElementById("average-sigma");
-    average_sigma.innerText = sigma.toFixed(4);
-
-    let average_seen = document.getElementById("average-seen");
-    average_seen.innerText = seen.toFixed(2);
 }
 
 /*

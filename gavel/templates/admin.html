@@ -138,6 +138,7 @@
       initialTableResponse = spawnTable(localStorage.getItem("currentTab"));
       initialRefreshResponse = refresh();
       toggleAutoRefresh(true);
+      $("#admin-table").trigger("update");
     }
 
     $('.admin-check').click(function(e){
