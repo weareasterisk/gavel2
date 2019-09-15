@@ -45,6 +45,8 @@ flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 flask-compress = "*"
 flask-minify = "*"
+jsmin = "*"
+cssmin = "*"
 
 [requires]
 python_version = "3.6"

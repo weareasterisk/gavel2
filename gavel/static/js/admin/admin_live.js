@@ -5,7 +5,6 @@ let currentItems;
 * BEGIN REFRESH FUNCTION
 * */
 
-let currentTable;
 let token;
 
 function setToken (t) { token = t }

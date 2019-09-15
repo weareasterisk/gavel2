@@ -48,14 +48,25 @@ from flask_assets import Environment, Bundle
 assets = Environment(app)
 assets.config['pyscss_style'] = 'expanded'
 assets.url = app.static_url_path
-scss = Bundle(
-  'css/style.scss',
-  depends='**/*.scss',
-  filters=('pyscss',),
-  output='all.css'
-)
 
-assets.register('scss_all', scss)
+bundles = {
+  'scss_all': Bundle(
+    'css/style.scss',
+    depends='**/*.scss',
+    filters=('pyscss','cssmin',),
+    output='all.css'
+  ),
+  'admin_js': Bundle(
+    'js/admin/jquery.tablesorter.min.js',
+    'js/admin/jquery.tablesorter.widgets.js',
+    'js/admin/admin_live.js',
+    depends='**/*.js',
+    filters=('jsmin',),
+    output='admin_all.js'
+  )
+}
+
+assets.register(bundles)
 
 from celery import Celery
 

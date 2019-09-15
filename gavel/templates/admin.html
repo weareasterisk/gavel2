@@ -90,19 +90,26 @@
   </div>
 {% endblock %}
 {% block end %}
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.min.js" integrity="sha256-uC1JMW5e1U5D28+mXFxzTz4SSMCywqhxQIodqLECnfU=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.widgets.min.js" integrity="sha256-Xx4HRK+CKijuO3GX6Wx7XOV2IVmv904m0HKsjgzvZiY=" crossorigin="anonymous" ></script>
+{#  JQuery must be brought in separately. flask-assets doesn't pre-process correctly and doesn't initialize it before the remaining scripts. #}
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" crossorigin="anonymous"></script>
+{#  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.min.js" integrity="sha256-uC1JMW5e1U5D28+mXFxzTz4SSMCywqhxQIodqLECnfU=" crossorigin="anonymous" async></script>#}
+{#  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.widgets.min.js" integrity="sha256-Xx4HRK+CKijuO3GX6Wx7XOV2IVmv904m0HKsjgzvZiY=" crossorigin="anonymous" async></script>#}
 {#  <script src="{{ url_for('static', filename="js/jquery-3.3.1.min.js") }}"></script>#}
 {#  <script src="{{ url_for('static', filename="js/jquery.tablesorter.min.js") }}"></script>#}
 {#  <script src="{{ url_for('static', filename="js/jquery.tablesorter.widgets.js") }}"></script>#}
-  <script src="{{ url_for('static', filename="js/admin/admin_live.js") }}"></script>
+{#  <script src="{{ url_for('static', filename="js/admin/admin_live.js") }}"></script>#}
+  {% assets 'admin_js' %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {% endassets %}
   <script>
     setToken("{{ csrf_token() }}");
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/js/all.min.js" integrity="sha256-iZGp5HAiwRmkbOKVYv5FUER4iXp5QbiEudkZOdwLrjw=" crossorigin="anonymous" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/js/all.min.js" integrity="sha256-iZGp5HAiwRmkbOKVYv5FUER4iXp5QbiEudkZOdwLrjw=" crossorigin="anonymous" defer></script>
 {#  <script src="{{ url_for('static', filename="js/baloon.css") }}"></script>#}
   <script>
+
+    const refreshTimeout = 6000;
+
     let initialTableResponse = spawnTable(localStorage.getItem("currentTab"));
     let initialRefreshResponse = refresh();
     {#    let checkbox = document.getElementById('fs');
@@ -115,13 +122,13 @@
       ]);
     };
 
-    let intervalid = window.setInterval(responseInterval, 5000);
+    let intervalid = window.setInterval(responseInterval, refreshTimeout);
     let livereload = true;
     let currentTab = "flags";
 
     function toggleAutoRefresh(state) {
       livereload = state || !livereload;
-      !livereload ? window.clearInterval(intervalid) : intervalid = window.setInterval(responseInterval, 5000);
+      !livereload ? window.clearInterval(intervalid) : intervalid = window.setInterval(responseInterval, refreshTimeout);
       let rel = document.getElementById("live");
       rel.classList = livereload ? ['live-active'] : ['live-inactive'];
     }
