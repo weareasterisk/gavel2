@@ -103,6 +103,7 @@ async function populateItems(data) {
     const skipped = data.skipped;
     const item_count = data.item_count;
     const item_counts = data.item_counts;
+    const viewed = data.viewed;
 
     for (let i = 0; i < items.length; i++) {
       try {
@@ -121,7 +122,7 @@ async function populateItems(data) {
           <td>${item.mu.toFixed(4)}</td>
           <td>${item.sigma_sq.toFixed(4)}</td>
           <td>${item_counts[item.id]}</td>
-          <td>${item.viewed.length}</td>
+          <td>${viewed[item.id].length}</td>
           <td>${skipped[item.id]}</td>
           <td data-sort="${item.prioritized}">
             <span onclick="openProject(${item.id})" class="inline-block tooltip">
@@ -250,11 +251,11 @@ async function populateFlags(data) {
 
         const flag_template = `
           <tr class="${flag.resolved ? "open" : "resolve"}">
-            <td><input id="${flag.id}" type="checkbox" name="item" value="${flag.item.id}" class="admin-check"/></td>
+            <td><input id="${flag.id}" type="checkbox" name="item" value="${flag.item_id}" class="admin-check"/></td>
             <td>${flag.id}</td>
-            <td><a onclick="openJudge(${flag.annotator.id})" href="#" class="colored">${flag.annotator.name}</a></td>
-            <td><a onclick="openProject(${flag.item.id})" href="#" class="colored">${flag.item.name}</a></td>
-            <td>${flag.item.location}</td>
+            <td><a onclick="openJudge(${flag.annotator_id})" href="#" class="colored">${flag.annotator_name}</a></td>
+            <td><a onclick="openProject(${flag.item_id})" href="#" class="colored">${flag.item_name}</a></td>
+            <td>${flag.item_location}</td>
             <td>${flag.reason}</td>
             <td>
               <form action="/admin/report" method="post" class="inline-block">

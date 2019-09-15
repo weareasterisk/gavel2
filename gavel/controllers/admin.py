@@ -115,7 +115,12 @@ def admin_items():
   annotators = Annotator.query.order_by(Annotator.id).all()
   decisions = Decision.query.all()
 
-  viewed = {i.id: {a.id for a in i.viewed} for i in items}
+  viewed = {}
+  for i in items:
+    viewed_holder = []
+    for a in i.viewed:
+      viewed_holder.append(a.id)
+    viewed[i.id] = viewed_holder
 
   skipped = {}
   for a in annotators:
@@ -135,7 +140,8 @@ def admin_items():
     item_counts[l] = item_counts.get(l, 0) + 1
 
   dump_data = {
-    "items": [ItemSchema().dump(it) if it else {'null': 'null'} for it in items],
+    "items": [it.to_dict() if it else {'null': 'null'} for it in items],
+    "viewed": viewed,
     "skipped": skipped,
     "item_count": item_count,
     "item_counts": item_counts
@@ -156,8 +162,19 @@ def admin_flags():
   flags = Flag.query.order_by(Flag.id).all()
   flag_count = len(flags)
 
+  flags_dumped = []
+
+  for fl in flags:
+    flag_dumped = fl.to_dict()
+    flag_dumped.update({
+      'item_name': fl.item.name,
+      'item_location': fl.item.location,
+      'annotator_name': fl.annotator.name
+      })
+    flags_dumped.append(flag_dumped)
+
   dump_data = {
-    "flags": [FlagSchema().dump(fl) if fl else {'null': 'null'} for fl in flags],
+    "flags": flags_dumped,
     "flag_count": flag_count
   }
 
@@ -185,7 +202,7 @@ def admin_annotators():
     counts[a] = counts.get(a, 0) + 1
 
   dump_data = {
-    "annotators": [AnnotatorSchema().dump(an) if an else {'null': 'null'} for an in annotators],
+    "annotators": [an.to_dict() if an else {'null': 'null'} for an in annotators],
     "counts": counts
   }
 
