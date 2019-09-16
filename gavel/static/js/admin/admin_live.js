@@ -97,6 +97,11 @@ function setTableHead(head) {
   $('#admin-table').trigger('updateHeaders');
 }
 
+async function setTableBody(body) {
+  tableBody.innerHTML = "";
+  tableBody.innerHTML = body;
+}
+
 async function updateTableSorter() {
   $('#admin-table').trigger('update').trigger('updateHeaders');
 }
@@ -108,6 +113,8 @@ async function populateItems(data) {
     const item_count = data.item_count;
     const item_counts = data.item_counts;
     const viewed = data.viewed;
+
+    let tableContents = "";
 
     for (let i = 0; i < items.length; i++) {
       try {
@@ -161,14 +168,14 @@ async function populateItems(data) {
           </td>
         </tr>`;
 
-        const newRow = tableBody.insertRow(tableBody.rows.length);
-        newRow.innerHTML = item_template;
+        tableContents += item_template
       } catch (e) {
         console.error(`Error populating item at index ${i}`);
         console.log(e)
       }
 
     }
+    tableBody.innerHTML = tableContents;
 
   } catch (e) {
     console.error("Error populating items");
@@ -182,6 +189,8 @@ async function populateAnnotators(data) {
     const counts = data.counts;
 
     const now = new Date();
+
+    let tableContents = "";
 
     for (let i = 0; i < annotators.length; i++) {
       try {
@@ -229,13 +238,15 @@ async function populateAnnotators(data) {
             </form>
           </td>
         </tr>`;
-        const newRow = tableBody.insertRow(tableBody.rows.length);
-        newRow.innerHTML = annotator_template;
+
+        tableContents += annotator_template;
       } catch (e) {
         console.error(`Error populating annotator at index ${i}`);
         console.log(e)
       }
     }
+
+    tableBody.innerHTML = tableContents;
 
   } catch (e) {
     console.error("Error populating annotators");
@@ -248,6 +259,8 @@ async function populateFlags(data) {
   try {
     const flags = data.flags;
     const flag_count = data.flags;
+
+    let tableContents = "";
 
     for (let i = 0; i < flags.length; i++) {
       try {
@@ -271,14 +284,15 @@ async function populateFlags(data) {
               </form>
             </td>
           </tr>`;
-        const newRow = tableBody.insertRow(tableBody.rows.length);
-        newRow.innerHTML = flag_template;
+
+        tableContents += flag_template;
       } catch (e) {
         console.error(`Error populating flag at index ${i}`);
         console.log(e);
       }
     }
 
+    tableBody.innerHTML = tableContents;
   } catch (e) {
     console.error("Error populating flags");
     console.log(e);
