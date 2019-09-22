@@ -1,0 +1,30 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "Documentation for Asterisk's fork of Gavel",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/weareasterisk/gavel"
+  },
+  "author": "Muhammad Khatri <muhammad@weareasterisk.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "dev": "vuepress dev --no-clear-screen",
+    "build": "vuepress build"
+  },
+  "bugs": {
+    "url": "https://github.com/weareasterisk/gavel/issues"
+  },
+  "homepage": "https://gavel.weareasterisk.com",
+  "dependencies": {
+    "@vuepress/plugin-active-header-links": "^1.1.0",
+    "global": "^4.4.0",
+    "vuepress": "^1.1.0",
+    "vuepress-plugin-clean-urls": "^1.0.3",
+    "vuepress-plugin-dehydrate": "^1.0.3",
+    "vuepress-plugin-medium-zoom": "^1.1.3",
+    "vuepress-plugin-sitemap": "^2.1.2"
+  }
+}
