@@ -1,3 +1,5 @@
+const sidebar = require("./sidebar");
+
 module.exports = {
   title: "Gavel Docs",
   head: [
@@ -24,8 +26,6 @@ module.exports = {
     },
   },
   ga: 'UA-108513187-1',
-  //theme: "yuu",
-  sidebarDepth: 3,
   themeConfig: {
     repo: "https://github.com/weareasterisk/gavel",
     editLinks: true,
@@ -35,7 +35,7 @@ module.exports = {
     yuu: {
 			colorThemes: ['blue'],
     },
-    sidebar: 'auto',
+    sidebar: sidebar,
     nav: [
       {
         text: 'Home',
