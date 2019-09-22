@@ -7025,11 +7025,6 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz#bd76d6a23323e2ca8ffa12028dc04559c75f9019"
   integrity sha512-iq+S7vZJE60yejDYM0ek6zg308+UZsdtPExWP9VZoCFCz1zkJoXFnAX7aZfd/ZwrkidzdUZL0C/ryW+JwAiIGw==
 
-vue-click-outside@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/vue-click-outside/-/vue-click-outside-1.0.7.tgz#cdd2b1605e3c4944784e1794eae4a12a0f700bd6"
-  integrity sha1-zdKxYF48SUR4TheU6uShKg9wC9Y=
-
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz#532955cc1eb208a3d990b3a9f9a70574657e08f2"
@@ -7136,13 +7131,6 @@ vuepress-plugin-sitemap@^2.1.2:
   integrity sha512-x+jQVyhexQIn2XqjZbspdi0fmwGHBEaXASn6Oyrxkls+Z1qjTn/zr3DjVBbNd4VP6L5AtkDN8nvBEVfKTpJxjQ==
   dependencies:
     sitemap "^2.0.1"
-
-vuepress-theme-yuu@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/vuepress-theme-yuu/-/vuepress-theme-yuu-1.1.0.tgz#bbf177b82ba3eb0f52193042150d8b02946ede20"
-  integrity sha512-fuwT1xprMT9zz2d3cKO76DU6IaUe1H6U4g4e62aagsPH0na/DJLhXzIc1uxo/x3iU+EsJ95Guyb0pdpxRPzX9g==
-  dependencies:
-    vue-click-outside "^1.0.7"
 
 vuepress@^1.1.0:
   version "1.1.0"
