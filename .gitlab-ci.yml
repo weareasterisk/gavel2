@@ -34,6 +34,7 @@ deploy-docs:
   script:
     - pip install awscli
     - aws s3 sync docs/.vuepress/dist/ s3://$S3_BUCKET_PRODUCTION/ --include "*" --delete
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_PRODUCTION_ID --paths "/*"
     - echo "Documentation deployed to production environment"
   only:
     - master
