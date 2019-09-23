@@ -17,6 +17,7 @@ build-docs:
   script:
     - npm install -g yarn
     - yarn
+    - yarn build
   cache:
     key: $CI_JOB_NAME
     paths:
