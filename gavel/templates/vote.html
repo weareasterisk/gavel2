@@ -32,22 +32,7 @@
       </div>
     </div>
   </div>
-  {#  <div class="item">
-    <div class="banner" id="vote-header">
-      <h1>Vote</h1>
-    </div>
-    <div class="info">
-      <form action="/vote" method="post">
-        <p class="center">Which one is better?</p>
-        <input type="submit" name="action" value="Previous" id="vote-previous" class="button-left">
-        <input type="submit" name="action" value="Current" id="vote-current" class="button-right">
-        <input type="submit" name="action" value="Skip" id="vote-skip" class="button-full button-gap">
-        <input type="hidden" name="prev_id" value="{{ prev.id }}">
-        <input type="hidden" name="next_id" value="{{ next.id }}">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-      </form>
-    </div>
-  </div>#}
+
   <div class="bottomPanel">
     <button class="flagButton" type="button" id="reportbutton" onclick="toggleReport()"></button>
     <button class="skipButton" type="button" id="skipButton" onclick="toggleSkip()"></button>

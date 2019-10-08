@@ -117,7 +117,7 @@ async function populateItems(data) {
           continue;
 
         const item_template = `
-        <tr class="${(item.active ? item.prioritized ? 'prioritized' : '' : 'disabled')}">
+        <tr class="bb ${(item.active ? item.prioritized ? 'prioritized' : '' : 'disabled')}">
           <td id="project-check-container"><input id="${item.id}" type="checkbox" name="item" value="${item.id}" class="admin-check"/></td>
           <td><a onclick="openProject(${item.id})" class="colored">${item.id}</a></td>
           <td>${item.name}</td>
@@ -188,7 +188,7 @@ async function populateAnnotators(data) {
         const annotator = annotators[i];
 
         const annotator_template = `
-        <tr class=${annotator.active ? '' : 'disabled'}>
+        <tr class="bb ${annotator.active ? '' : 'disabled'}">
           <td id="judge-check-container"><input id="${annotator.id}" type="checkbox" name="annotator" value="${annotator.id}" class="admin-check"/></td>
           <td><a onclick="openJudge(${annotator.id})" class="colored">${annotator.id}</a></td>
           <td>${annotator.name}</td>
@@ -254,7 +254,7 @@ async function populateFlags(data) {
         const flag = flags[i];
 
         const flag_template = `
-          <tr class="${flag.resolved ? "open" : "resolve"}">
+          <tr class="bb ${flag.resolved ? "open" : "resolve"}">
             <td><input id="${flag.id}" type="checkbox" name="item" value="${flag.item_id}" class="admin-check"/></td>
             <td>${flag.id}</td>
             <td><a onclick="openJudge(${flag.annotator_id})" href="#" class="colored">${flag.annotator_name}</a></td>
