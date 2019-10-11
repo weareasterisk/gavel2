@@ -1,13 +1,7 @@
-from celery.utils.serialization import jsonify
-
 from gavel import app
 from gavel.models import *
-from gavel.schemas.annotator import AnnotatorSchema
-from gavel.schemas.decision import DecisionSchema
-from gavel.schemas.flag import FlagSchema
-from gavel.schemas.item import ItemSchema
-from gavel.schemas.setting import SettingSchema
 from gavel.constants import *
+from functools import wraps
 import gavel.settings as settings
 import gavel.utils as utils
 from flask import (
@@ -22,6 +16,17 @@ try:
 except ImportError:
   import urllib3
 import xlrd
+
+import asyncio
+
+loop = asyncio.get_event_loop()
+
+def async_action(f):
+  @wraps(f)
+  def wrapped(*args, **kwargs):
+    return loop.run_until_complete(f(*args, **kwargs))
+  return wrapped
+
 
 ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls'}
 
@@ -549,7 +554,7 @@ def annotator_detail(annotator_id):
 def annotator_link(annotator):
   return urllib.parse.urljoin(settings.BASE_URL, url_for('login', secret=annotator.secret))
 
-
+@async_action
 async def email_invite_links(annotators):
   if settings.DISABLE_EMAIL or annotators is None:
     return
