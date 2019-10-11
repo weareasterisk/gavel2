@@ -23,7 +23,8 @@
         "EMAIL_USER": "_unused_",
         "EMAIL_PASSWORD": "_unused_",
         "IGNORE_CONFIG_FILE": "true",
-        "EMAIL_HOST": "smtp.gmail.com"
+        "EMAIL_HOST": "smtp.gmail.com",
+        "EMAIL_PORT": "587"
     },
     "keywords": [
         "gavel",
