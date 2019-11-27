@@ -17,7 +17,7 @@
     "env": {
         "ADMIN_PASSWORD": {
             "description": "Password for the administrator account.",
-            "generator": "secret"
+            "value": "change-this-before-deploying"
         },
         "SECRET_KEY": {
             "description": "Secret key used to hash requests and keys.",
