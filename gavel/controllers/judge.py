@@ -79,7 +79,7 @@ def index():
 @app.route('/vote', methods=['POST'])
 @requires_open(redirect_to='index')
 @requires_active_annotator(redirect_to='index')
-def vote():
+def vote(retries=0):
     annotator = get_current_annotator()
     if annotator.prev.id == int(request.form['prev_id']) and annotator.next.id == int(request.form['next_id']):
         if request.form['action'] in ['Skip', 'SkipAbsent', 'SkipBusy']:
@@ -106,7 +106,15 @@ def vote():
         if annotator.stop_next:
             annotator.active = False
         annotator.update_next(choose_next(annotator))
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception as e:
+            if retries < 3:
+                db.session.rollback()
+                # Try again
+                vote(retries+1)
+            else:
+                raise Exception("Judging commit error: " + e)
     return redirect(url_for('index'))
 
 @app.route('/report', methods=['POST'])
