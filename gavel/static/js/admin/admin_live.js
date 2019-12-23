@@ -7,63 +7,63 @@ let currentItems;
 
 let token;
 
-function setToken (t) { token = t }
+function setToken(t) { token = t }
 
 const tableBody = document.getElementById("admin-table-body");
 const tableHead = document.getElementById("admin-table-head");
 
 const itemsHead = `
-  <tr>
-    <th class="no-sort admin-head-check">
+  <tr class="admin-table-head">
+    <th class="no-sort admin-head-check admin-table-head-item">
       <label>
         <input onclick="checkAllProjects()" id="check-all-projects" type="checkbox" class="admin-check">
       </label>
     </th>
-    <th class="admin-head-id">Id<a></a></th>
-    <th class="admin-head-project">Project Name<a></a></th>
-    <th class="admin-head-standard">Location<a></a></th>
-    <th class="admin-head-double">Description<a></a></th>
-    <th class="sort-default admin-head-standard">Mu<a></a></th>
-    <th class="admin-head-standard">Sigma<sup>2</sup><a></a></th>
-    <th class="admin-head-standard">Votes<a></a></th>
-    <th class="admin-head-standard">Seen<a></a></th>
-    <th class="admin-head-standard">Skipped<a></a></th>
-    <th class="admin-head-standard no-sort">Actions<a></a></th>
+    <th class="admin-table-head-item admin-head-id">Id<a></a></th>
+    <th class="admin-table-head-item admin-head-project">Project Name<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Location<a></a></th>
+    <th class="admin-table-head-item admin-head-double">Description<a></a></th>
+    <th class="admin-table-head-item sort-default admin-head-standard">Mu<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Sigma<sup>2</sup><a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Votes<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Seen<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Skipped<a></a></th>
+    <th class="admin-table-head-item admin-head-standard no-sort">Actions<a></a></th>
   </tr>
 `;
 
 const annotatorsHead = `
-  <tr>
-    <th class="no-sort admin-head-check">
+  <tr class="admin-table-head">
+    <th class="admin-table-head-item no-sort admin-head-check">
       <label>
         <input onclick="checkAllJudges()" id="check-all-judges" type="checkbox" class="admin-check">
       </label>
     </th>
-    <th class="sort-default admin-head-id">Id<a></a></th>
-    <th class="admin-head-project">Name<a></a></th>
-    <th class="admin-head-project">Email<a></a></th>
-    <th class="admin-head-double">Description<a></a></th>
-    <th class="admin-head-standard">Votes<a></a></th>
-    <th class="admin-head-standard">Next (Id)<a></a></th>
-    <th class="admin-head-standard">Prev. (Id)<a></a></th>
-    <th class="admin-head-standard">Updated<a></a></th>
-    <th class="no-sort admin-head-standard">Actions<a></a></th>
+    <th class="admin-table-head-item sort-default admin-head-id">Id<a></a></th>
+    <th class="admin-table-head-item admin-head-project">Name<a></a></th>
+    <th class="admin-table-head-item admin-head-project">Email<a></a></th>
+    <th class="admin-table-head-item admin-head-double">Description<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Votes<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Next (Id)<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Prev. (Id)<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Updated<a></a></th>
+    <th class="admin-table-head-item no-sort admin-head-standard">Actions<a></a></th>
   </tr>
 `;
 
 const flagsHead = `
-  <tr>
-    <th class="admin-head-check no-sort">
+  <tr class="admin-table-head">
+    <th class="admin-table-head-item admin-head-check no-sort">
       <label>
         <input onclick="checkAllReports()" id="check-all-reports" type="checkbox" class="admin-check">
       </label>
     </th>
-    <th class="admin-head-id">Id<a></a></th>
-    <th class="admin-head-judge">Judge Name<a></a></th>
-    <th class="admin-head-project">Project Name<a></a></th>
-    <th class="admin-head-project">Project Location<a></a></th>
-    <th class="admin-head-standard">Reason<a></a></th>
-    <th class="admin-head-standard no-sort">Actions</th>
+    <th class="admin-table-head-item admin-table-head-item admin-head-id">Id<a></a></th>
+    <th class="admin-table-head-item admin-head-judge">Judge Name<a></a></th>
+    <th class="admin-table-head-item admin-head-project">Project Name<a></a></th>
+    <th class="admin-table-head-item admin-head-project">Project Location<a></a></th>
+    <th class="admin-table-head-item admin-head-standard">Reason<a></a></th>
+    <th class="admin-table-head-item admin-head-standard no-sort">Actions</th>
   </tr>
 `;
 
@@ -161,8 +161,9 @@ async function populateItems(data) {
           </td>
         </tr>`;
 
-        const newRow = tableBody.insertRow(tableBody.rows.length);
+        const newRow = document.createElement('tr');
         newRow.innerHTML = item_template;
+        tableBody.appendChild(row);
       } catch (e) {
         console.error(`Error populating item at index ${i}`);
         console.log(e)
@@ -229,8 +230,9 @@ async function populateAnnotators(data) {
             </form>
           </td>
         </tr>`;
-        const newRow = tableBody.insertRow(tableBody.rows.length);
+        const newRow = document.createElement('tr');
         newRow.innerHTML = annotator_template;
+        tableBody.appendChild(newRow);
       } catch (e) {
         console.error(`Error populating annotator at index ${i}`);
         console.log(e)
@@ -271,8 +273,9 @@ async function populateFlags(data) {
               </form>
             </td>
           </tr>`;
-        const newRow = tableBody.insertRow(tableBody.rows.length);
+        const newRow = document.createElement('tr');
         newRow.innerHTML = flag_template;
+        tableBody.appendChild(newRow);
       } catch (e) {
         console.error(`Error populating flag at index ${i}`);
         console.log(e);
@@ -297,7 +300,7 @@ async function spawnTable(id) {
       await data;
     }
   }).then(async (data) => {
-    switch(id) {
+    switch (id) {
       case "items":
         Promise.all([
           clearTableBody(),
@@ -326,38 +329,38 @@ async function spawnTable(id) {
 }
 
 async function refresh() {
-    const data = $.ajax({
-        url: "/admin/auxiliary",
-        type: "get",
-        dataType: "json",
-        error: function (error) {
-            return error;
-        },
-        success: async function (data) {
-            await data;
-        }
-    }).then((data) => {
-      const flag_count = data.flag_count;
-      const item_count = data.item_count;
-      const votes = data.votes;
-      const sigma = data.average_sigma;
-      const seen = data.average_seen;
+  const data = $.ajax({
+    url: "/admin/auxiliary",
+    type: "get",
+    dataType: "json",
+    error: function (error) {
+      return error;
+    },
+    success: async function (data) {
+      await data;
+    }
+  }).then((data) => {
+    const flag_count = data.flag_count;
+    const item_count = data.item_count;
+    const votes = data.votes;
+    const sigma = data.average_sigma;
+    const seen = data.average_seen;
 
-      // Populate vote count
-      let vote_count = document.getElementById("total-votes");
-      vote_count.innerText = votes;
+    // Populate vote count
+    let vote_count = document.getElementById("total-votes");
+    vote_count.innerText = votes;
 
-      // Populate total active projects
-      let total_active = document.getElementById("total-active");
-      total_active.innerText = item_count;
+    // Populate total active projects
+    let total_active = document.getElementById("total-active");
+    total_active.innerText = item_count;
 
-      // Populate avg. sigma^2
-      let average_sigma = document.getElementById("average-sigma");
-      average_sigma.innerText = sigma.toFixed(4);
+    // Populate avg. sigma^2
+    let average_sigma = document.getElementById("average-sigma");
+    average_sigma.innerText = sigma.toFixed(4);
 
-      let average_seen = document.getElementById("average-seen");
-      average_seen.innerText = seen.toFixed(2);
-    });
+    let average_seen = document.getElementById("average-seen");
+    average_seen.innerText = seen.toFixed(2);
+  });
 }
 
 /*
@@ -365,192 +368,192 @@ async function refresh() {
 * */
 
 function toggleSelector() {
-    const selectorModal = document.getElementById("selector");
-    selectorModal.style.display = selectorModal.style.display === "block" ? "none" : "block";
+  const selectorModal = document.getElementById("selector");
+  selectorModal.style.display = selectorModal.style.display === "block" ? "none" : "block";
 }
 
 function showTab(e) {
-    const content = document.getElementById("admin-switcher-content");
-    const batch = document.getElementById("batchPanel");
-    currentTab = e;
-    content.innerText = "none";
-    batch.style.display = "none";
-    localStorage.setItem("currentTab", e);
-    clearTable();
-    switch (localStorage.getItem("currentTab")) {
-        case "annotators":
-            content.innerText = "Manage Judges";
-            batch.style.display = "inline-block";
-            setTableHead(annotatorsHead);
-            break;
-        case "items":
-            content.innerText = "Manage Projects";
-            batch.style.display = "inline-block";
-            setTableHead(itemsHead);
-            break;
-        case "flags":
-            content.innerText = "Manage Reports";
-            setTableHead(flagsHead);
-            break;
-        default:
-            content.innerText = "Manage Reports";
-            setTableHead(flagsHead);
-            break;
-    }
-    setAddButtonState();
-    triggerTableUpdate();
+  const content = document.getElementById("admin-switcher-content");
+  const batch = document.getElementById("batchPanel");
+  currentTab = e;
+  content.innerText = "none";
+  batch.style.display = "none";
+  localStorage.setItem("currentTab", e);
+  clearTable();
+  switch (localStorage.getItem("currentTab")) {
+    case "annotators":
+      content.innerText = "Manage Judges";
+      batch.style.display = "inline-block";
+      setTableHead(annotatorsHead);
+      break;
+    case "items":
+      content.innerText = "Manage Projects";
+      batch.style.display = "inline-block";
+      setTableHead(itemsHead);
+      break;
+    case "flags":
+      content.innerText = "Manage Reports";
+      setTableHead(flagsHead);
+      break;
+    default:
+      content.innerText = "Manage Reports";
+      setTableHead(flagsHead);
+      break;
+  }
+  setAddButtonState();
+  triggerTableUpdate();
 }
 
 function setAddButtonState() {
-    const tab = localStorage.getItem("currentTab");
-    const text = document.getElementById('add-text');
-    const add = document.getElementById('add');
-    if (tab === "annotators") {
-        text.innerText = "+ Add Judges";
-        text.onclick = function () {
-            openModal('add-judges')
-        };
-        //text.addEventListener('onclick', openModal('add-judges'));
-    }
-    if (tab === "items") {
-        text.innerText = "+ Add Projects";
-        text.onclick = function () {
-            openModal('add-projects')
-        };
-        //text.addEventListener('onclick', openModal('add-projects'));
-    }
-    if (tab === "flags") {
-        text.innerText = "";
-        text.onclick = null;
-    }
+  const tab = localStorage.getItem("currentTab");
+  const text = document.getElementById('add-text');
+  const add = document.getElementById('add');
+  if (tab === "annotators") {
+    text.innerText = "+ Add Judges";
+    text.onclick = function () {
+      openModal('add-judges')
+    };
+    //text.addEventListener('onclick', openModal('add-judges'));
+  }
+  if (tab === "items") {
+    text.innerText = "+ Add Projects";
+    text.onclick = function () {
+      openModal('add-projects')
+    };
+    //text.addEventListener('onclick', openModal('add-projects'));
+  }
+  if (tab === "flags") {
+    text.innerText = "";
+    text.onclick = null;
+  }
 }
 
 function openModal(modal) {
-    $("body").find(".modal-wrapper").css('display', 'none');
+  $("body").find(".modal-wrapper").css('display', 'none');
 
-    var dumdum;
-    modal !== 'close' && modal ? document.getElementById(modal).style.display = 'block' : dumdum = 'dum';
+  var dumdum;
+  modal !== 'close' && modal ? document.getElementById(modal).style.display = 'block' : dumdum = 'dum';
 }
 
 $(".full-modal").click(function (event) {
-    //if you click on anything except the modal itself or the "open modal" link, close the modal
-    if (!$(event.target).hasClass('admin-modal-content') && $(event.target).hasClass('full-modal')) {
-        openModal('close')
-    }
-    if (!$(event.target).hasClass('admin-switcher-modal') &&
-        !$(event.target).parents('*').hasClass('admin-switcher') &&
-        !$(event.target).hasClass('admin-switcher')) {
-        $("body").find("#selector").css('display', 'none')
-    }
+  //if you click on anything except the modal itself or the "open modal" link, close the modal
+  if (!$(event.target).hasClass('admin-modal-content') && $(event.target).hasClass('full-modal')) {
+    openModal('close')
+  }
+  if (!$(event.target).hasClass('admin-switcher-modal') &&
+    !$(event.target).parents('*').hasClass('admin-switcher') &&
+    !$(event.target).hasClass('admin-switcher')) {
+    $("body").find("#selector").css('display', 'none')
+  }
 });
 
 function checkAllReports() {
-    let check = document.getElementById('check-all-reports');
-    if (check.checked) {
-        $('#admin-table').find('input[type=checkbox]').each(function () {
-            this.checked = true;
-        });
-        check.checked = true;
-    } else {
-        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
-            this.checked = false;
-        });
-        check.checked = false;
-    }
+  let check = document.getElementById('check-all-reports');
+  if (check.checked) {
+    $('#admin-table').find('input[type=checkbox]').each(function () {
+      this.checked = true;
+    });
+    check.checked = true;
+  } else {
+    $('#admin-table').find('input[type=checkbox]:checked').each(function () {
+      this.checked = false;
+    });
+    check.checked = false;
+  }
 }
 
 function checkAllProjects() {
-    let check = document.getElementById('check-all-projects');
-    if (check.checked) {
-        $('#admin-table').find('input[type=checkbox]').each(function () {
-            this.checked = true;
-        });
-        check.checked = true;
-    } else {
-        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
-            this.checked = false;
-        });
-        check.checked = false;
-    }
+  let check = document.getElementById('check-all-projects');
+  if (check.checked) {
+    $('#admin-table').find('input[type=checkbox]').each(function () {
+      this.checked = true;
+    });
+    check.checked = true;
+  } else {
+    $('#admin-table').find('input[type=checkbox]:checked').each(function () {
+      this.checked = false;
+    });
+    check.checked = false;
+  }
 }
 
 function checkAllJudges() {
-    let check = document.getElementById('check-all-judges');
-    if (check.checked) {
-        $('#admin-table').find('input[type=checkbox]').each(function () {
-            this.checked = true;
-        });
-        check.checked = true;
-    } else {
-        $('#admin-table').find('input[type=checkbox]:checked').each(function () {
-            this.checked = false;
-        });
-        check.checked = false;
-    }
+  let check = document.getElementById('check-all-judges');
+  if (check.checked) {
+    $('#admin-table').find('input[type=checkbox]').each(function () {
+      this.checked = true;
+    });
+    check.checked = true;
+  } else {
+    $('#admin-table').find('input[type=checkbox]:checked').each(function () {
+      this.checked = false;
+    });
+    check.checked = false;
+  }
 }
 
 const judgeCheckboxValues = JSON.parse(localStorage.getItem('judgeCheckboxValues')) || {};
 const $judgeCheckboxes = $("#judge-check-container :checkbox");
-$judgeCheckboxes.on("change", function() {
-    $judgeCheckboxes.each(function() {
-        judgeCheckboxValues[this.id] = this.checked;
-    });
-    localStorage.setItem("judgeCheckboxValues", JSON.stringify(judgeCheckboxValues))
+$judgeCheckboxes.on("change", function () {
+  $judgeCheckboxes.each(function () {
+    judgeCheckboxValues[this.id] = this.checked;
+  });
+  localStorage.setItem("judgeCheckboxValues", JSON.stringify(judgeCheckboxValues))
 });
 
 const projectCheckboxValues = JSON.parse(localStorage.getItem('projectCheckboxValues')) || {};
 const $projectCheckboxes = $("#project-check-container :checkbox");
-$projectCheckboxes.on("change", function() {
-    $projectCheckboxes.each(function() {
-        projectCheckboxValues[this.id] = this.checked;
-    });
-    localStorage.setItem("projectCheckboxValues", JSON.stringify(projectCheckboxValues))
+$projectCheckboxes.on("change", function () {
+  $projectCheckboxes.each(function () {
+    projectCheckboxValues[this.id] = this.checked;
+  });
+  localStorage.setItem("projectCheckboxValues", JSON.stringify(projectCheckboxValues))
 });
 
 let judgeIds = [];
 let projectIds = [];
 let form = null;
 $('#batchDelete').click(async function () {
-    const tab = localStorage.getItem("currentTab");
-    projectIds = [];
-    judgeIds = [];
-    form = null;
-    if (tab === 'items') {
-        form = document.getElementById('batchDeleteItems');
-    } else if (tab === 'annotators') {
-        form = document.getElementById('batchDeleteAnnotators');
-    }
-    $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
-        form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
-    });
-    try {
-        form.serializeArray()
-    } catch {
+  const tab = localStorage.getItem("currentTab");
+  projectIds = [];
+  judgeIds = [];
+  form = null;
+  if (tab === 'items') {
+    form = document.getElementById('batchDeleteItems');
+  } else if (tab === 'annotators') {
+    form = document.getElementById('batchDeleteAnnotators');
+  }
+  $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
+    form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
+  });
+  try {
+    form.serializeArray()
+  } catch {
 
-    }
-    const full = await form;
-    full.submit();
+  }
+  const full = await form;
+  full.submit();
 
 });
 
 $('#batchDisable').click(async function () {
-    const tab = localStorage.getItem("currentTab");
-    projectIds = [];
-    judgeIds = [];
-    form = null;
-    if (tab === 'items') {
-        form = document.getElementById('batchDisableItems');
-    } else if (tab === 'annotators') {
-        form = document.getElementById('batchDisableAnnotators');
-    }
-    $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
-        form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
-    });
-    try {
-        form.serializeArray();
-    } catch {
+  const tab = localStorage.getItem("currentTab");
+  projectIds = [];
+  judgeIds = [];
+  form = null;
+  if (tab === 'items') {
+    form = document.getElementById('batchDisableItems');
+  } else if (tab === 'annotators') {
+    form = document.getElementById('batchDisableAnnotators');
+  }
+  $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
+    form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
+  });
+  try {
+    form.serializeArray();
+  } catch {
 
-    }
-    const full = await form;
-    full.submit();
+  }
+  const full = await form;
+  full.submit();
 });

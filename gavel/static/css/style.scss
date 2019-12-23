@@ -1201,7 +1201,7 @@ dl.instructions dt p {
   //border-radius: 4px 4px 0px 0px !important;
 }
 
-.admin-table > table > thead > tr {
+.admin-table-head {
   border: 0;
 
   max-height: 48px !important;
@@ -1209,7 +1209,7 @@ dl.instructions dt p {
   //border-radius: 4px 4px 0px 0px !important;
 }
 
-.admin-table > table > thead > tr > th {
+.admin-table-head-item {
   border: 0;
   text-align: left;
   font-family: Rubik;
@@ -1220,28 +1220,6 @@ dl.instructions dt p {
   text-transform: uppercase;
 
   color: #000000;
-}
-
-.admin-table > table > tbody {
-  background: white;
-  border: 1px solid #B7B7B7;
-  box-sizing: border-box;
-}
-
-.admin-table > table > tbody > tr {
-  border: 0;
-  border-bottom: 1px solid #B7B7B7;
-  height: 48px;
-  max-height: 48px;
-}
-
-.admin-table > table > tbody > tr > td {
-  border: 0;
-  font-family: Rubik;
-  font-style: normal;
-  font-weight: normal;
-  line-height: normal;
-  font-size: 14px;
 }
 
 .admin-head-check {
