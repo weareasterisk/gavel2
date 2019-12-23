@@ -12,3 +12,5 @@ venv/
 
 .env*
 !.env.example
+
+.vscode/
