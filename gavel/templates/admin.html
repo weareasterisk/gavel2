@@ -70,14 +70,7 @@
   </div>
   <div class="admin-tabs live-table">
     <div id="admin-table-wrapper" class="admin-table live-table">
-      <table id="admin-table">
-        <thead class="admin-header" id="admin-table-head">
-          {# Auto populates with header #}
-        </thead>
-        <tbody id="admin-table-body">
-          {# Auto populates with body #}
-        </tbody>
-      </table>
+      <div id="myGrid" style="height: 100%;" class="ag-theme-balham"></div>
     </div>
   </div>
 
@@ -114,7 +107,7 @@
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/js/all.min.js"
   integrity="sha256-iZGp5HAiwRmkbOKVYv5FUER4iXp5QbiEudkZOdwLrjw=" crossorigin="anonymous" async></script>
-{#  <script src="{{ url_for('static', filename="js/baloon.css") }}"></script>#}
+<script src='https://unpkg.com/@ag-grid-community/all-modules@22.1.1/dist/ag-grid-community.min.js'></script>
 <style>
   tr {
     border: 0;
@@ -147,7 +140,6 @@
 
   let responseInterval = async function () {
     await Promise.all([
-      spawnTable(localStorage.getItem("currentTab")),
       refresh()
     ]);
   };

@@ -125,9 +125,9 @@ async function populateItems(data) {
           <td class="preserve-formatting">${item.description}</td>
           <td>${item.mu.toFixed(4)}</td>
           <td>${item.sigma_sq.toFixed(4)}</td>
-          <td>${item_counts[item.id]}</td>
-          <td>${viewed[item.id].length}</td>
-          <td>${skipped[item.id]}</td>
+          <td>${item.counts}</td>
+          <td>${item.viewed}</td>
+          <td>${item.skipped}</td>
           <td data-sort="${item.prioritized}">
             <span onclick="openProject(${item.id})" class="inline-block tooltip">
               <button class="nobackgroundnoborder">
@@ -179,8 +179,7 @@ async function populateItems(data) {
 
 async function populateAnnotators(data) {
   try {
-    const annotators = data.annotators;
-    const counts = data.counts;
+    const { annotators } = data;
 
     const now = new Date();
 
@@ -195,7 +194,7 @@ async function populateAnnotators(data) {
           <td>${annotator.name}</td>
           <td>${annotator.email}</td>
           <td class="preserve-formatting">${annotator.description}</td>
-          <td>${(counts[annotator.id] || 0)}</td>
+          <td>${(annotatot.count || 0)}</td>
           <td>${(annotator.next_id || 'None')}</td>
           <td>${(annotator.prev_id || 'None')}</td>
           <td>${(annotator.updated ? (((now - (Date.parse(annotator.updated) - now.getTimezoneOffset() * 60 * 1000)) / 60) / 1000).toFixed(0) + " min ago" : "Undefined")}</td>
@@ -384,24 +383,24 @@ function showTab(e) {
     case "annotators":
       content.innerText = "Manage Judges";
       batch.style.display = "inline-block";
-      setTableHead(annotatorsHead);
+      // setTableHead(annotatorsHead);
       break;
     case "items":
       content.innerText = "Manage Projects";
       batch.style.display = "inline-block";
-      setTableHead(itemsHead);
+      // setTableHead(itemsHead);
       break;
     case "flags":
       content.innerText = "Manage Reports";
-      setTableHead(flagsHead);
+      // setTableHead(flagsHead);
       break;
     default:
       content.innerText = "Manage Reports";
-      setTableHead(flagsHead);
+      // setTableHead(flagsHead);
       break;
   }
   setAddButtonState();
-  triggerTableUpdate();
+  // triggerTableUpdate();
 }
 
 function setAddButtonState() {

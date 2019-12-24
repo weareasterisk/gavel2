@@ -8,6 +8,7 @@ import os
 from flask import Flask
 from flask_compress import Compress
 from flask_minify import minify
+from flask_socketio import SocketIO
 
 COMPRESS_MIMETYPES = [
   'text/html',
@@ -60,6 +61,7 @@ bundles = {
     'js/admin/jquery.tablesorter.min.js',
     'js/admin/jquery.tablesorter.widgets.js',
     'js/admin/admin_live.js',
+    'js/admin/tabulator.js',
     depends='**/*.js',
     filters=('jsmin',),
     output='admin_all.js'
@@ -94,3 +96,8 @@ gavel.utils.send_telemetry('gavel-boot', {
   'timeout': settings.TIMEOUT,
   'disable-email': settings.DISABLE_EMAIL
 })
+
+import gavel.socketio
+
+gavel.socketio.init_app(app)
+socketio = gavel.socketio.getBus()

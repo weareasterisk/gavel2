@@ -144,12 +144,23 @@ def admin_items():
     item_counts[w] = item_counts.get(w, 0) + 1
     item_counts[l] = item_counts.get(l, 0) + 1
 
+  items_dumped = []
+
+  for it in items:
+    try:
+      item_dumped = it.to_dict()
+      item_dumped.update({
+        'viewed': len(viewed.get(it.id, 0)),
+        'counts': item_counts.get(it.id, 0),
+        'skipped': skipped.get(it.id, 0)
+      })
+      items_dumped.append(item_dumped)
+    except:
+      items_dumped.append({'null': 'null'})
+
   dump_data = {
-    "items": [it.to_dict() if it else {'null': 'null'} for it in items],
-    "viewed": viewed,
-    "skipped": skipped,
-    "item_count": item_count,
-    "item_counts": item_counts
+    "items": items_dumped,
+    "item_count": item_count
   }
 
   response = app.response_class(
@@ -197,6 +208,7 @@ def admin_flags():
 def admin_annotators():
   annotators = Annotator.query.order_by(Annotator.id).all()
   decisions = Decision.query.all()
+  annotator_count = len(annotators)
 
   counts = {}
 
@@ -206,9 +218,20 @@ def admin_annotators():
     l = d.loser_id
     counts[a] = counts.get(a, 0) + 1
 
+  annotators_dumped = []
+  
+  for an in annotators:
+    try:
+      annotator_dumped = an.to_dict()
+      annotator_dumped.update({
+        'count': counts.get(an.id, 0)
+      })
+      annotators_dumped.append(annotator_dumped)
+    except:
+      annotators_dumped.append({'null': 'null'})
   dump_data = {
-    "annotators": [an.to_dict() if an else {'null': 'null'} for an in annotators],
-    "counts": counts
+    "annotators": annotators_dumped,
+    "anotator_count": annotator_count
   }
 
   response = app.response_class(
