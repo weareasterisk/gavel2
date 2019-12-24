@@ -47,6 +47,8 @@ flask-compress = "*"
 flask-minify = "*"
 jsmin = "*"
 cssmin = "*"
+flask-socketio = "*"
+eventlet = "*"
 
 [requires]
 python_version = "3.6"
