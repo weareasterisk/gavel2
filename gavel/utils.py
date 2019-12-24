@@ -71,33 +71,34 @@ def get_paragraphs(message):
     paragraphs = [i.replace('\n', ' ') for i in paragraphs if i]
     return paragraphs
 
-@celery.task
+@celery.task(name='utils.send_emails')
 def send_emails(emails):
     if settings.EMAIL_PROVIDER not in ["smtp", "sendgrid", "mailgun"]:
         raise Exception("[EMAIL ERROR]: Invalid email provider. Please select one of: smtp, sendgrid, mailgun")
     if settings.EMAIL_PROVIDER == "smtp":
-        send_smtp_emails.delay(emails)
+        send_smtp_emails.apply_async(args=[emails])
     else:
         exceptions = []
         for e in emails:
             to_address, subject, body = e
-            to_adddress = to_address[0:]
             response = {}
-            if settings.EMAIL_PROVIDER == "sendgrid":
-                response = sendgrid_send_email(to_address, subject, body)
-            elif settings.EMAIL_PROVIDER == "mailgun":
-                response = mailgun_send_email(to_adddress, subject, body)
+            to_adddress = to_address[0:]
             try:
+                if settings.EMAIL_PROVIDER == "sendgrid":
+                    response = loop.run_until_complete(sendgrid_send_email(to_address, subject, body))
+                elif settings.EMAIL_PROVIDER == "mailgun":
+                    response = loop.run_until_complete(mailgun_send_email(to_adddress, subject, body))
                 if not (response.status_code == requests.codes.ok or response.status_code == requests.codes.accepted):
                     # all_errors = [error_obj["message"] for error_obj in response.json()["errors"]]
                     error_msg = to_address
                     exceptions.append(error_msg)
+
             except Exception as e:
                 exceptions.append(e)
         if exceptions:
             raise Exception("Error sending some emails. Please double-check your email authentication settings.", exceptions)
 
-@celery.task
+@celery.task(name='utils.send_smtp_emails')
 def send_smtp_emails(emails):
     '''
     Send a batch of emails.
@@ -139,7 +140,7 @@ def send_smtp_emails(emails):
     if exceptions:
         raise Exception('Error sending some emails: %s' % exceptions)
 
-def sendgrid_send_email(to_address, subject, body):
+async def sendgrid_send_email(to_address, subject, body):
     new_dict = {}
     new_dict["personalizations"] = []
     new_dict["personalizations"].append({"to": [{"email": to_address}], "subject": subject})
@@ -152,20 +153,23 @@ def sendgrid_send_email(to_address, subject, body):
         'authorization': "Bearer " + settings.SENDGRID_API_KEY,
         'content-type': "application/json",
         }
-    response = requests.request("POST", sendgrid_url, data=json.dumps(new_dict), headers=headers)
+    response = requests.post(
+        sendgrid_url,
+        data=json.dumps(new_dict), 
+        headers=headers)
     return response
 
-
-def mailgun_send_email(to_address, subject, body):
+async def mailgun_send_email(to_address, subject, body):
     api_url = "https://api.mailgun.net/v3/" + settings.MAILGUN_DOMAIN + "/messages"
     mailgun_key = settings.MAILGUN_API_KEY
-    return requests.post(
+    response = requests.post(
         api_url,
         auth=("api", mailgun_key),
         data={"from": settings.EMAIL_FROM,
               "to": [to_address],
               "subject": subject,
               "text": body})
+    return response
 
 def render_markdown(content):
     return Markup(markdown.markdown(content))
