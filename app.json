@@ -25,7 +25,7 @@
         },
         "DISABLE_EMAIL": {
             "description": "Email sending is disabled if set to true.",
-            "value": "true"
+            "value": "false"
         },
         "BASE_URL": {
             "description": "The base URL of the app.",
