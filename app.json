@@ -24,7 +24,7 @@
             "generator": "secret"
         },
         "DISABLE_EMAIL": {
-            "description": "Email sending is disabled if set to true.", 
+            "description": "Email sending is disabled if set to true.",
             "value": "true"
         },
         "BASE_URL": {
@@ -36,8 +36,8 @@
             "value": "_unused_"
         },
         "EMAIL_PROVIDER": {
-            "description": "What service emails are sent from. You have a choice between smtp, mailgun, and sendgrid. All services require EMAIL_FROM. SMTP requires EMAIL_USER and EMAIL_PASSWORD, alongside EMAIL_HOST and EMAIL_PORT. Mailgun requires MAILGUN_DOMAIN, and MAILGUN_API_KEY. Sendgrid requires SENDGRID_API_KEY.",
-            "value": "smtp-mailgun-sendgrid"
+            "description": "What service emails are sent from. You have a choice between smtp, mailgun, and sendgrid. All services require EMAIL_FROM. SMTP requires EMAIL_USER and EMAIL_PASSWORD, alongside EMAIL_HOST and EMAIL_PORT. Mailgun requires MAILGUN_DOMAIN, and MAILGUN_API_KEY. Sendgrid requires SENDGRID_API_KEY. *Make sure that the field below is either smtp, mailgun, or sendgrid.*",
+            "value": "smtp"
         },
         "EMAIL_USER": {
             "description": "Must be populated with an SMTP username if EMAIL_PROVIDER is set to smtp.",
