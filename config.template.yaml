@@ -166,3 +166,29 @@ email_body: null
 # event to this list (https://github.com/anishathalye/gavel/wiki/Users), at the
 # very least.
 send_stats: null
+
+
+# can also be specified as the 'EMAIL_PROVIDER' environment variable
+# defaults to 'smtp'
+#
+# This setting determines the method used to send emails to judges. User currently 
+# has the choice between smtp, sendgrid, and mailgun
+email_provider: 'smtp'
+
+# can also be specified as the 'SENDGRID_API_KEY' environment variable
+# defaults to null
+#
+# This setting must be populated if the email_provider is sendgrid
+sendgrid_api_key: null
+
+# can also be specified as the 'MAILGUN_DOMAIN' environment variable
+# defaults to null
+#
+# This setting must be populated if the email_provider is mailgun
+mailgun_domain: null
+
+# can also be specified as the 'MAILGUN_API_KEY' environment variable
+# defaults to null
+#
+# This setting must be populated if the email_provider is mailgun
+mailgun_api_key: null
