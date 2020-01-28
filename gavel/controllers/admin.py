@@ -1,4 +1,5 @@
 from gavel import app
+from gavel import socketio
 from gavel.models import *
 from gavel.constants import *
 from functools import wraps
@@ -11,6 +12,9 @@ from flask import (
   url_for,
   json)
 
+socket = socketio
+from sqlalchemy import event
+
 try:
   import urllib
 except ImportError:
@@ -19,7 +23,8 @@ import xlrd
 
 import asyncio
 
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 def async_action(f):
   @wraps(f)
