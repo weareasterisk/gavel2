@@ -1,5 +1,6 @@
 let currentAnnotators;
 let currentItems;
+let socket;
 
 /*
 * BEGIN REFRESH FUNCTION
@@ -9,8 +10,148 @@ let token;
 
 function setToken(t) { token = t }
 
+function getToken() { return token }
+
 const tableBody = document.getElementById("admin-table-body");
 const tableHead = document.getElementById("admin-table-head");
+
+let annotatorTable;
+let itemTable;
+let flagTable;
+
+window.addEventListener("DOMContentLoaded", () => {
+  socket = io.connect("http://"+ document.domain + ":" + location.port + "/admin")
+  
+  initTables();
+
+  socket.on('connect', () => {
+    socket.emit('user.connected', {
+      data: 'User Connected'
+    })
+  })
+
+  socket.on('connected', (message) => {
+    console.log(socket.connected);
+    console.log(message);
+  })
+
+  socket.on('db.inserted', (message) => {
+    console.log('inserted')
+    handleDbInserted(message.type, JSON.parse(message.target));
+    // socket.emit('db.inserted.confirmed');
+  })
+
+  socket.on('db.modified', (message) => {
+    console.log('modified')
+    handleDbModified(message.type, JSON.parse(message.target));
+    // socket.emit('db.modified.confirmed');
+  })
+
+  console.log("ready: ", socket)
+})
+
+function handleDbInserted(type, target) {
+  console.log(type, target)
+  switch (type) {
+    case("item"):
+      handleItemUpdate();
+      break;
+    case("annotator"):
+      handleAnnotatorUpdate();
+      break;
+    case("flag"):
+      handleFlagUpdate();
+      break;
+  }
+}
+
+function handleDbModified(type, target) {
+  console.log(type, target)
+  switch(type) {
+    case("item"):
+      handleItemInsert();
+      break;
+    case("annotator"):
+      handleAnnotatorInsert();
+      break;
+    case("flag"):
+      handleFlagInsert();
+      break;
+  }
+}
+
+function handleItemUpdate(target) {
+
+}
+
+function handleAnnotatorUpdate(target) {
+
+}
+
+function handleFlagUpdate(target) {
+
+}
+
+function handleItemInsert(target) {
+
+}
+
+function handleAnnotatorInsert(target) {
+
+}
+
+function handleFlagInsert(target) {
+
+}
+
+async function initTables() {
+  annotatorTable = new Tabulator("#annotator-table", {
+    height:"100%",
+    addRowPos:"bottom",
+    columns:[
+        {title:"Name", field:"name", width:200, editor:"input"},
+        {title:"ANNOTATOR TABLE", field:"progress", width:100, align:"right", sorter:"number", editor:"input"},
+        {title:"Gender", field:"gender", editor:"input"},
+        {title:"Rating", field:"rating", align:"center", width:80, editor:"input"},
+        {title:"Favourite Color", field:"col", editor:"input"},
+        {title:"Date Of Birth", field:"dob", align:"center", sorter:"date", editor:"input"},
+        {title:"Driver", field:"car", align:"center", editor:"input"},
+    ],
+  });
+
+  annotatorTable = new Tabulator("#item-table", {
+    height:"100%",
+    addRowPos:"bottom",
+    columns:[
+        {title:"ID", field:"id", width:200, editor:"input"},
+        {title:"Project Name", field:"name", width:100, align:"right", sorter:"number", editor:"input"},
+        {title:"Location", field:"mu", editor:"input"},
+        {title:"Description", field:"rating", align:"center", width:80, editor:"input"},
+        {title:"Mu", field:"col", editor:"input"},
+        {title:"Sigma^2", field:"dob", align:"center", sorter:"date", editor:"input"},
+        {title:"Votes", field:"car", align:"center", editor:"input"},
+        {title:"Seen"},
+        {title:"Skipped"},
+        {title:"Actions"},
+    ],
+  });
+
+  annotatorTable = new Tabulator("#flag-table", {
+    height:"100%",
+    addRowPos:"bottom",
+    columns:[
+        {title:"Name", field:"name", width:200, editor:"input"},
+        {title:"FLAG TABLE", field:"progress", width:100, align:"right", sorter:"number", editor:"input"},
+        {title:"Gender", field:"gender", editor:"input"},
+        {title:"Rating", field:"rating", align:"center", width:80, editor:"input"},
+        {title:"Favourite Color", field:"col", editor:"input"},
+        {title:"Date Of Birth", field:"dob", align:"center", sorter:"date", editor:"input"},
+        {title:"Driver", field:"car", align:"center", editor:"input"},
+    ],
+  });
+
+
+}
 
 const itemsHead = `
   <tr class="admin-table-head">
@@ -194,7 +335,7 @@ async function populateAnnotators(data) {
           <td>${annotator.name}</td>
           <td>${annotator.email}</td>
           <td class="preserve-formatting">${annotator.description}</td>
-          <td>${(annotatot.count || 0)}</td>
+          <td>${(annotator.count || 0)}</td>
           <td>${(annotator.next_id || 'None')}</td>
           <td>${(annotator.prev_id || 'None')}</td>
           <td>${(annotator.updated ? (((now - (Date.parse(annotator.updated) - now.getTimezoneOffset() * 60 * 1000)) / 60) / 1000).toFixed(0) + " min ago" : "Undefined")}</td>
@@ -374,29 +515,38 @@ function toggleSelector() {
 function showTab(e) {
   const content = document.getElementById("admin-switcher-content");
   const batch = document.getElementById("batchPanel");
+  
+  const annotators = document.getElementById("annotator-table")
+  const items = document.getElementById("item-table")
+  const flags = document.getElementById("flag-table");
+
+  annotators.style.display = "none"
+  items.style.display = "none"
+  flags.style.display = "none"
+
   currentTab = e;
   content.innerText = "none";
   batch.style.display = "none";
   localStorage.setItem("currentTab", e);
-  clearTable();
+
   switch (localStorage.getItem("currentTab")) {
     case "annotators":
       content.innerText = "Manage Judges";
       batch.style.display = "inline-block";
-      // setTableHead(annotatorsHead);
+      annotators.style.display = "block"
       break;
     case "items":
       content.innerText = "Manage Projects";
       batch.style.display = "inline-block";
-      // setTableHead(itemsHead);
+      items.style.display = "block"
       break;
     case "flags":
-      content.innerText = "Manage Reports";
-      // setTableHead(flagsHead);
+      content.innerText = "Manage Flags";
+      flags.style.display = "block"
       break;
     default:
-      content.innerText = "Manage Reports";
-      // setTableHead(flagsHead);
+      content.innerText = "Manage Flags";
+      flags.style.display = "block"
       break;
   }
   setAddButtonState();
@@ -556,3 +706,8 @@ $('#batchDisable').click(async function () {
   const full = await form;
   full.submit();
 });
+
+$(document).ready(() => {
+  showTab(localStorage.getItem("currentTab") || "flags");
+  initTableSorter();
+})
