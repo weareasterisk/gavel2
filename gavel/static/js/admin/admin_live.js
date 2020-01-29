@@ -38,13 +38,13 @@ window.addEventListener("DOMContentLoaded", () => {
   socket.on('db.inserted', (message) => {
     console.log('inserted')
     handleDbInserted(message.type, JSON.parse(message.target));
-    // socket.emit('db.inserted.confirmed');
+    socket.emit('db.inserted.confirmed');
   })
 
   socket.on('db.modified', (message) => {
     console.log('modified')
     handleDbModified(message.type, JSON.parse(message.target));
-    // socket.emit('db.modified.confirmed');
+    socket.emit('db.modified.confirmed');
   })
 
   console.log("ready: ", socket)
@@ -150,8 +150,6 @@ async function initTables() {
         {title:"Actions"},
     ],
   });
-
-
 }
 
 const itemsHead = `
