@@ -10,6 +10,7 @@
 {% endassets %}
 {% endblock %}
 {% block content %}
+<div>
 <div class="admin-container">
   <div class="banner-branded">Gavel Admin Dashboard<span style="cursor: pointer;"
       onclick="toggleAutoRefresh(!livereload)" class="live-active" id="live"> Live</span>
@@ -75,6 +76,8 @@
       <div class="normal-caps-red-14 inline pointer" id="" onclick="openModal('delete-entries')"><span class="trashcan"></span>BATCH DELETE</div>
     </div>
   </div>
+</div>
+<div style="padding: 36px; flex: 1;">
   <div class="admin-tabs live-table">
     <div id="admin-table-wrapper" class="admin-table live-table">
       <div id="annotator-table" style="display: none"> </div>
@@ -82,6 +85,7 @@
       <div id="flag-table" style="display: none"> </div>
     </div>
   </div>
+</div>  
 
   {% include './admin_components/add_projects_modal.html' %}
 
