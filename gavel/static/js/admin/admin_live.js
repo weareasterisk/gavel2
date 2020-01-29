@@ -19,6 +19,17 @@ let annotatorTable;
 let itemTable;
 let flagTable;
 
+const tableCommon = {
+  index:"id",
+  layout:"fitColumns",
+  addRowPos:"bottom",
+  rowFormatter:function(row){
+    if(!!row.getData().prioritized){
+        row.getElement().style.backgroundColor = "#A6A6DF";
+    }
+  },
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   socket = io.connect("http://"+ document.domain + ":" + location.port + "/admin")
   
@@ -50,7 +61,7 @@ window.addEventListener("DOMContentLoaded", () => {
   console.log("ready: ", socket)
 })
 
-function handleDbInserted(type, target) {
+async function handleDbInserted(type, target) {
   console.log(type, target)
   switch (type) {
     case("item"):
@@ -65,7 +76,7 @@ function handleDbInserted(type, target) {
   }
 }
 
-function handleDbModified(type, target) {
+async function handleDbModified(type, target) {
   console.log(type, target)
   switch(type) {
     case("item"):
@@ -106,106 +117,53 @@ function handleFlagInsert(target) {
 
 async function initTables() {
   annotatorTable = new Tabulator("#annotator-table", {
-    height:"100%",
-    addRowPos:"bottom",
+    ...tableCommon,
     columns:[
-        {title:"ID", field:"id", sorter:"number"},
-        {title:"Name", field:"name", align:"left"},
-        {title:"Email", field:"email"},
-        {title:"Description", field:"description", align:"left", width:80},
-        {title:"Votes", field:"votes"},
-        {title:"Next (ID)", field:"next_id", align:"center", sorter:"number"},
-        {title:"Prev. (ID)", field:"prev_id", align:"center", sorter:"number"},
-        {title:"Updated", field:"updated", sorter:"date"},
-        {title:"Actions"},
+      {title:"ID", field:"id", sorter:"number",
+        formatter: (cell, formatterParams) => {
+          const value = cell.getValue();
+          return `<a onclick="openJudge(${value})" class="colored">${value}</a>`
+        }
+      },
+      {title:"Name", field:"name", align:"left"},
+      {title:"Email", field:"email"},
+      {title:"Description", field:"description", width:150, formatter:"textarea"},
+      {title:"Votes", field:"votes"},
+      {title:"Next (ID)", field:"next_id", align:"center", sorter:"number"},
+      {title:"Prev. (ID)", field:"prev_id", align:"center", sorter:"number"},
+      {title:"Updated", field:"updated", sorter:"date"},
+      {title:"Actions", headerSort:false},
     ],
   });
 
-  annotatorTable = new Tabulator("#item-table", {
-    height:"100%",
-    addRowPos:"bottom",
+  itemTable = new Tabulator("#item-table", {
+    ...tableCommon,
     columns:[
         {title:"ID", field:"id", sorter:"number"},
         {title:"Project Name", field:"name", align:"left"},
         {title:"Location", field:"location"},
-        {title:"Description", field:"description", align:"left"},
+        {title:"Description", field:"description", align:"left", formatter:"textarea", width:300},
         {title:"Mu", field:"mu", sorter:"number"},
         {title:"Sigma^2", field:"sigma", align:"center", sorter:"number"},
         {title:"Votes", field:"votes", align:"center", sorter:"number"},
         {title:"Seen", field:"seen", sorter:"number"},
         {title:"Skipped", field:"skipped", sorter:"number"},
-        {title:"Actions"},
+        {title:"Actions", headerSort:false},
     ],
   });
 
-  annotatorTable = new Tabulator("#flag-table", {
-    height:"100%",
-    addRowPos:"bottom",
+  flagTable = new Tabulator("#flag-table", {
+    ...tableCommon,
     columns:[
         {title:"ID", field:"id", sorter:"number"},
         {title:"Judge Name", field:"annotator_name", align:"left"},
         {title:"Project Name", field:"item_name"},
         {title:"Project Location", field:"item_location"},
         {title:"Reason", field:"reason"},
-        {title:"Actions"},
+        {title:"Actions", headerSort:false},
     ],
   });
 }
-
-const itemsHead = `
-  <tr class="admin-table-head">
-    <th class="no-sort admin-head-check admin-table-head-item">
-      <label>
-        <input onclick="checkAllProjects()" id="check-all-projects" type="checkbox" class="admin-check">
-      </label>
-    </th>
-    <th class="admin-table-head-item admin-head-id">Id<a></a></th>
-    <th class="admin-table-head-item admin-head-project">Project Name<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Location<a></a></th>
-    <th class="admin-table-head-item admin-head-double">Description<a></a></th>
-    <th class="admin-table-head-item sort-default admin-head-standard">Mu<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Sigma<sup>2</sup><a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Votes<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Seen<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Skipped<a></a></th>
-    <th class="admin-table-head-item admin-head-standard no-sort">Actions<a></a></th>
-  </tr>
-`;
-
-const annotatorsHead = `
-  <tr class="admin-table-head">
-    <th class="admin-table-head-item no-sort admin-head-check">
-      <label>
-        <input onclick="checkAllJudges()" id="check-all-judges" type="checkbox" class="admin-check">
-      </label>
-    </th>
-    <th class="admin-table-head-item sort-default admin-head-id">Id<a></a></th>
-    <th class="admin-table-head-item admin-head-project">Name<a></a></th>
-    <th class="admin-table-head-item admin-head-project">Email<a></a></th>
-    <th class="admin-table-head-item admin-head-double">Description<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Votes<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Next (Id)<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Prev. (Id)<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Updated<a></a></th>
-    <th class="admin-table-head-item no-sort admin-head-standard">Actions<a></a></th>
-  </tr>
-`;
-
-const flagsHead = `
-  <tr class="admin-table-head">
-    <th class="admin-table-head-item admin-head-check no-sort">
-      <label>
-        <input onclick="checkAllReports()" id="check-all-reports" type="checkbox" class="admin-check">
-      </label>
-    </th>
-    <th class="admin-table-head-item admin-table-head-item admin-head-id">Id<a></a></th>
-    <th class="admin-table-head-item admin-head-judge">Judge Name<a></a></th>
-    <th class="admin-table-head-item admin-head-project">Project Name<a></a></th>
-    <th class="admin-table-head-item admin-head-project">Project Location<a></a></th>
-    <th class="admin-table-head-item admin-head-standard">Reason<a></a></th>
-    <th class="admin-table-head-item admin-head-standard no-sort">Actions</th>
-  </tr>
-`;
 
 async function clearTable() {
   tableHead.innerHTML = "";
@@ -243,187 +201,28 @@ async function updateTableSorter() {
 
 async function populateItems(data) {
   try {
-    const items = data.items;
-    const skipped = data.skipped;
-    const item_count = data.item_count;
-    const item_counts = data.item_counts;
-    const viewed = data.viewed;
-
-    for (let i = 0; i < items.length; i++) {
-      try {
-        const item = items[i];
-
-        if (!item.id)
-          continue;
-
-        const item_template = `
-        <tr class="bb ${(item.active ? item.prioritized ? 'prioritized' : '' : 'disabled')}">
-          <td id="project-check-container"><input id="${item.id}" type="checkbox" name="item" value="${item.id}" class="admin-check"/></td>
-          <td><a onclick="openProject(${item.id})" class="colored">${item.id}</a></td>
-          <td>${item.name}</td>
-          <td>${item.location}</td>
-          <td class="preserve-formatting">${item.description}</td>
-          <td>${item.mu.toFixed(4)}</td>
-          <td>${item.sigma_sq.toFixed(4)}</td>
-          <td>${item.counts}</td>
-          <td>${item.viewed}</td>
-          <td>${item.skipped}</td>
-          <td data-sort="${item.prioritized}">
-            <span onclick="openProject(${item.id})" class="inline-block tooltip">
-              <button class="nobackgroundnoborder">
-                <i class="fas fa-pencil-alt"></i>
-              </button>
-              <span class="tooltiptext">Edit Project</span>
-            </span>
-            <form action="/admin/item" method="post" class="inline-block tooltip">
-              <button type="submit" class="nobackgroundnoborder"><i class="fas ${(item.prioritized ? 'fa-chevron-down' : 'fa-chevron-up')}"></i></button>
-              <span class="tooltiptext">${(item.prioritized ? 'Cancel' : 'Prioritize')}</span>
-              <input type="hidden" name="action" value="${(item.prioritized ? 'Cancel' : 'Prioritize')}"
-                     class="${(item.prioritized ? 'negative' : 'positive')}">
-              <input type="hidden" name="item_id" value="${item.id}">
-              <input type="hidden" name="_csrf_token" value="${token}">
-            </form>
-            <form action="/admin/item" method="post" class="inline-block tooltip">
-              <button type="submit" class="nobackgroundnoborder"><i class="fas ${(item.active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
-              <span class="tooltiptext">${(item.active ? 'Deactivate' : 'Activate')}</span>
-              <input type="hidden" name="action" value="${(item.active ? 'Disable' : 'Enable')}"
-                     class="${(item.active ? 'negative' : 'positive')}">
-              <input type="hidden" name="item_id" value="${item.id}">
-              <input type="hidden" name="_csrf_token" value="${token}">
-            </form>
-            <form action="/admin/item" method="post" class="inline-block tooltip">
-              <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash-alt"></i></button>
-              <span class="tooltiptext">Delete</span>
-              <input type="hidden" name="action" value="Delete" class="negative">
-              <input type="hidden" name="item_id" value="${item.id}">
-              <input type="hidden" name="_csrf_token" value="${token}">
-            </form>
-          </td>
-        </tr>`;
-
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = item_template;
-        tableBody.appendChild(row);
-      } catch (e) {
-        console.error(`Error populating item at index ${i}`);
-        console.log(e)
-      }
-
-    }
-
+    itemTable.setData(data.items)
   } catch (e) {
-    console.error("Error populating items");
-    console.log(e);
+    console.error("Error populating items")
+    console.log(e)
   }
 }
 
 async function populateAnnotators(data) {
   try {
-    const { annotators } = data;
-
-    const now = new Date();
-
-    for (let i = 0; i < annotators.length; i++) {
-      try {
-        const annotator = annotators[i];
-
-        const annotator_template = `
-        <tr class="bb ${annotator.active ? '' : 'disabled'}">
-          <td id="judge-check-container"><input id="${annotator.id}" type="checkbox" name="annotator" value="${annotator.id}" class="admin-check"/></td>
-          <td><a onclick="openJudge(${annotator.id})" class="colored">${annotator.id}</a></td>
-          <td>${annotator.name}</td>
-          <td>${annotator.email}</td>
-          <td class="preserve-formatting">${annotator.description}</td>
-          <td>${(annotator.count || 0)}</td>
-          <td>${(annotator.next_id || 'None')}</td>
-          <td>${(annotator.prev_id || 'None')}</td>
-          <td>${(annotator.updated ? (((now - (Date.parse(annotator.updated) - now.getTimezoneOffset() * 60 * 1000)) / 60) / 1000).toFixed(0) + " min ago" : "Undefined")}</td>
-          <td data-sort="${annotator.active}">
-            <span onclick="openJudge(${annotator.id})" class="inline-block tooltip">
-              <button class="nobackgroundnoborder">
-                <i class="fas fa-pencil-alt"></i>
-              </button>
-              <span class="tooltiptext">Edit Judge</span>
-            </span>
-            <form action="/admin/annotator" method="post" class="inline-block tooltip">
-              <button type="submit" class="nobackgroundnoborder"><i class="fas fa-envelope"></i></button>
-              <span class="tooltiptext">Send Email</span>
-              <input type="hidden" name="action" value="Email" class="neutral">
-              <input type="hidden" name="annotator_id" value="${annotator.id}">
-              <input type="hidden" name="_csrf_token" value="${token}">
-            </form>
-            <form action="/admin/annotator" method="post" class="inline-block tooltip">
-              <button type="submit" class="nobackgroundnoborder"><i class="fas ${(annotator.active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
-              <span class="tooltiptext">${(annotator.active ? 'De-Activate' : 'Activate')}</span>
-              <input type="hidden" name="action" value="${(annotator.active ? 'Disable' : 'Enable')}"
-                     class="${(annotator.active ? 'negative' : 'positive')}">
-              <input type="hidden" name="annotator_id" value="${annotator.id}">
-              <input type="hidden" name="_csrf_token" value="${token}">
-            </form>
-            <form action="/admin/annotator" method="post" class="inline-block tooltip">
-              <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash-alt"></i></button>
-              <input type="hidden" name="action" value="Delete" class="negative">
-              <span class="tooltiptext">Delete</span>
-              <input type="hidden" name="annotator_id" value="${annotator.id}">
-              <input type="hidden" name="_csrf_token" value="${token}">
-            </form>
-          </td>
-        </tr>`;
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = annotator_template;
-        tableBody.appendChild(newRow);
-      } catch (e) {
-        console.error(`Error populating annotator at index ${i}`);
-        console.log(e)
-      }
-    }
-
+    annotatorTable.setData(data.annotators)
   } catch (e) {
-    console.error("Error populating annotators");
-    console.log(e);
+    console.error("Error populating annotators")
+    console.log(e)
   }
-
 }
 
 async function populateFlags(data) {
   try {
-    const flags = data.flags;
-    const flag_count = data.flags;
-
-    for (let i = 0; i < flags.length; i++) {
-      try {
-        const flag = flags[i];
-
-        const flag_template = `
-          <tr class="bb ${flag.resolved ? "open" : "resolve"}">
-            <td><input id="${flag.id}" type="checkbox" name="item" value="${flag.item_id}" class="admin-check"/></td>
-            <td>${flag.id}</td>
-            <td><a onclick="openJudge(${flag.annotator_id})" href="#" class="colored">${flag.annotator_name}</a></td>
-            <td><a onclick="openProject(${flag.item_id})" href="#" class="colored">${flag.item_name}</a></td>
-            <td>${flag.item_location}</td>
-            <td>${flag.reason}</td>
-            <td>
-              <form action="/admin/report" method="post" class="inline-block">
-                ${(flag.resolved) ? '<button type="submit" class="button-full background-grey h-32 text-12 text-bold uppercase">Open Flag</button>' : '<button type="submit" class="button-full background-purple h-32 text-12 text-bold uppercase">Resolve Flag</button>'}
-                <input type="hidden" name="action" value="${flag.resolved ? "open" : "resolve"}"
-                       class="${flag.resolved ? "negative" : "positive"}">
-                <input type="hidden" name="flag_id" value="${flag.id}">
-                <input type="hidden" name="_csrf_token" value="${token}">
-              </form>
-            </td>
-          </tr>`;
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = flag_template;
-        tableBody.appendChild(newRow);
-      } catch (e) {
-        console.error(`Error populating flag at index ${i}`);
-        console.log(e);
-      }
-    }
-
+    flagTable.setData(data.flags)
   } catch (e) {
-    console.error("Error populating flags");
-    console.log(e);
+    console.error("Error populating flags")
+    console.log(e)
   }
 }
 
@@ -442,28 +241,23 @@ async function spawnTable(id) {
     switch (id) {
       case "items":
         Promise.all([
-          clearTableBody(),
           populateItems(data)
         ]);
         break;
 
       case "annotators":
         Promise.all([
-          clearTableBody(),
           populateAnnotators(data)
         ]);
         break;
 
       case "flags":
         Promise.all([
-          clearTableBody(),
           populateFlags(data)
         ]);
         break;
     }
-  }).then(() => {
-    updateTableSorter();
-  });
+  })
 
 }
 
@@ -549,7 +343,7 @@ function showTab(e) {
       break;
   }
   setAddButtonState();
-  // triggerTableUpdate();
+  triggerTableUpdate();
 }
 
 function setAddButtonState() {
