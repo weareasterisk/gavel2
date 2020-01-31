@@ -10,7 +10,7 @@ from flask_compress import Compress
 from flask_minify import minify
 from flask_socketio import SocketIO
 import eventlet
-eventlet.monkey_patch()
+eventlet.monkey_patch(os=True, select=True, socket=True, thread=True, time=True, psycopg=True)
 
 COMPRESS_MIMETYPES = [
   'text/html',
