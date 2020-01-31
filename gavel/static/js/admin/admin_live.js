@@ -55,7 +55,7 @@ window.addEventListener("DOMContentLoaded", () => {
 })
 
 function handleDbModified(type, target) {
-  console.log(type, JSON.stringify(target, null, 2))
+  console.log(type, target)
   switch (type) {
     case("item"):
       handleItemUpdate(target);
@@ -70,7 +70,7 @@ function handleDbModified(type, target) {
 }
 
 function handleDbInserted(type, target) {
-  console.log(type, JSON.stringify(target, null, 2))
+  console.log(type, target)
   switch(type) {
     case("item"):
       handleItemInsert(target);
