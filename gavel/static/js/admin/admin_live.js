@@ -700,7 +700,6 @@ $('#batchDisable').click(async function () {
 
 $(document).ready(() => {
   showTab(localStorage.getItem("currentTab") || "flags");
-  initTableSorter();
 })
 
 function time_ago(time) {

@@ -36,6 +36,12 @@ def injectAnnotator(target, target_dumped):
   target_dumped.update({
     'votes': count
   })
+
+  # Emit DB modify event to update item views affected by annotator modifications
+  for i in target.ignore:
+    item = Item.query.get(i.id)
+    socketio.emit(DB_MODIFY_EVENT, standardize(item), namespace='/admin')
+
   return target_dumped
 
 def injectFlag(target, target_dumped):
@@ -47,17 +53,20 @@ def injectFlag(target, target_dumped):
   return target_dumped
 
 def injectItem(target, target_dumped):
-  skipped = 0
-  annotators = Annotator.query.all()
-  for a in annotators:
-    ignored = len(a.ignore)
-    for i in a.ignore:
-      if a.id not in target.viewed and i.id == target.id:
-        skipped = skipped + 1
+  assigned = Annotator.query.filter(Annotator.next == target).all()
+  viewed_ids = {i.id for i in target.viewed}
+  if viewed_ids:
+    skipped = Annotator.query.filter(
+      Annotator.ignore.contains(target) & ~Annotator.id.in_(viewed_ids)
+    ).count()
+  else:
+    skipped = Annotator.query.filter(Annotator.ignore.contains(target)).count()
+
+  viewed = len(target.viewed)
 
   target_dumped.update({
-    'viewed': len(target.viewed),
-    'votes': Decision.query.filter(or_(Decision.winner_id == target.id, Decision.loser_id == target.id)).count(),
+    'viewed': viewed,
+    'votes': Decision.query.filter(or_(Decision.winner_id == target.id, Decision.loser_id == target.id)).distinct(Decision.id).count(),
     'skipped': skipped
   })
   return target_dumped
