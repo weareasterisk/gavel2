@@ -6,7 +6,7 @@ from gavel.models import *
 import gavel.settings as settings
 import gavel.utils as utils
 from sqlalchemy import event
-from sqlalchemy import or_
+from sqlalchemy import (or_, not_)
 from flask import (json)
 
 def standardize(target):
@@ -47,9 +47,18 @@ def injectFlag(target, target_dumped):
   return target_dumped
 
 def injectItem(target, target_dumped):
+  skipped = 0
+  annotators = Annotator.query.all()
+  for a in annotators:
+    ignored = len(a.ignore)
+    for i in a.ignore:
+      if a.id not in target.viewed and i.id == target.id:
+        skipped = skipped + 1
+
   target_dumped.update({
     'viewed': len(target.viewed),
-    'votes': Decision.query.filter(or_(Decision.winner_id == target.id, Decision.loser_id == target.id)).count()
+    'votes': Decision.query.filter(or_(Decision.winner_id == target.id, Decision.loser_id == target.id)).count(),
+    'skipped': skipped
   })
   return target_dumped
 
@@ -59,7 +68,7 @@ DB_MODIFY_EVENT = 'db.modified'
 
 @socketio.on('user.connected', namespace='/admin')
 def test_connect(data):
-  emit('connected', data, namespace='/admin')
+  emit(CONNECT, data, namespace='/admin')
 
 @event.listens_for(Annotator, 'after_insert')
 @utils.requires_auth
