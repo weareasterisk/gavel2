@@ -313,26 +313,34 @@ def item():
       for index, row in enumerate(data):
         if len(row) != 3:
           return utils.user_error('Bad data: row %d has %d elements (expecting 3)' % (index + 1, len(row)))
-      for row in data:
-        _item = Item(*row)
-        db.session.add(_item)
-      db.session.commit()
+      def tx():
+        for row in data:
+          _item = Item(*row)
+          db.session.add(_item)
+        db.session.commit()
+      with_retries(tx)
   elif action == 'Prioritize' or action == 'Cancel':
     item_id = request.form['item_id']
     target_state = action == 'Prioritize'
-    Item.by_id(item_id).prioritized = target_state
-    db.session.commit()
+    def tx():
+      Item.by_id(item_id).prioritized = target_state
+      db.session.commit()
+    with_retries(tx)
   elif action == 'Disable' or action == 'Enable':
     item_id = request.form['item_id']
     target_state = action == 'Enable'
-    Item.by_id(item_id).active = target_state
-    db.session.commit()
+    def tx():
+      Item.by_id(item_id).active = target_state
+      db.session.commit()
+    with_retries(tx)
   elif action == 'Delete':
     item_id = request.form['item_id']
     try:
-      db.session.execute(ignore_table.delete(ignore_table.c.item_id == item_id))
-      Item.query.filter_by(id=item_id).delete()
-      db.session.commit()
+      def tx():
+        db.session.execute(ignore_table.delete(ignore_table.c.item_id == item_id))
+        Item.query.filter_by(id=item_id).delete()
+        db.session.commit()
+      with_retries(tx)
     except IntegrityError as e:
       return utils.server_error(str(e))
   elif action == 'BatchDisable':
@@ -340,23 +348,31 @@ def item():
     error = []
     for item_id in item_ids:
       try:
-        Item.by_id(item_id).active = False
-        db.session.commit()
+        def tx():
+          Item.by_id(item_id).active = False
+          db.session.commit()
+        with_retries(tx)
       except:
         error.append(item_id)
-        db.session.rollback()
+        def tx():
+          db.session.rollback()
+        with_retries(tx)
   elif action == 'BatchDelete':
     db.Session.autocommit = True
     item_ids = request.form.getlist('ids')
     error = []
     for item_id in item_ids:
       try:
-        db.session.execute(ignore_table.delete(ignore_table.c.item_id == item_id))
-        Item.query.filter_by(id=item_id).delete()
-        db.session.commit()
+        def tx():
+          db.session.execute(ignore_table.delete(ignore_table.c.item_id == item_id))
+          Item.query.filter_by(id=item_id).delete()
+          db.session.commit()
+        with_retries(tx)
       except Exception as e:
         error.append(str(e))
-        db.session.rollback()
+        def tx():
+          db.session.rollback()
+        with_retries(tx)
         continue
   return redirect(url_for('admin'))
 
@@ -370,14 +386,18 @@ def queue_shutdown():
     for an in annotators:
       if an.active:
         an.stop_next = True
-    Setting.set(SETTING_STOP_QUEUE, True)
-    db.session.commit()
+    def tx():
+      Setting.set(SETTING_STOP_QUEUE, True)
+      db.session.commit()
+    with_retries(tx)
   elif action == 'dequeue':
     for an in annotators:
       if an.stop_next:
         an.stop_next = False
-    Setting.set(SETTING_STOP_QUEUE, False)
-    db.session.commit()
+    def tx():
+      Setting.set(SETTING_STOP_QUEUE, False)
+      db.session.commit()
+    with_retries(tx)
 
   return redirect(url_for('admin'))
 
@@ -389,13 +409,17 @@ def flag():
   if action == 'resolve':
     flag_id = request.form['flag_id']
     target_state = action == 'resolve'
-    Flag.by_id(flag_id).resolved = target_state
-    db.session.commit()
+    def tx():
+      Flag.by_id(flag_id).resolved = target_state
+      db.session.commit()
+    with_retries(tx)
   elif action == 'open':
     flag_id = request.form['flag_id']
     target_state = 1 == 2
-    Flag.by_id(flag_id).resolved = target_state
-    db.session.commit()
+    def tx():
+      Flag.by_id(flag_id).resolved = target_state
+      db.session.commit()
+    with_retries(tx)
   return redirect(url_for('admin'))
 
 
@@ -425,32 +449,36 @@ def parse_upload_form():
 @app.route('/admin/item_patch', methods=['POST'])
 @utils.requires_auth
 def item_patch():
-  item = Item.by_id(request.form['item_id'])
-  if not item:
-    return utils.user_error('Item %s not found ' % request.form['item_id'])
-  if 'location' in request.form:
-    item.location = request.form['location']
-  if 'name' in request.form:
-    item.name = request.form['name']
-  if 'description' in request.form:
-    item.description = request.form['description']
-  db.session.commit()
+  def tx():
+    item = Item.by_id(request.form['item_id'])
+    if not item:
+      return utils.user_error('Item %s not found ' % request.form['item_id'])
+    if 'location' in request.form:
+      item.location = request.form['location']
+    if 'name' in request.form:
+      item.name = request.form['name']
+    if 'description' in request.form:
+      item.description = request.form['description']
+    db.session.commit()
+  with_retries(tx)
   return redirect(url_for('item_detail', item_id=item.id))
 
 
 @app.route('/admin/annotator_patch', methods=['POST'])
 @utils.requires_auth
 def annotator_patch():
-  annotator = Annotator.by_id(request.form['annotator_id'])
-  if not item:
-    return utils.user_error('Annotator %s not found ' % request.form['annotator_id'])
-  if 'name' in request.form:
-    annotator.name = request.form['name']
-  if 'email' in request.form:
-    annotator.email = request.form['email']
-  if 'description' in request.form:
-    annotator.description = request.form['description']
-  db.session.commit()
+  def tx():
+    annotator = Annotator.by_id(request.form['annotator_id'])
+    if not item:
+      return utils.user_error('Annotator %s not found ' % request.form['annotator_id'])
+    if 'name' in request.form:
+      annotator.name = request.form['name']
+    if 'email' in request.form:
+      annotator.email = request.form['email']
+    if 'description' in request.form:
+      annotator.description = request.form['description']
+    db.session.commit()
+  with_retries(tx)
   return redirect(url_for('annotator_detail', annotator_id=annotator.id))
 
 
@@ -466,11 +494,13 @@ def annotator():
       for index, row in enumerate(data):
         if len(row) != 3:
           return utils.user_error('Bad data: row %d has %d elements (expecting 3)' % (index + 1, len(row)))
-      for row in data:
-        annotator = Annotator(*row)
-        added.append(annotator)
-        db.session.add(annotator)
-      db.session.commit()
+      def tx():
+        for row in data:
+          annotator = Annotator(*row)
+          added.append(annotator)
+          db.session.add(annotator)
+        db.session.commit()
+      with_retries(tx)
       try:
         email_invite_links(added)
       except Exception as e:
@@ -484,14 +514,18 @@ def annotator():
   elif action == 'Disable' or action == 'Enable':
     annotator_id = request.form['annotator_id']
     target_state = action == 'Enable'
-    Annotator.by_id(annotator_id).active = target_state
-    db.session.commit()
+    def tx():
+      Annotator.by_id(annotator_id).active = target_state
+      db.session.commit()
+    with_retries(tx)
   elif action == 'Delete':
     annotator_id = request.form['annotator_id']
     try:
-      db.session.execute(ignore_table.delete(ignore_table.c.annotator_id == annotator_id))
-      Annotator.query.filter_by(id=annotator_id).delete()
-      db.session.commit()
+      def tx():
+        db.session.execute(ignore_table.delete(ignore_table.c.annotator_id == annotator_id))
+        Annotator.query.filter_by(id=annotator_id).delete()
+        db.session.commit()
+      with_retries(tx)
     except IntegrityError as e:
       return utils.server_error(str(e))
   elif action == 'BatchDisable':
@@ -499,10 +533,14 @@ def annotator():
     errored = []
     for annotator_id in annotator_ids:
       try:
-        Annotator.by_id(annotator_id).active = False
-        db.session.commit()
+        def tx():
+          Annotator.by_id(annotator_id).active = False
+          db.session.commit()
+        with_retries(tx)
       except:
-        db.session.rollback()
+        def tx():
+          db.session.rollback()
+        with_retries(tx)
         errored.append(annotator_id)
         continue
   elif action == 'BatchDelete':
@@ -510,11 +548,15 @@ def annotator():
     errored = []
     for annotator_id in annotator_ids:
       try:
-        db.session.execute(ignore_table.delete(ignore_table.c.annotator_id == annotator_id))
-        Annotator.query.filter_by(id=annotator_id).delete()
-        db.session.commit()
+        def tx():
+          db.session.execute(ignore_table.delete(ignore_table.c.annotator_id == annotator_id))
+          Annotator.query.filter_by(id=annotator_id).delete()
+          db.session.commit()
+        with_retries(tx)
       except:
-        db.session.rollback()
+        def tx():
+          db.session.rollback()
+        with_retries(tx)
         errored.append(annotator_id)
         continue
   return redirect(url_for('admin'))
