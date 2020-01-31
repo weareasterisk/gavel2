@@ -34,7 +34,7 @@ def standardize(target):
 def injectAnnotator(target, target_dumped):
   count = Decision.query.filter(Decision.annotator_id == target.id).count()
   target_dumped.update({
-    'count': count
+    'votes': count
   })
   return target_dumped
 
@@ -49,7 +49,7 @@ def injectFlag(target, target_dumped):
 def injectItem(target, target_dumped):
   target_dumped.update({
     'viewed': len(target.viewed),
-    'counts': Decision.query.filter(or_(Decision.winner_id == target.id, Decision.loser_id == target.id)).count()
+    'votes': Decision.query.filter(or_(Decision.winner_id == target.id, Decision.loser_id == target.id)).count()
   })
   return target_dumped
 

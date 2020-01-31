@@ -156,7 +156,7 @@ def admin_items():
       item_dumped = it.to_dict()
       item_dumped.update({
         'viewed': len(viewed.get(it.id, 0)),
-        'counts': item_counts.get(it.id, 0),
+        'votes': item_counts.get(it.id, 0),
         'skipped': skipped.get(it.id, 0)
       })
       items_dumped.append(item_dumped)
@@ -229,7 +229,7 @@ def admin_annotators():
     try:
       annotator_dumped = an.to_dict()
       annotator_dumped.update({
-        'count': counts.get(an.id, 0)
+        'votes': counts.get(an.id, 0)
       })
       annotators_dumped.append(annotator_dumped)
     except:
