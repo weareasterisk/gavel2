@@ -8,6 +8,7 @@ import gavel.utils as utils
 from sqlalchemy import event
 from sqlalchemy import (or_, not_)
 from flask import (json)
+import asyncio
 
 def standardize(target):
   name = target.__tablename__
@@ -31,16 +32,12 @@ def standardize(target):
       'type': name,
       'target': target.to_dict()
     }
+
 def injectAnnotator(target, target_dumped):
   count = Decision.query.filter(Decision.annotator_id == target.id).count()
   target_dumped.update({
     'votes': count
   })
-
-  # Emit DB modify event to update item views affected by annotator modifications
-  for i in target.ignore:
-    item = Item.query.get(i.id)
-    socketio.emit(DB_MODIFY_EVENT, standardize(item), namespace='/admin')
 
   return target_dumped
 
@@ -78,6 +75,14 @@ DB_MODIFY_EVENT = 'db.modified'
 @socketio.on('user.connected', namespace='/admin')
 def test_connect(data):
   emit(CONNECT, data, namespace='/admin')
+
+@socketio.on('annotator.updated', namespace='/admin')
+@utils.requires_auth
+def triggerRelatedItemUpdates(data):
+  ignore_ids = {i['id'] for i in data['ignore']}
+  items = Item.query.filter(Item.id.in_(ignore_ids))
+  for i in items:
+    socketio.emit(DB_MODIFY_EVENT, standardize(i), namespace='/admin')
 
 @event.listens_for(Annotator, 'after_insert')
 @utils.requires_auth

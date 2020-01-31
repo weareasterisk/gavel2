@@ -90,6 +90,7 @@ async function handleItemUpdate(target) {
 
 async function handleAnnotatorUpdate(target) {
   Promise.resolve(annotatorData.api.updateRowData({update: [target]}))
+  socket.emit('annotator.updated', target)
 }
 
 async function handleFlagUpdate(target) {
@@ -102,6 +103,7 @@ async function handleItemInsert(target) {
 
 async function handleAnnotatorInsert(target) {
   Promise.resolve(annotatorData.api.updateRowData({add: [target]}))
+  socket.emit('annotator.inserted', target)
 }
 
 async function handleFlagInsert(target) {
