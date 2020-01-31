@@ -15,17 +15,67 @@
     },
     "description": "An awesome judging system for hackathons",
     "env": {
-        "ADMIN_PASSWORD": "change-this-before-deploying",
-        "SECRET_KEY": "randomly-generate-this-before-deploying",
-        "DISABLE_EMAIL": "true",
-        "BASE_URL": "https://example.com/",
-        "EMAIL_FROM": "_unused_",
-        "EMAIL_USER": "_unused_",
-        "EMAIL_PASSWORD": "_unused_",
-        "IGNORE_CONFIG_FILE": "true",
-        "EMAIL_HOST": "smtp.gmail.com",
-        "EMAIL_PORT": "587"
+        "ADMIN_PASSWORD": {
+            "description": "Password for the administrator account.",
+            "value": "change-this-before-deploying"
+        },
+        "SECRET_KEY": {
+            "description": "Secret key used to hash requests and keys.",
+            "generator": "secret"
+        },
+        "DISABLE_EMAIL": {
+            "description": "Email sending is disabled if set to true.",
+            "value": "false"
+        },
+        "BASE_URL": {
+            "description": "The base URL of the app.",
+            "value": "https://<app-name>.herokuapp.com"
+        },
+        "EMAIL_FROM": {
+            "description": "Who the emails are sent from. Use the format: Sender Name <sender@email.com>",
+            "value": "_unused_"
+        },
+        "EMAIL_PROVIDER": {
+            "description": "What service emails are sent from. You have a choice between smtp, mailgun, and sendgrid. All services require EMAIL_FROM. SMTP requires EMAIL_USER and EMAIL_PASSWORD, alongside EMAIL_HOST and EMAIL_PORT. Mailgun requires MAILGUN_DOMAIN, and MAILGUN_API_KEY. Sendgrid requires SENDGRID_API_KEY. *Make sure that the field below is either smtp, mailgun, or sendgrid.*",
+            "value": "smtp"
+        },
+        "EMAIL_USER": {
+            "description": "Must be populated with an SMTP username if EMAIL_PROVIDER is set to smtp.",
+            "value": "_unused_"
+        },
+        "EMAIL_PASSWORD": {
+            "description": "Must be populated with an SMTP password if EMAIL_PROVIDER is set to smtp.",
+            "value": "_unused_"
+        },
+        "EMAIL_HOST": {
+            "description": "Must be populated with an SMTP host if EMAIL_PROVIDER is set to smtp. Defaults to gmail",
+            "value": "smtp.gmail.com"
+        },
+        "EMAIL_PORT": {
+            "description": "Must be populated with an SMTP port if EMAIL_PROVIDER is set to smtp.",
+            "value": "587"
+        },
+        "SENDGRID_API_KEY": {
+            "description": "Must be populated with a Sendgrid API key if EMAIL_PROVIDER is set to sendgrid.",
+            "value": "_unused_"
+        },
+        "MAILGUN_DOMAIN": {
+            "description": "Must be populated with a Mailgun domain if EMAIL_PROVIDER is set to mailgun.",
+            "value": "_unused_"
+        },
+        "MAILGUN_API_KEY": {
+            "description": "Must be populated with a Mailgun API key if EMAIL_PROVIDER is set to mailgun",
+            "value": "_unused_"
+        },
+        "IGNORE_CONFIG_FILE": {
+            "description": "MUST be set to true in order for these environment variables to work.",
+            "value": "true"
+        }
     },
+    "website": "https://gavel.weareasterisk.com/",
+    "repository": "https://github.com/weareasterisk/gavel",
+    "logo": "https://cdn.weareasterisk.com/product-assets/gavel/icon.png",
+    "success_url": "/admin",
     "keywords": [
         "gavel",
         "python",
