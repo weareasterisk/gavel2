@@ -14,8 +14,9 @@ class Flag(BaseModel):
     reason = db.Column(db.Text, nullable=False)
     resolved = db.Column(db.Boolean, default=False, nullable=False)
     time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-    _default_fields = ["annotator_id","item_id","reason","resolved","time"]
+    _default_fields = ["annotator_id","item_id","reason","resolved","time", "updated"]
 
     relations_keys = ("item", "annotator")
 

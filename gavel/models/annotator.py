@@ -24,7 +24,7 @@ class Annotator(BaseModel):
     secret = db.Column(db.String(32), unique=True, nullable=False)
     next_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     next = db.relationship('Item', foreign_keys=[next_id], uselist=False)
-    updated = db.Column(db.DateTime)
+    updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
     prev_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     prev = db.relationship('Item', foreign_keys=[prev_id], uselist=False)
     ignore = db.relationship('Item', secondary=ignore_table)
