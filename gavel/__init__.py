@@ -60,10 +60,8 @@ bundles = {
     output='all.css'
   ),
   'admin_js': Bundle(
-    'js/admin/jquery.tablesorter.min.js',
-    'js/admin/jquery.tablesorter.widgets.js',
     'js/admin/admin_live.js',
-    # 'js/admin/tabulator.js',
+    'js/admin/admin_service.js',
     depends='**/*.js',
     filters=('jsmin',),
     output='admin_all.js'
