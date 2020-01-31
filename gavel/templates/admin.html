@@ -4,14 +4,17 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" crossorigin="anonymous"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" integrity="sha256-Dul4c09cdrWKXVtallPxF558lwxMwCC8dXJdZ0PVW54=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/ag-grid-community.noStyle.js" integrity="sha256-qcdR2/GdAtCsM12+Xx0YtI0qG1WyG4ehmhFfPyfOpiU=" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-grid.css" integrity="sha256-H0ca4WfnE9lTQHMMYeE496cyBHytqYGWGSZrs9ooYvs=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-theme-balham.css" integrity="sha256-iaqOsROIW6yuu8eiBD6JHAo4rdCtkPDgF8WbCfIekqA=" crossorigin="anonymous" />
+<style>
+html, body, #content {
+  height: 100%;
+}
+</style>
 {% assets 'admin_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
 {% block content %}
-<div>
+<div style="height: 100%">
 <div class="admin-container">
   <div class="banner-branded">Gavel Admin Dashboard<span style="cursor: pointer;" onclick="toggleAutoRefresh(!livereload)" class="live-active" id="live"> Live</span>
     <div class="admin-toggle float-right">
@@ -77,10 +80,10 @@
     </div>
   </div>
   <div class="admin-tabs live-table">
-    <div id="admin-table-wrapper" class="admin-table live-table">
-      <div id="annotator-table" style="height:600px;width:100%;display:none" class="ag-theme-balham"></div>
-      <div id="item-table" style="height:600px;width:100%;display: none" class="ag-theme-balham"></div>
-      <div id="flag-table" style="height:600px;width:100%;display: none" class="ag-theme-balham"></div>
+    <div id="admin-table-wrapper" class="admin-table live-table" style="height: 100%">
+      <div id="annotator-table" style="height: 100%;width:100%;display:none" class="ag-theme-balham"></div>
+      <div id="item-table" style="height: 100%;width:100%;display: none" class="ag-theme-balham"></div>
+      <div id="flag-table" style="height: 100%;width:100%;display: none" class="ag-theme-balham"></div>
     </div>
   </div>
 
@@ -108,11 +111,12 @@
 {#  <script src="{{ url_for('static', filename="js/jquery.tablesorter.widgets.js") }}"></script>#}
 {#  <script src="{{ url_for('static', filename="js/admin/admin_live.js") }}"></script>#}
 {#  JQuery must be brought in separately. flask-assets doesn't pre-process correctly and doesn't initialize it before the remaining scripts. #}
+<link async rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-grid.css" integrity="sha256-H0ca4WfnE9lTQHMMYeE496cyBHytqYGWGSZrs9ooYvs=" crossorigin="anonymous" />
+<link async rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-theme-balham.css" integrity="sha256-iaqOsROIW6yuu8eiBD6JHAo4rdCtkPDgF8WbCfIekqA=" crossorigin="anonymous" />
 <script>
   setToken("{{ csrf_token() }}");
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/js/all.min.js" integrity="sha256-iZGp5HAiwRmkbOKVYv5FUER4iXp5QbiEudkZOdwLrjw=" crossorigin="anonymous" async></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.4.3/css/tabulator_site.min.css" integrity="sha256-BM66spTRAtpU9U083mqiyBirp3flgtxMl9/f/VT9jaE=" crossorigin="anonymous" />
 <style>
   tr {
     border: 0;
