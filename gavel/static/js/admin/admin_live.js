@@ -19,6 +19,10 @@ let annotatorTable;
 let itemTable;
 let flagTable;
 
+let annotatorData;
+let itemData;
+let flagData;
+
 const tableCommon = {
   index:"id",
   layout:"fitColumns",
@@ -61,109 +65,364 @@ window.addEventListener("DOMContentLoaded", () => {
   console.log("ready: ", socket)
 })
 
-async function handleDbInserted(type, target) {
+function handleDbModified(type, target) {
   console.log(type, target)
   switch (type) {
     case("item"):
-      handleItemUpdate();
+      handleItemUpdate(target);
       break;
     case("annotator"):
-      handleAnnotatorUpdate();
+      handleAnnotatorUpdate(target);
       break;
     case("flag"):
-      handleFlagUpdate();
+      handleFlagUpdate(target);
       break;
   }
 }
 
-async function handleDbModified(type, target) {
+function handleDbInserted(type, target) {
   console.log(type, target)
   switch(type) {
     case("item"):
-      handleItemInsert();
+      handleItemInsert(target);
       break;
     case("annotator"):
-      handleAnnotatorInsert();
+      handleAnnotatorInsert(target);
       break;
     case("flag"):
-      handleFlagInsert();
+      handleFlagInsert(target);
       break;
   }
 }
 
-function handleItemUpdate(target) {
-
+async function handleItemUpdate(target) {
+  const node = await itemData.api.getRowNode(target.id)
+  node.setData(target)
 }
 
-function handleAnnotatorUpdate(target) {
-
+async function handleAnnotatorUpdate(target) {
+  const node = await annotatorData.api.getRowNode(target.id)
+  node.setData(target)
 }
 
-function handleFlagUpdate(target) {
-
+async function handleFlagUpdate(target) {
+  const node = await flagData.api.getRowNode(target.id)
+  node.setData(target)
 }
 
-function handleItemInsert(target) {
-
+async function handleItemInsert(target) {
+  Promise.resolve(itemData.api.updateRowData({add: [target]}))
 }
 
-function handleAnnotatorInsert(target) {
-
+async function handleAnnotatorInsert(target) {
+  Promise.resolve(annotatorData.api.updateRowData({add: [target]}))
 }
 
-function handleFlagInsert(target) {
+async function handleFlagInsert(target) {
+  Promise.resolve(flagData.api.updateRowData({add: [target]}))
+}
 
+const standardIdWidth = 80
+const standardNameWidth = 150
+const standardLocationWidth = 100
+const standardDescriptionWidth = 300
+const standardDecimalWidth = 75
+
+const standardDescriptionOptions = {
+  cellStyle: {"white-space": "normal", "line-height": 1.5}, 
+  autoHeight: true,
+  width: standardDescriptionWidth
+}
+
+const standardDecimalOptions = {
+  valueFormatter: decimalFormatter,
+  width: standardDecimalWidth
+}
+
+const standardUpdatedOptions = {
+  valueFormatter: updatedFormatter,
+  width: standardLocationWidth
+}
+
+const standardActionOptions = {
+  headerCheckboxSelection: true,
+  headerCheckboxSelectionFilteredOnly: true,
+  checkboxSelection: true,
+  width: standardNameWidth,
+  pinned: 'left'
+}
+
+/**
+ * NOTE: The `id` field is intentionaly left out so AG grid can use it as a uniqe row identifier
+ */
+
+const annotatorDefs = [
+  {headerName:"Actions", ...standardActionOptions, cellRenderer: AnnotatorActionCellRenderer},
+  {headerName:"ID", width: standardIdWidth, cellRenderer: AnnotatorIdRenderer},
+  {headerName:"Name", field:"name", width: standardNameWidth, align:"left"},
+  {headerName:"Email", field:"email"},
+  {headerName:"Description", field: "description", ...standardDescriptionOptions},
+  {headerName:"Votes", field:"votes", width: standardDecimalWidth},
+  {headerName:"Next (ID)", field:"next_id", width: standardDecimalWidth},
+  {headerName:"Prev. (ID)", field:"prev_id", width: standardDecimalWidth},
+  {headerName:"Updated", field:"updated", ...standardUpdatedOptions},
+]
+
+const itemDefs = [
+  {headerName:"Actions", ...standardActionOptions, cellRenderer: ItemActionCellRenderer},
+  {headerName:"ID", width: standardIdWidth, cellRenderer: ItemIdRenderer},
+  {headerName:"Project Name", width: standardNameWidth, field:"name"},
+  {headerName:"Location", width: standardLocationWidth, field:"location"},
+  {headerName:"Description", field:"description", ...standardDescriptionOptions},
+  {headerName:"Mu", field:"mu", ...standardDecimalOptions},
+  {headerName:"Sigma^2", field:"sigma_sq", ...standardDecimalOptions},
+  {headerName:"Votes", field:"votes", width: standardDecimalWidth},
+  {headerName:"Seen", field:"seen", width: standardDecimalWidth},
+  {headerName:"Skipped", field:"skipped", width: standardDecimalWidth},
+]
+
+const flagDefs = [
+  {headerName:"Actions", ...standardActionOptions, cellRenderer: FlagActionCellRenderer},
+  {headerName:"ID", width: standardIdWidth},
+  {headerName:"Judge Name", field:"annotator_name", width: standardNameWidth},
+  {headerName:"Project Name", field:"item_name", width: standardNameWidth},
+  {headerName:"Project Location", field:"item_location", width: standardLocationWidth},
+  {headerName:"Reason", field:"reason", width: standardLocationWidth},
+]
+
+const defaultColDef = {
+  resizable: true
+}
+
+const commonDefs = {
+  defaultColDef: defaultColDef,
+  attr: {
+    id: "id"
+  }
 }
 
 async function initTables() {
-  annotatorTable = new Tabulator("#annotator-table", {
-    ...tableCommon,
-    columns:[
-      {title:"ID", field:"id", sorter:"number",
-        formatter: (cell, formatterParams) => {
-          const value = cell.getValue();
-          return `<a onclick="openJudge(${value})" class="colored">${value}</a>`
-        }
-      },
-      {title:"Name", field:"name", align:"left"},
-      {title:"Email", field:"email"},
-      {title:"Description", field:"description", width:150, formatter:"textarea"},
-      {title:"Votes", field:"votes"},
-      {title:"Next (ID)", field:"next_id", align:"center", sorter:"number"},
-      {title:"Prev. (ID)", field:"prev_id", align:"center", sorter:"number"},
-      {title:"Updated", field:"updated", sorter:"date"},
-      {title:"Actions", headerSort:false},
-    ],
-  });
+  annotatorTable = document.getElementById("annotator-table")
+  itemTable = document.getElementById("item-table")
+  flagTable = document.getElementById("flag-table")
 
-  itemTable = new Tabulator("#item-table", {
-    ...tableCommon,
-    columns:[
-        {title:"ID", field:"id", sorter:"number"},
-        {title:"Project Name", field:"name", align:"left"},
-        {title:"Location", field:"location"},
-        {title:"Description", field:"description", align:"left", formatter:"textarea", width:300},
-        {title:"Mu", field:"mu", sorter:"number"},
-        {title:"Sigma^2", field:"sigma", align:"center", sorter:"number"},
-        {title:"Votes", field:"votes", align:"center", sorter:"number"},
-        {title:"Seen", field:"seen", sorter:"number"},
-        {title:"Skipped", field:"skipped", sorter:"number"},
-        {title:"Actions", headerSort:false},
-    ],
-  });
+  annotatorData = {
+    ...commonDefs,
+    columnDefs: annotatorDefs,
+    rowSelection: 'multiple'
+  }
 
-  flagTable = new Tabulator("#flag-table", {
-    ...tableCommon,
-    columns:[
-        {title:"ID", field:"id", sorter:"number"},
-        {title:"Judge Name", field:"annotator_name", align:"left"},
-        {title:"Project Name", field:"item_name"},
-        {title:"Project Location", field:"item_location"},
-        {title:"Reason", field:"reason"},
-        {title:"Actions", headerSort:false},
-    ],
-  });
+  itemData = {
+    ...commonDefs,
+    columnDefs: itemDefs,
+    rowSelection: 'multiple'
+  }
+
+  flagData = {
+    ...commonDefs,
+    columnDefs: flagDefs,
+    rowSelection: 'multiple'
+  }
+
+  new agGrid.Grid(annotatorTable, annotatorData)
+  new agGrid.Grid(itemTable, itemData)
+  new agGrid.Grid(flagTable, flagData)
+
+  annotatorData.getRowNodeId = function(data) {
+    return data.id;
+  };
+  itemData.getRowNodeId = function(data) {
+    return data.id;
+  };
+  flagData.getRowNodeId = function(data) {
+    return data.id;
+  };
 }
+
+function decimalFormatter(params) {
+  return parseFloat(params.value).toFixed(2)
+}
+
+function updatedFormatter(params) {
+  return params.value ? time_ago(new Date(params.value)) : "Never"
+}
+
+/**
+ * Action Cell Renderer Utilities
+ */
+const buildItemActions = ({id, prioritized, active}) => {
+  return `
+    <span onclick="openProject(${id})" class="inline-block tooltip">
+      <button class="nobackgroundnoborder">
+        <i class="fas fa-pencil-alt"></i>
+      </button>
+      <span class="tooltiptext">Edit Project</span>
+    </span>
+    <form action="/admin/item" method="post" class="inline-block tooltip">
+      <button type="submit" class="nobackgroundnoborder"><i class="fas ${(prioritized ? 'fa-chevron-down' : 'fa-chevron-up')}"></i></button>
+      <span class="tooltiptext">${(prioritized ? 'Cancel' : 'Prioritize')}</span>
+      <input type="hidden" name="action" value="${(prioritized ? 'Cancel' : 'Prioritize')}" class="${(prioritized ? 'negative' : 'positive')}">
+      <input type="hidden" name="item_id" value="${id}">
+      <input type="hidden" name="_csrf_token" value="${token}">
+    </form>
+    <form action="/admin/item" method="post" class="inline-block tooltip">
+      <button type="submit" class="nobackgroundnoborder"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+      <span class="tooltiptext">${(active ? 'Deactivate' : 'Activate')}</span>
+      <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
+      <input type="hidden" name="item_id" value="${id}">
+      <input type="hidden" name="_csrf_token" value="${token}">
+    </form>
+    <form action="/admin/item" method="post" class="inline-block tooltip">
+      <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash-alt"></i></button>
+      <span class="tooltiptext">Delete</span>
+      <input type="hidden" name="action" value="Delete" class="negative">
+      <input type="hidden" name="item_id" value="${id}">
+      <input type="hidden" name="_csrf_token" value="${token}">
+    </form>
+  `
+}
+
+const buildAnnotatorActions = ({id, active}) => {
+  return `
+    <span onclick="openJudge(${id})" class="inline-block tooltip">
+      <button class="nobackgroundnoborder">
+        <i class="fas fa-pencil-alt"></i>
+      </button>
+      <span class="tooltiptext">Edit Judge</span>
+    </span>
+    <form action="/admin/annotator" method="post" class="inline-block tooltip">
+      <button type="submit" class="nobackgroundnoborder"><i class="fas fa-envelope"></i></button>
+      <span class="tooltiptext">Send Email</span>
+      <input type="hidden" name="action" value="Email" class="neutral">
+      <input type="hidden" name="annotator_id" value="${id}">
+      <input type="hidden" name="_csrf_token" value="${token}">
+    </form>
+    <form action="/admin/annotator" method="post" class="inline-block tooltip">
+      <button type="submit" class="nobackgroundnoborder"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+      <span class="tooltiptext">${(active ? 'De-Activate' : 'Activate')}</span>
+      <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
+      <input type="hidden" name="annotator_id" value="${id}">
+      <input type="hidden" name="_csrf_token" value="${token}">
+    </form>
+    <form action="/admin/annotator" method="post" class="inline-block tooltip">
+      <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash-alt"></i></button>
+      <input type="hidden" name="action" value="Delete" class="negative">
+      <span class="tooltiptext">Delete</span>
+      <input type="hidden" name="annotator_id" value="${id}">
+      <input type="hidden" name="_csrf_token" value="${token}">
+    </form>
+  `
+}
+
+const buildFlagActions = (data) => {
+  return ""
+}
+
+/**
+ * Item Action Cell Renderer
+ */
+function ItemActionCellRenderer () {}
+ItemActionCellRenderer.prototype.init = (params) => {
+  this.eGui = document.createElement('div')
+  try {
+    this.eGui.innerHTML = buildItemActions(params.data)
+  } catch (error) {
+    console.log(error)
+  }
+}
+ItemActionCellRenderer.prototype.getGui = () => {
+  return this.eGui
+}
+ItemActionCellRenderer.prototype.refresh = (params) => {
+  try {
+    this.eGui.innerHTML = buildItemActions(params.data)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+/**
+ * Annotator Action Cell Renderer
+ */
+function AnnotatorActionCellRenderer () {}
+AnnotatorActionCellRenderer.prototype.init = (params) => {
+  this.eGui = document.createElement('div')
+  try {
+    this.eGui.innerHTML = buildAnnotatorActions(params.data)
+  } catch (error) {
+    console.log(error)
+  }
+}
+AnnotatorActionCellRenderer.prototype.getGui = () => {
+  return this.eGui
+}
+AnnotatorActionCellRenderer.prototype.refresh = (params) => {
+  try {
+    this.eGui.innerHTML = buildAnnotatorActions(params.data)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+/**
+ * Flag Action Cell Renderer
+ */
+function FlagActionCellRenderer () {}
+FlagActionCellRenderer.prototype.init = (params) => {
+  this.eGui = document.createElement('div')
+  try {
+    this.eGui.innerHTMl = buildFlagActions(params.data)
+  } catch (error) {
+    console.log(error)
+  }
+}
+FlagActionCellRenderer.prototype.getGui = () => {
+  return this.eGui
+}
+FlagActionCellRenderer.prototype.refresh = (params) => {
+  try {
+    this.eGui.innerHTML = buildAnnotatorActions(params.data)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+/**
+ * Item ID Renderer
+ */
+function ItemIdRenderer () {}
+ItemIdRenderer.prototype.init = (params) => {
+  this.eGui = document.createElement('div');
+  const val = params.data.id
+  this.eGui.innerHTML = `<a onclick="openProject(${val})" class="colored">${val}</a>`
+}
+ItemIdRenderer.prototype.getGui = () => {
+  return this.eGui
+}
+ItemIdRenderer.prototype.refresh = (params) => {
+  const val = params.data.id
+  this.eGui.innerHTML = `<a onclick="openProject(${val})" class="colored">${val}</a>`
+}
+ItemIdRenderer.prototype.destroy = () => {};
+
+/**
+ * Annotator ID Renderer
+ */
+function AnnotatorIdRenderer () {}
+AnnotatorIdRenderer.prototype.init = (params) => {
+  this.eGui = document.createElement('div')
+  const val = params.data.id
+  this.eGui.innerHTML = `<a onclick="openJudge(${val})" class="colored">${val}</a>`
+}
+AnnotatorIdRenderer.prototype.getGui = () => {
+  return this.eGui
+}
+AnnotatorIdRenderer.prototype.refresh = (params) => {
+  const val = params.data.id
+  this.eGui.innerHTML = `<a onclick="openJudge(${val})" class="colored">${val}</a>`
+}
+AnnotatorIdRenderer.prototype.destroy = () => {}
+
 
 async function clearTable() {
   tableHead.innerHTML = "";
@@ -201,7 +460,7 @@ async function updateTableSorter() {
 
 async function populateItems(data) {
   try {
-    itemTable.setData(data.items)
+    itemData.api.setRowData(data.items)
   } catch (e) {
     console.error("Error populating items")
     console.log(e)
@@ -210,7 +469,7 @@ async function populateItems(data) {
 
 async function populateAnnotators(data) {
   try {
-    annotatorTable.setData(data.annotators)
+    annotatorData.api.setRowData(data.annotators)
   } catch (e) {
     console.error("Error populating annotators")
     console.log(e)
@@ -219,7 +478,7 @@ async function populateAnnotators(data) {
 
 async function populateFlags(data) {
   try {
-    flagTable.setData(data.flags)
+    flagData.api.setRowData(data.flags)
   } catch (e) {
     console.error("Error populating flags")
     console.log(e)
@@ -504,3 +763,58 @@ $(document).ready(() => {
   showTab(localStorage.getItem("currentTab") || "flags");
   initTableSorter();
 })
+
+function time_ago(time) {
+
+  switch (typeof time) {
+    case 'number':
+      break;
+    case 'string':
+      time = +new Date(time);
+      break;
+    case 'object':
+      if (time.constructor === Date) time = time.getTime();
+      break;
+    default:
+      time = +new Date();
+  }
+  const time_formats = [
+    [60, 'seconds', 1], // 60
+    [120, '1 minute ago', '1 minute from now'], // 60*2
+    [3600, 'minutes', 60], // 60*60, 60
+    [7200, '1 hour ago', '1 hour from now'], // 60*60*2
+    [86400, 'hours', 3600], // 60*60*24, 60*60
+    [172800, 'Yesterday', 'Tomorrow'], // 60*60*24*2
+    [604800, 'days', 86400], // 60*60*24*7, 60*60*24
+    [1209600, 'Last week', 'Next week'], // 60*60*24*7*4*2
+    [2419200, 'weeks', 604800], // 60*60*24*7*4, 60*60*24*7
+    [4838400, 'Last month', 'Next month'], // 60*60*24*7*4*2
+    [29030400, 'months', 2419200], // 60*60*24*7*4*12, 60*60*24*7*4
+    [58060800, 'Last year', 'Next year'], // 60*60*24*7*4*12*2
+    [2903040000, 'years', 29030400], // 60*60*24*7*4*12*100, 60*60*24*7*4*12
+    [5806080000, 'Last century', 'Next century'], // 60*60*24*7*4*12*100*2
+    [58060800000, 'centuries', 2903040000] // 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
+  ];
+  const seconds = (+new Date() - time) / 1000,
+    token = 'ago',
+    list_choice = 1;
+
+  if (seconds == 0) {
+    return 'Just now'
+  }
+  if (seconds < 0) {
+    seconds = Math.abs(seconds);
+    token = 'from now';
+    list_choice = 2;
+  }
+  let i = 0,
+    format;
+  while (format = time_formats[i++])
+    if (seconds < format[0]) {
+      if (typeof format[2] == 'string')
+        return format[list_choice];
+      else
+        return Math.floor(seconds / format[2]) + ' ' + format[1] + ' ' + token;
+    }
+  return time;
+}

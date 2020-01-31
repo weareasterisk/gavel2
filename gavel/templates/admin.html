@@ -3,8 +3,9 @@
 {% block head %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" crossorigin="anonymous"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" integrity="sha256-Dul4c09cdrWKXVtallPxF558lwxMwCC8dXJdZ0PVW54=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.4.3/js/tabulator_core.min.js" integrity="sha256-+5IM/Dvc5vXWH/OjEEUpTO75o0cGWcFhUuxjMfMwRjs=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.4.3/js/tabulator.min.js" integrity="sha256-u2YCVBkzzkIuLh6bMHUmqv6uuuHLxGgc6XF+rCJUV5k=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/ag-grid-community.noStyle.js" integrity="sha256-qcdR2/GdAtCsM12+Xx0YtI0qG1WyG4ehmhFfPyfOpiU=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-grid.css" integrity="sha256-H0ca4WfnE9lTQHMMYeE496cyBHytqYGWGSZrs9ooYvs=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-theme-balham.css" integrity="sha256-iaqOsROIW6yuu8eiBD6JHAo4rdCtkPDgF8WbCfIekqA=" crossorigin="anonymous" />
 {% assets 'admin_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
@@ -12,8 +13,7 @@
 {% block content %}
 <div>
 <div class="admin-container">
-  <div class="banner-branded">Gavel Admin Dashboard<span style="cursor: pointer;"
-      onclick="toggleAutoRefresh(!livereload)" class="live-active" id="live"> Live</span>
+  <div class="banner-branded">Gavel Admin Dashboard<span style="cursor: pointer;" onclick="toggleAutoRefresh(!livereload)" class="live-active" id="live"> Live</span>
     <div class="admin-toggle float-right">
       <button
         class="normal-white-18 noborder {{ 'admin-judging-active' if setting_closed or setting_stop_queue else 'admin-judging-inactive' }}"
@@ -76,16 +76,13 @@
       <div class="normal-caps-red-14 inline pointer" id="" onclick="openModal('delete-entries')"><span class="trashcan"></span>BATCH DELETE</div>
     </div>
   </div>
-</div>
-<div style="padding: 36px; flex: 1;">
   <div class="admin-tabs live-table">
     <div id="admin-table-wrapper" class="admin-table live-table">
-      <div id="annotator-table" style="display: none"> </div>
-      <div id="item-table" style="display: none"> </div>
-      <div id="flag-table" style="display: none"> </div>
+      <div id="annotator-table" style="height:600px;width:100%;display:none" class="ag-theme-balham"></div>
+      <div id="item-table" style="height:600px;width:100%;display: none" class="ag-theme-balham"></div>
+      <div id="flag-table" style="height:600px;width:100%;display: none" class="ag-theme-balham"></div>
     </div>
   </div>
-</div>  
 
   {% include './admin_components/add_projects_modal.html' %}
 
