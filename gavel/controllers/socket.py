@@ -79,10 +79,13 @@ def test_connect(data):
 @socketio.on('annotator.updated', namespace='/admin')
 @utils.requires_auth
 def triggerRelatedItemUpdates(data):
-  ignore_ids = {i['id'] for i in data['ignore']}
-  items = Item.query.filter(Item.id.in_(ignore_ids))
-  for i in items:
-    socketio.emit(DB_MODIFY_EVENT, standardize(i), namespace='/admin')
+  try:
+    ignore_ids = {i['id'] for i in data['ignore']}
+    items = Item.query.filter(Item.id.in_(ignore_ids))
+    for i in items:
+      socketio.emit(DB_MODIFY_EVENT, standardize(i), namespace='/admin')
+  except Exception as e:
+    return
 
 @event.listens_for(Annotator, 'after_insert')
 @utils.requires_auth
