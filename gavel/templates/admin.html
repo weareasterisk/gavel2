@@ -104,13 +104,6 @@ html, body, #content {
 </div>
 {% endblock %}
 {% block end %}
-{#  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.min.js" integrity="sha256-uC1JMW5e1U5D28+mXFxzTz4SSMCywqhxQIodqLECnfU=" crossorigin="anonymous" async></script>#}
-{#  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.widgets.min.js" integrity="sha256-Xx4HRK+CKijuO3GX6Wx7XOV2IVmv904m0HKsjgzvZiY=" crossorigin="anonymous" async></script>#}
-{#  <script src="{{ url_for('static', filename="js/jquery-3.3.1.min.js") }}"></script>#}
-{#  <script src="{{ url_for('static', filename="js/jquery.tablesorter.min.js") }}"></script>#}
-{#  <script src="{{ url_for('static', filename="js/jquery.tablesorter.widgets.js") }}"></script>#}
-{#  <script src="{{ url_for('static', filename="js/admin/admin_live.js") }}"></script>#}
-{#  JQuery must be brought in separately. flask-assets doesn't pre-process correctly and doesn't initialize it before the remaining scripts. #}
 <link async rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-grid.css" integrity="sha256-H0ca4WfnE9lTQHMMYeE496cyBHytqYGWGSZrs9ooYvs=" crossorigin="anonymous" />
 <link async rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-theme-balham.css" integrity="sha256-iaqOsROIW6yuu8eiBD6JHAo4rdCtkPDgF8WbCfIekqA=" crossorigin="anonymous" />
 <script>
@@ -149,7 +142,7 @@ html, body, #content {
 
   let responseInterval = async function () {
     await Promise.all([
-      // refresh()
+      refresh()
     ]);
   };
 

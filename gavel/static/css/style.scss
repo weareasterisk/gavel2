@@ -1368,8 +1368,6 @@ dl.instructions dt p {
   z-index: 100;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
   overflow: auto;
   //background: rgba(0, 0, 0, 0.25);
   -webkit-animation-name: fadeIn;
@@ -1820,49 +1818,6 @@ border-radius: 4px;
 
 .inline-block {
   display: inline-block;
-}
-
-/* Tooltip container */
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-/* Tooltip text */
-.tooltip .tooltiptext {
-  visibility: hidden;
-  background-color: $branding-darkgrey;
-  color: #fff;
-  text-align: center;
-  padding: 3px 0;
-  border-radius: 3px;
-
-  /* Position the tooltip text - see examples below! */
-  position: absolute;
-  z-index: 1;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-}
-
-.tooltip .tooltiptext {
-  width: 80px;
-  bottom: 100%;
-  left: 50%;
-  margin-left: -40px; /* Use half of the width (120/2 = 60), to center the tooltip */
-}
-
-.tooltip .tooltiptext::after {
-  content: " ";
-  position: absolute;
-  top: 100%; /* At the bottom of the tooltip */
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: black transparent transparent transparent;
 }
 
 .h-32 {

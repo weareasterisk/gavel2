@@ -192,7 +192,6 @@ const commonDefs = {
   rowSelection: 'multiple',
   enableCellChangeFlash: true,
   suppressCellSelection: true,
-  rowMultiSelectWithClick: true,
   onFirstDataRendered: (params) => {
     params.api.sizeColumnsToFit();
   },
@@ -270,29 +269,25 @@ function itemActionsComparator(valueA, valueB, nodeA, nodeB, isInverted) {
 const buildItemActions = ({id, prioritized, active}) => {
   return `
   <div className="font-16">
-    <span onclick="openProject(${id})" class="inline-block tooltip">
-      <button class="nobackgroundnoborder">
+    <span onclick="openProject(${id})" class="inline-block">
+      <button class="nobackgroundnoborder" title="Edit Project">
         <i class="fas fa-edit"></i>
       </button>
-      <span class="tooltiptext">Edit Project</span>
     </span>
-    <form action="/admin/item" method="post" class="inline-block tooltip">
-      <button type="submit" class="nobackgroundnoborder"><i class="fas ${(prioritized ? 'fa-arrow-down' : 'fa-arrow-up')}"></i></button>
-      <span class="tooltiptext">${(prioritized ? 'Cancel' : 'Prioritize')}</span>
+    <form action="/admin/item" method="post" class="inline-block">
+      <button type="submit" class="nobackgroundnoborder" title="${(prioritized ? 'Cancel' : 'Prioritize')}"><i class="fas ${(prioritized ? 'fa-arrow-down' : 'fa-arrow-up')}"></i></button>
       <input type="hidden" name="action" value="${(prioritized ? 'Cancel' : 'Prioritize')}" class="${(prioritized ? 'negative' : 'positive')}">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
-    <form action="/admin/item" method="post" class="inline-block tooltip">
-      <button type="submit" class="nobackgroundnoborder"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
-      <span class="tooltiptext">${(active ? 'Deactivate' : 'Activate')}</span>
+    <form action="/admin/item" method="post" class="inline-block">
+      <button type="submit" class="nobackgroundnoborder" title="${(active ? 'Deactivate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
       <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
-    <form action="/admin/item" method="post" class="inline-block tooltip">
-      <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash"></i></button>
-      <span class="tooltiptext">Delete</span>
+    <form action="/admin/item" method="post" class="inline-block">
+      <button type="submit" class="nobackgroundnoborder" title="Delete"><i class="fas fa-trash"></i></button>
       <input type="hidden" name="action" value="Delete" class="negative">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
@@ -304,30 +299,26 @@ const buildItemActions = ({id, prioritized, active}) => {
 const buildAnnotatorActions = ({id, active}) => {
   return `
   <div className="font-16">
-    <span onclick="openJudge(${id})" class="inline-block tooltip">
-      <button class="nobackgroundnoborder">
+    <span onclick="openJudge(${id})" class="inline-block">
+      <button class="nobackgroundnoborder" title="Edit Judge">
         <i class="fas fa-edit"></i>
       </button>
-      <span class="tooltiptext">Edit Judge</span>
     </span>
-    <form action="/admin/annotator" method="post" class="inline-block tooltip">
-      <button type="submit" class="nobackgroundnoborder"><i class="fas fa-envelope"></i></button>
-      <span class="tooltiptext">Send Email</span>
+    <form action="/admin/annotator" method="post" class="inline-block">
+      <button type="submit" class="nobackgroundnoborder" title="Send Email"><i class="fas fa-envelope"></i></button>
       <input type="hidden" name="action" value="Email" class="neutral">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
-    <form action="/admin/annotator" method="post" class="inline-block tooltip">
-      <button type="submit" class="nobackgroundnoborder"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
-      <span class="tooltiptext">${(active ? 'De-Activate' : 'Activate')}</span>
+    <form action="/admin/annotator" method="post" class="inline-block">
+      <button type="submit" class="nobackgroundnoborder" title="${(active ? 'De-Activate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
       <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
-    <form action="/admin/annotator" method="post" class="inline-block tooltip">
-      <button type="submit" class="nobackgroundnoborder"><i class="fas fa-trash"></i></button>
+    <form action="/admin/annotator" method="post" class="inline-block">
+      <button type="submit" class="nobackgroundnoborder" title="Delete"><i class="fas fa-trash"></i></button>
       <input type="hidden" name="action" value="Delete" class="negative">
-      <span class="tooltiptext">Delete</span>
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
@@ -640,18 +631,6 @@ function openModal(modal) {
   modal !== 'close' && modal ? document.getElementById(modal).style.display = 'block' : dumdum = 'dum';
 }
 
-$(".full-modal").click(function (event) {
-  //if you click on anything except the modal itself or the "open modal" link, close the modal
-  if (!$(event.target).hasClass('admin-modal-content') && $(event.target).hasClass('full-modal')) {
-    openModal('close')
-  }
-  if (!$(event.target).hasClass('admin-switcher-modal') &&
-    !$(event.target).parents('*').hasClass('admin-switcher') &&
-    !$(event.target).hasClass('admin-switcher')) {
-    $("body").find("#selector").css('display', 'none')
-  }
-});
-
 let judgeIds = [];
 let projectIds = [];
 let form = null;
@@ -702,6 +681,21 @@ $('#batchDisable').click(async function () {
 
 $(document).ready(() => {
   showTab(localStorage.getItem("currentTab") || "flags");
+  $(".full-modal").click(function (event) {
+    //if you click on anything except the modal itself or the "open modal" link, close the modal
+    if(!$(event.target).closest('.admin-modal-content').length && !$(event.target).is('.admin-modal-content') && !$(event.target).is('#add-text')) {
+      openModal('close')
+    } 
+  });
+
+  window.onclick = function(e) {
+    if (!$(e.target).closest('#switcher').length) {
+    var dropdown = document.getElementById("selector");
+      if (dropdown.style.display === "block") {
+        dropdown.style.display = "none"
+      }
+    }
+  }
 })
 
 function time_ago(time) {
