@@ -69,14 +69,24 @@ def injectItem(target, target_dumped):
   return target_dumped
 
 CONNECT = 'connected'
-DB_INSERT_EVENT = 'db.inserted'
-DB_MODIFY_EVENT = 'db.modified'
+
+ANNOTATOR_INSERTED = 'annotator.inserted'
+ANNOTATOR_UPDATED = 'annotator.updated'
+
+ITEM_INSERTED = 'item.inserted'
+ITEM_UPDATED = 'item.updated'
+
+FLAG_INSERTED = 'flag.inserted'
+FLAG_UPDATED = 'flag.updated'
+
+SETTING_INSERTED = 'setting.inserted'
+SETTING_UPDATED = 'setting.updated'
 
 @socketio.on('user.connected', namespace='/admin')
 def test_connect(data):
   emit(CONNECT, data, namespace='/admin')
 
-@socketio.on('annotator.updated', namespace='/admin')
+@socketio.on('annotator.updated.confirmed', namespace='/admin')
 @utils.requires_auth
 def triggerRelatedItemUpdates(data):
   try:
@@ -90,39 +100,39 @@ def triggerRelatedItemUpdates(data):
 @event.listens_for(Annotator, 'after_insert')
 @utils.requires_auth
 def annotator_listen_insert(mapper, connection, target):
-  socketio.emit(DB_INSERT_EVENT, standardize(target), namespace='/admin')
+  socketio.emit(ANNOTATOR_INSERTED, standardize(target), namespace='/admin')
 
 @event.listens_for(Annotator, 'after_update')
 @utils.requires_auth
 def annotator_listen_modify(mapper, connection, target):
-  socketio.emit(DB_MODIFY_EVENT, standardize(target), namespace='/admin')
+  socketio.emit(ANNOTATOR_UPDATED, standardize(target), namespace='/admin')
 
 @event.listens_for(Item, 'after_insert')
 @utils.requires_auth
 def item_listen_insert(mapper, connection, target):
-  socketio.emit(DB_INSERT_EVENT, standardize(target), namespace='/admin')
+  socketio.emit(ITEM_INSERTED, standardize(target), namespace='/admin')
 
 @event.listens_for(Item, 'after_update')
 @utils.requires_auth
 def item_listen_modify(mapper, connection, target):
-  socketio.emit(DB_MODIFY_EVENT, standardize(target), namespace='/admin')
+  socketio.emit(ITEM_UPDATED, standardize(target), namespace='/admin')
 
 @event.listens_for(Flag, 'after_insert')
 @utils.requires_auth
 def flag_listen_insert(mapper, connection, target):
-  socketio.emit(DB_INSERT_EVENT, standardize(target), namespace='/admin')
+  socketio.emit(FLAG_INSERTED, standardize(target), namespace='/admin')
 
 @event.listens_for(Flag, 'after_update')
 @utils.requires_auth
 def flag_listen_update(mapper, connection, target):
-  socketio.emit(DB_MODIFY_EVENT, standardize(target), namespace='/admin')
+  socketio.emit(FLAG_UPDATED, standardize(target), namespace='/admin')
 
 @event.listens_for(Setting, 'after_insert')
 @utils.requires_auth
 def setting_listen_insert(mapper, connection, target):
-  socketio.emit(DB_INSERT_EVENT, standardize(target), namespace='/admin')
+  socketio.emit(SETTING_INSERTED, standardize(target), namespace='/admin')
 
 @event.listens_for(Setting, 'after_update')
 @utils.requires_auth
 def setting_listen_update(mapper, connection, target):
-  socketio.emit(DB_MODIFY_EVENT, standardize(target), namespace='/admin')
+  socketio.emit(SETTING_UPDATED, standardize(target), namespace='/admin')

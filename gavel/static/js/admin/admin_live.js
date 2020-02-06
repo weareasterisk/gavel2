@@ -39,75 +39,56 @@ window.addEventListener("DOMContentLoaded", () => {
     console.log(message);
   })
 
-  socket.on('db.inserted', (message) => {
-    console.log('inserted')
-    handleDbInserted(message.type, JSON.parse(message.target));
-    socket.emit('db.inserted.confirmed');
-  })
+  socket.on('annotator.inserted', (message) => standardize(message, handleAnnotatorInsert))
+  socket.on('annotator.updated', (message) => standardize(message, handleAnnotatorUpdate))
 
-  socket.on('db.modified', (message) => {
-    console.log('modified')
-    handleDbModified(message.type, JSON.parse(message.target));
-    socket.emit('db.modified.confirmed');
-  })
+  socket.on('item.inserted', (message) => standardize(message, handleItemInsert))
+  socket.on('item.updated', (message) => standardize(message, handleItemUpdate))
+  
+  socket.on('flag.inserted', (message) => standardize(message, handleFlagInsert))
+  socket.on('flag.updated', (message) => standardize(message, handleFlagUpdate))
 
   console.log("ready: ", socket)
 })
 
-function handleDbModified(type, target) {
-  console.log(type, target)
-  switch (type) {
-    case("item"):
-      handleItemUpdate(target);
-      break;
-    case("annotator"):
-      handleAnnotatorUpdate(target);
-      break;
-    case("flag"):
-      handleFlagUpdate(target);
-      break;
-  }
+function standardize({target}, handler) {
+  return handler(JSON.parse(target))
 }
 
-function handleDbInserted(type, target) {
-  console.log(type, target)
-  switch(type) {
-    case("item"):
-      handleItemInsert(target);
-      break;
-    case("annotator"):
-      handleAnnotatorInsert(target);
-      break;
-    case("flag"):
-      handleFlagInsert(target);
-      break;
-  }
+async function updateAndTriggerUpdate(target, {api}) {
+  console.log(target)
+  Promise.resolve(api.getRowNode(target.id).setData(target))
+    .then(api.refreshCells())
 }
 
 async function handleItemUpdate(target) {
-  Promise.resolve(itemData.api.updateRowData({update: [target]}))
+  Promise.resolve(updateAndTriggerUpdate(target, itemData))
+    .then(socket.emit('item.updated.confirmed'))
 }
 
 async function handleAnnotatorUpdate(target) {
-  Promise.resolve(annotatorData.api.updateRowData({update: [target]}))
-  socket.emit('annotator.updated', target)
+  Promise.resolve(updateAndTriggerUpdate(target, annotatorData))
+    .then(socket.emit('annotator.updated.confirmed', target))
 }
 
 async function handleFlagUpdate(target) {
-  Promise.resolve(flagData.api.updateRowData({update: [target]}))
+  Promise.resolve(updateAndTriggerUpdate(target, flagData))
+    .then(socket.emit('flag.updated.confirmed', target))
 }
 
 async function handleItemInsert(target) {
   Promise.resolve(itemData.api.updateRowData({add: [target]}))
+    .then(socket.emit('item.inserted.confirmed', target))
 }
 
 async function handleAnnotatorInsert(target) {
   Promise.resolve(annotatorData.api.updateRowData({add: [target]}))
-  socket.emit('annotator.inserted', target)
+    .then(socket.emit('annotator.inserted.confirmed', target))
 }
 
 async function handleFlagInsert(target) {
   Promise.resolve(flagData.api.updateRowData({add: [target]}))
+    .then(socket.emit('flag.inserted.confirmed', target))
 }
 
 const standardIdWidth = 80
