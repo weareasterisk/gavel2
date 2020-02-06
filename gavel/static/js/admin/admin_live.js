@@ -24,7 +24,7 @@ let itemData;
 let flagData;
 
 window.addEventListener("DOMContentLoaded", () => {
-  socket = io.connect("http://"+ document.domain + ":" + location.port + "/admin")
+  socket = io.connect(location.protocol + "//" + document.domain + ":" + location.port + "/admin")
   
   initTables();
 
