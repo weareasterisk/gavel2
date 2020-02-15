@@ -198,7 +198,7 @@ const itemDefs = [
 ]
 
 const flagDefs = [
-  {headerName:"Actions", ...standardActionOptions, cellRenderer: FlagActionCellRenderer},
+  {headerName:"Actions", ...standardActionOptions, cellRenderer: FlagActionCellRenderer, comparator: flagActionsComparator},
   {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: FlagIdRenderer},
   {headerName:"Judge Name", field:"annotator_name", width: standardNameWidth},
   {headerName:"Project Name", field:"item_name", width: standardNameWidth},
@@ -283,6 +283,21 @@ function itemActionsComparator(valueA, valueB, nodeA, nodeB, isInverted) {
   }
 }
 
+function flagActionsComparator(valueA, valueB, nodeA, nodeB, isInverted) {
+  const {resolved: resolvedA} = nodeA.data
+  const {resolved: resolvedB} = nodeB.data
+
+  if (resolvedA && resolvedB) {
+    return 0
+  } else if (resolvedA && !resolvedB) {
+    return -1
+  } else if (!resolvedA && resolvedB) {
+    return 1
+  } else {
+    return 0
+  }
+}
+
 /**
  * Action Cell Renderer Utilities
  */
@@ -346,8 +361,17 @@ const buildAnnotatorActions = ({id, active}) => {
   `
 }
 
-const buildFlagActions = (data) => {
-  return ""
+const buildFlagActions = ({resolved, id}) => {
+  return `
+  <div>
+    <form action="/admin/report" method="post" class="inline-block">
+      <button type="submit" class="button-full ${(resolved ? 'background-grey' : 'background-purple')} h-32 text-12 text-bold uppercase">${(resolved ? 'Open Flag' : 'Resolve Flag')}</button>
+      <input type="hidden" name="action" value="${resolved ? 'open' : 'resolve'}" class="${resolved ? 'negative' : 'positive'}">
+      <input type="hidden" name="flag_id" value="${id}">
+      <input type="hidden" name="_csrf_token" value="${token}">
+    </form>
+  </div>
+  `
 }
 
 /**
@@ -403,7 +427,7 @@ function FlagActionCellRenderer () {}
 FlagActionCellRenderer.prototype.init = (params) => {
   this.eGui = document.createElement('div')
   try {
-    this.eGui.innerHTMl = buildFlagActions(params.data)
+    this.eGui.innerHTML = buildFlagActions(params.data)
   } catch (error) {
     console.log(error)
   }
@@ -413,7 +437,7 @@ FlagActionCellRenderer.prototype.getGui = () => {
 }
 FlagActionCellRenderer.prototype.refresh = (params) => {
   try {
-    this.eGui.innerHTML = buildAnnotatorActions(params.data)
+    this.eGui.innerHTML = buildFlagActions(params.data)
   } catch (error) {
     console.log(error)
   }

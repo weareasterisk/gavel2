@@ -188,6 +188,7 @@ def welcome_done():
             annotator.read_welcome = True
         db.session.commit()
     with_retries(tx)
+    return redirect(url_for('index'))
 
 @app.route('/welcome/instructions/')
 @requires_open(redirect_to='index')
