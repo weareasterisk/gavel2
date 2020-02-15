@@ -1767,6 +1767,14 @@ iframe {
     padding-top: 100%;
 }
 
+
+.name-overflow-hidden {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80%;
+}
+
 .responsive-iframe {
   position: absolute;
     top: 0;
