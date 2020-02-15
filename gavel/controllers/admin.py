@@ -461,7 +461,7 @@ def item_patch():
       item.description = request.form['description']
     db.session.commit()
   with_retries(tx)
-  return redirect(url_for('item_detail', item_id=item.id))
+  return redirect(url_for('item_detail', item_id=request.form['item_id']))
 
 
 @app.route('/admin/annotator_patch', methods=['POST'])
@@ -479,7 +479,7 @@ def annotator_patch():
       annotator.description = request.form['description']
     db.session.commit()
   with_retries(tx)
-  return redirect(url_for('annotator_detail', annotator_id=annotator.id))
+  return redirect(url_for('annotator_detail', annotator_id=request.form['annotator_id']))
 
 
 @app.route('/admin/annotator', methods=['POST'])

@@ -41,24 +41,31 @@ window.addEventListener("DOMContentLoaded", () => {
 
   socket.on('annotator.inserted', (message) => standardize(message, handleAnnotatorInsert))
   socket.on('annotator.updated', (message) => standardize(message, handleAnnotatorUpdate))
+  socket.on('annotator.deleted', (message) => standardize(message, handleAnnotatorDelete))
 
   socket.on('item.inserted', (message) => standardize(message, handleItemInsert))
   socket.on('item.updated', (message) => standardize(message, handleItemUpdate))
+  socket.on('item.deleted', (message) => standardize(message, handleItemDelete))
   
   socket.on('flag.inserted', (message) => standardize(message, handleFlagInsert))
   socket.on('flag.updated', (message) => standardize(message, handleFlagUpdate))
+  socket.on('flag.deleted', (message) => standardize(message, handleFlagDelete))
+
+  // TODO: Figure this out
+  // socket.on('setting.inserted', (message) => standardize(message, handleSettingInsert))
+  // socket.on('setting.updated', (message) => standardize(message, handleSettingUpdate))
 
   console.log("ready: ", socket)
 })
 
 function standardize({target}, handler) {
+  console.log(target)
   return handler(JSON.parse(target))
 }
 
 async function updateAndTriggerUpdate(target, {api}) {
   console.log(target)
-  Promise.resolve(api.getRowNode(target.id).setData(target))
-    .then(api.refreshCells())
+  Promise.resolve(api.updateRowData({update: [target]}))
 }
 
 async function handleItemUpdate(target) {
@@ -76,6 +83,11 @@ async function handleFlagUpdate(target) {
     .then(socket.emit('flag.updated.confirmed', target))
 }
 
+function handleSettingUpdate(target) {
+  sessionButtonState(target)
+  socket.emit('setting.updated.confirmed', target)
+}
+
 async function handleItemInsert(target) {
   Promise.resolve(itemData.api.updateRowData({add: [target]}))
     .then(socket.emit('item.inserted.confirmed', target))
@@ -91,21 +103,52 @@ async function handleFlagInsert(target) {
     .then(socket.emit('flag.inserted.confirmed', target))
 }
 
+async function handleSettingInsert(target) {
+  sessionButtonState(target)
+  socket.emit('setting.inserted.confirmed', target)
+}
+
+async function handleItemDelete(target) {
+  Promise.resolve(itemData.api.updateRowData({delete: [target]}))
+    .then(socket.emit('item.deleted.confirmed'))
+}
+
+async function handleAnnotatorDelete(target) {
+  Promise.resolve(annotatorData.api.updateRowData({delete: [target]}))
+    .then(socket.emit('annotator.deleted.confirmed'))
+}
+
+async function handleFlagDelete(target) {
+  Promise.resolve(flagData.api.updateRowData({delete: [target]}))
+    .then(socket.emit('flag.deleted.confirmed'))
+}
+
+// async function handleSettingDelete(target) {
+//   Promise.resolve(settingD.api.updateRowData({delete: [target]}))
+//     .then(socket.emit('item.deleted.confirmed'))
+// }
+
+
 const standardIdWidth = 80
 const standardNameWidth = 150
 const standardLocationWidth = 100
 const standardDescriptionWidth = 400
 const standardDecimalWidth = 80
 
+const minIdWidth = 50
+const minDecimalWidth = 80
+
 const standardDescriptionOptions = {
   cellStyle: {"white-space": "normal", "line-height": 1.5}, 
   autoHeight: true,
   width: standardDescriptionWidth,
+  minWidth: standardLocationWidth,
   filter: true,
 }
 
 const standardDecimalOptions = {
   valueFormatter: decimalFormatter,
+  minWidth: minDecimalWidth,
   width: standardDecimalWidth
 }
 
@@ -129,17 +172,13 @@ const defaultColDef = {
   unSortIcon: true
 }
 
-/**
- * NOTE: The `id` field is intentionaly left out so AG grid can use it as a uniqe row identifier
- */
-
 const annotatorDefs = [
   {headerName:"Actions", ...standardActionOptions, cellRenderer: AnnotatorActionCellRenderer},
-  {headerName:"ID", field: "id", width: standardIdWidth, cellRenderer: AnnotatorIdRenderer},
-  {headerName:"Name", field:"name", width: standardNameWidth, filter: true},
+  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: AnnotatorIdRenderer},
+  {headerName:"Name", field:"name", width: standardNameWidth, minWidth: minDecimalWidth, filter: true},
   {headerName:"Email", field:"email", filter: true},
   {headerName:"Description", field: "description", ...standardDescriptionOptions},
-  {headerName:"Votes", field:"votes", width: standardDecimalWidth},
+  {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
   {headerName:"Next (ID)", field:"next_id", width: standardDecimalWidth},
   {headerName:"Prev. (ID)", field:"prev_id", width: standardDecimalWidth},
   {headerName:"Updated", field:"updated", ...standardUpdatedOptions},
@@ -147,20 +186,20 @@ const annotatorDefs = [
 
 const itemDefs = [
   {headerName:"Actions", ...standardActionOptions, cellRenderer: ItemActionCellRenderer, comparator: itemActionsComparator},
-  {headerName:"ID", field: "id", width: standardIdWidth, cellRenderer: ItemIdRenderer},
-  {headerName:"Project Name", width: standardNameWidth, field:"name", filter: true},
-  {headerName:"Location", width: standardLocationWidth, field:"location", filter: true},
+  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: ItemIdRenderer},
+  {headerName:"Project Name", width: standardNameWidth, minWidth: minDecimalWidth, field:"name", filter: true},
+  {headerName:"Location", width: standardLocationWidth, minWidth: minDecimalWidth, field:"location", filter: true},
   {headerName:"Description", field:"description", ...standardDescriptionOptions},
   {headerName:"Mu", field:"mu", ...standardDecimalOptions, sort: 'desc'},
   {headerName:"Sigma^2", field:"sigma_sq", ...standardDecimalOptions},
-  {headerName:"Votes", field:"votes", width: standardDecimalWidth},
-  {headerName:"Seen", field:"seen", width: standardDecimalWidth},
-  {headerName:"Skipped", field:"skipped", width: standardDecimalWidth},
+  {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
+  {headerName:"Seen", field:"seen", minWidth: minDecimalWidth, width: standardDecimalWidth},
+  {headerName:"Skipped", field:"skipped", minWidth: minDecimalWidth, width: standardDecimalWidth},
 ]
 
 const flagDefs = [
   {headerName:"Actions", ...standardActionOptions, cellRenderer: FlagActionCellRenderer},
-  {headerName:"ID", field: "id", width: standardIdWidth, cellRenderer: FlagIdRenderer},
+  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: FlagIdRenderer},
   {headerName:"Judge Name", field:"annotator_name", width: standardNameWidth},
   {headerName:"Project Name", field:"item_name", width: standardNameWidth},
   {headerName:"Project Location", field:"item_location", width: standardLocationWidth},
@@ -175,7 +214,7 @@ const commonDefs = {
   suppressCellSelection: true,
   onFirstDataRendered: (params) => {
     params.api.sizeColumnsToFit();
-  },
+  }
 }
 
 async function initTables() {
@@ -218,7 +257,7 @@ async function initTables() {
 }
 
 function decimalFormatter(params) {
-  return parseFloat(params.value).toFixed(2)
+  return parseFloat(params.value).toFixed(4)
 }
 
 function updatedFormatter(params) {
@@ -605,6 +644,52 @@ function setAddButtonState() {
   }
 }
 
+// function sessionButtonState(settings) {
+//   console.log("test")
+//   const button = document.getElementById("sessionButton")
+//   const queued = !!settings.filter((setting) => { return setting.key === "queued" && setting.value === "true"})
+//   const closed = !!settings.filter((setting) => { return setting.key === "closed" && setting.value === "true"})
+//   const formHolder = document.getElementById("judgeSettingFormHolder")
+
+//   const state = closed ? "closed" : queued ? "queued" : "open";
+
+//   switch(state) {
+//     case("closed"):
+//       const closeform = `
+//       <form id="admin-judge-setting-form" action="/admin/setting" method="post">
+//         <input type="hidden" name="action" id="actionInput" value="Open">
+//         <input type="hidden" name="key" value="closed">
+//         <input type="hidden" name="_csrf_token" value="${token}">
+//       </form>
+//       `;
+//       button.classList = "normal-white-18 noborder admin-judging-active"
+//       formHolder.innerHTML = closeform
+//       document.getElementById("actionInput").value = "Open"
+//       button.innerText = "Start Session"
+//       button.onclick = document.getElementById('admin-judge-setting-form').submit()
+//       break;
+//     case("queued"):
+//       const queueform = `
+//       <form id="admin-judge-setting-form" id="actionInput" action="/admin/queueshutdown" method="post">
+//         <input type="hidden" name="action" value="dequeue">
+//         <input type="hidden" name="_csrf_token" value="${token}">
+//       </form>
+//       `;
+//       button.classList = "normal-white-18 noborder admin-judging-active"
+//       formHolder.innerHTML = queueform
+//       document.getElementById("actionInput").value = "dequeue"
+//       button.innerText = "Stop Soft Close"
+//       button.onclick = document.getElementById('admin-judge-setting-form').submit()
+//       break;
+//     case("open"):
+//       button.classList = "normal-white-18 noborder admin-judging-inactive"
+//       button.onclick = openModal("stop-session")
+//       break;
+//     default:
+//       break;
+//   }
+// }
+
 function openModal(modal) {
   $("body").find(".modal-wrapper").css('display', 'none');
 
@@ -612,53 +697,9 @@ function openModal(modal) {
   modal !== 'close' && modal ? document.getElementById(modal).style.display = 'block' : dumdum = 'dum';
 }
 
-let judgeIds = [];
-let projectIds = [];
-let form = null;
-$('#batchDelete').click(async function () {
-  const tab = localStorage.getItem("currentTab");
-  projectIds = [];
-  judgeIds = [];
-  form = null;
-  if (tab === 'items') {
-    form = document.getElementById('batchDeleteItems');
-  } else if (tab === 'annotators') {
-    form = document.getElementById('batchDeleteAnnotators');
-  }
-  $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
-    form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
-  });
-  try {
-    form.serializeArray()
-  } catch {
+$('#sessionForm').click(async function () {
 
-  }
-  const full = await form;
-  full.submit();
-
-});
-
-$('#batchDisable').click(async function () {
-  const tab = localStorage.getItem("currentTab");
-  projectIds = [];
-  judgeIds = [];
-  form = null;
-  if (tab === 'items') {
-    form = document.getElementById('batchDisableItems');
-  } else if (tab === 'annotators') {
-    form = document.getElementById('batchDisableAnnotators');
-  }
-  $('#admin-table').find('input[type="checkbox"]:checked').each(function () {
-    form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + this.id + '"/>';
-  });
-  try {
-    form.serializeArray();
-  } catch {
-
-  }
-  const full = await form;
-  full.submit();
-});
+})
 
 $(document).ready(() => {
   showTab(localStorage.getItem("currentTab") || "flags");
@@ -677,6 +718,66 @@ $(document).ready(() => {
       }
     }
   }
+
+  let judgeIds = [];
+  let projectIds = [];
+  let form = null;
+  $('#batchDelete').click(async function () {
+    const tab = localStorage.getItem("currentTab");
+    projectIds = [];
+    judgeIds = [];
+    form = null;
+    let selectedRows = []
+    if (tab === 'items') {
+      form = document.getElementById('batchDeleteItems');
+      selectedRows = itemData.api.getSelectedRows()
+      console.log("items", selectedRows)
+    } else if (tab === 'annotators') {
+      form = document.getElementById('batchDeleteAnnotators');
+      selectedRows = annotatorData.api.getSelectedRows()
+      console.log("annotators", selectedRows)
+    }
+    selectedRows.map((row) => {
+      form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + row.id + '"/>';
+    });
+    try {
+      form.serializeArray()
+    } catch (e) {
+      console.log(e)
+    }
+    const full = await form;
+    full.submit();
+
+  });
+
+  $('#batchDisable').click(async function () {
+    const tab = localStorage.getItem("currentTab");
+    projectIds = [];
+    judgeIds = [];
+    form = null;
+    let selectedRows = []
+    if (tab === 'items') {
+      form = document.getElementById('batchDisableItems');
+      selectedRows = itemData.api.getSelectedRows()
+      console.log("items", selectedRows)
+    } else if (tab === 'annotators') {
+      form = document.getElementById('batchDisableAnnotators');
+      selectedRows = annotatorData.api.getSelectedRows()
+      console.log("annotators", selectedRows)
+    }
+    selectedRows.map((row) => {
+      form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + row.id + '"/>';
+    });
+    try {
+      form.serializeArray();
+    } catch (e) {
+      console.log(e)
+    }
+    const full = await form;
+    full.submit();
+  });
+
+
 })
 
 function time_ago(time) {

@@ -19,22 +19,13 @@ html, body, #content {
   <div class="banner-branded">Gavel Admin Dashboard<span style="cursor: pointer;" onclick="toggleAutoRefresh(!livereload)" class="live-active" id="live"> Live</span>
     <div class="admin-toggle float-right">
       <button
+        id="sessionButton"
         class="normal-white-18 noborder {{ 'admin-judging-active' if setting_closed or setting_stop_queue else 'admin-judging-inactive' }}"
         onclick="{{ "document.getElementById('admin-judge-setting-form').submit()" if setting_closed or setting_stop_queue else ("openModal('stop-session')")}}">
         {{ ('Stop Soft Close' if setting_stop_queue else 'Stop Session') if not setting_closed else 'Start Session' }}
       </button>
-      {% if setting_closed %}
-      <form id="admin-judge-setting-form" action="/admin/setting" method="post">
-        <input type="hidden" name="action" value="{{ 'Open' if setting_closed else 'Close' }}">
-        <input type="hidden" name="key" value="closed">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-      </form>
-      {% elif setting_stop_queue %}
-      <form id="admin-judge-setting-form" action="/admin/queueshutdown" method="post">
-        <input type="hidden" name="action" value="dequeue">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-      </form>
-      {% endif %}
+      <div id="judgeSettingFormHolder">
+      </div>
     </div>
   </div>
   <div class="admin-data-bar">
@@ -134,7 +125,6 @@ html, body, #content {
   }
 </style>
 <script>
-
   const refreshTimeout = 6000;
 
   let initialTableResponse;

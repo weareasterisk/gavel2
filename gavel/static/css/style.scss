@@ -1381,7 +1381,7 @@ dl.instructions dt p {
 }
 
 .full-modal {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -1390,6 +1390,8 @@ dl.instructions dt p {
   justify-content: center;
   align-items: center;
   background: rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  z-index: 2
 }
 
 .add-modal {
@@ -1411,7 +1413,8 @@ dl.instructions dt p {
   background: #FFFFFF;
   box-shadow: 0px 2px 6px #B7B7B7;
   border-radius: 4px;
-
+  z-index: 100;
+  cursor: default;
 }
 .admin-switcher-modal-text {
   font-family: Rubik;
@@ -1632,6 +1635,7 @@ color: #000000;
   left: calc(100% - 24px);
   top: 12px;
   position: absolute;
+  cursor: pointer;
 }
 
 .upload-judges-button {

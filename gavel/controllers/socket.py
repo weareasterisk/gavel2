@@ -11,26 +11,39 @@ from flask import (json)
 import asyncio
 
 def standardize(target):
-  name = target.__tablename__
-  if str(name) == 'annotator':
+  try:
+    name = target.__tablename__
+    if str(name) == 'annotator':
+      return {
+        'type': name,
+        'target': json.dumps(injectAnnotator(target, target.to_dict()))
+      }
+    elif str(name) == 'flag':
+      return {
+        'type': name,
+        'target': json.dumps(injectFlag(target, target.to_dict()))
+      }
+    elif str(name) == 'item':
+      return {
+        'type': name,
+        'target': json.dumps(injectItem(target, target.to_dict()))
+      }
+    elif str(name) == 'setting':
+      settings = Setting.query.all()
+      return {
+        'type': name,
+        'target': json.dumps([it.to_dict() for it in Setting.query.all()])
+      }
+    else:
+      return {
+        'type': name,
+        'target': json.dumps(target.to_dict())
+      }
+  except Exception as e:
+    print(str(e))
     return {
-      'type': name,
-      'target': json.dumps(injectAnnotator(target, target.to_dict()))
-    }
-  elif str(name) == 'flag':
-    return {
-      'type': name,
-      'target': json.dumps(injectFlag(target, target.to_dict()))
-    }
-  elif str(name) == 'item':
-    return {
-      'type': name,
-      'target': json.dumps(injectItem(target, target.to_dict()))
-    }
-  else:
-    return {
-      'type': name,
-      'target': target.to_dict()
+      'type': "ERROR",
+      'target': json.dumps({'error': 'true'})
     }
 
 def injectAnnotator(target, target_dumped):
@@ -72,15 +85,19 @@ CONNECT = 'connected'
 
 ANNOTATOR_INSERTED = 'annotator.inserted'
 ANNOTATOR_UPDATED = 'annotator.updated'
+ANNOTATOR_DELETED = 'annotator.deleted'
 
 ITEM_INSERTED = 'item.inserted'
 ITEM_UPDATED = 'item.updated'
+ITEM_DELETED = 'item.deleted'
 
 FLAG_INSERTED = 'flag.inserted'
 FLAG_UPDATED = 'flag.updated'
+FLAG_DELETED = 'flag.deleted'
 
 SETTING_INSERTED = 'setting.inserted'
 SETTING_UPDATED = 'setting.updated'
+SETTING_DELETED = 'setting.deleted'
 
 @socketio.on('user.connected', namespace='/admin')
 def test_connect(data):
@@ -107,6 +124,12 @@ def annotator_listen_insert(mapper, connection, target):
 def annotator_listen_modify(mapper, connection, target):
   socketio.emit(ANNOTATOR_UPDATED, standardize(target), namespace='/admin')
 
+@event.listens_for(Annotator, 'after_delete')
+@utils.requires_auth
+def annotator_listen_delete(mapper, connection, target):
+  print(str(target), str(mapper))
+  socketio.emit(ANNOTATOR_DELETED, {"target": json.dumps(target.to_dict())}, namespace='/admin')
+
 @event.listens_for(Item, 'after_insert')
 @utils.requires_auth
 def item_listen_insert(mapper, connection, target):
@@ -117,6 +140,12 @@ def item_listen_insert(mapper, connection, target):
 def item_listen_modify(mapper, connection, target):
   socketio.emit(ITEM_UPDATED, standardize(target), namespace='/admin')
 
+@event.listens_for(Item, 'after_delete')
+@utils.requires_auth
+def item_listen_delete(mapper, connection, target):
+  print(str(target), str(mapper))
+  socketio.emit(ITEM_DELETED, {"target": json.dumps(target.to_dict())}, namespace='/admin')
+
 @event.listens_for(Flag, 'after_insert')
 @utils.requires_auth
 def flag_listen_insert(mapper, connection, target):
@@ -126,6 +155,12 @@ def flag_listen_insert(mapper, connection, target):
 @utils.requires_auth
 def flag_listen_update(mapper, connection, target):
   socketio.emit(FLAG_UPDATED, standardize(target), namespace='/admin')
+
+@event.listens_for(Flag, 'after_delete')
+@utils.requires_auth
+def flag_listen_delete(mapper, connection, target):
+  print(str(target), str(mapper))
+  socketio.emit(FLAG_DELETED, {"target": json.dumps(target.to_dict())}, namespace='/admin')
 
 @event.listens_for(Setting, 'after_insert')
 @utils.requires_auth
