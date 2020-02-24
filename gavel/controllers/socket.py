@@ -1,4 +1,5 @@
 from gavel import app
+from gavel import celery
 from gavel import socketio
 from flask_socketio import emit
 from gavel.constants import *
@@ -9,6 +10,9 @@ from sqlalchemy import event
 from sqlalchemy import (or_, not_)
 from flask import (json)
 import asyncio
+
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 def standardize(target):
   try:
@@ -62,6 +66,7 @@ def injectFlag(target, target_dumped):
   })
   return target_dumped
 
+@celery.task
 def injectItem(target, target_dumped):
   assigned = Annotator.query.filter(Annotator.next == target).all()
   viewed_ids = {i.id for i in target.viewed}
@@ -105,12 +110,16 @@ def test_connect(data):
 
 @socketio.on('annotator.updated.confirmed', namespace='/admin')
 @utils.requires_auth
+def runRelatedItemUpdates(data):
+  triggerRelatedItemUpdates.apply_async(args=[data])
+
+@celery.task(name='socket.triggerRelatedItemUpdates')
 def triggerRelatedItemUpdates(data):
   try:
     ignore_ids = {i['id'] for i in data['ignore']}
     items = Item.query.filter(Item.id.in_(ignore_ids))
     for i in items:
-      socketio.emit(DB_MODIFY_EVENT, standardize(i), namespace='/admin')
+      socketio.emit(ITEM_UPDATED, {'type': "item", 'target': json.dumps(injectItem.delay(i, i.to_dict()))}, namespace='/admin')
   except Exception as e:
     return
 
