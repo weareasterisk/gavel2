@@ -1,6 +1,7 @@
 from gavel.models import db
 import gavel.crowd_bt as crowd_bt
 from sqlalchemy.orm.exc import NoResultFound
+from datetime import datetime
 
 from gavel.models._basemodel import BaseModel
 
@@ -19,11 +20,12 @@ class Item(BaseModel):
     viewed = db.relationship('Annotator', secondary=view_table)
     prioritized = db.Column(db.Boolean, default=False, nullable=False)
     flags = db.relationship('Flag', back_populates="item")
+    updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     mu = db.Column(db.Float)
     sigma_sq = db.Column(db.Float)
 
-    _default_fields = ["name", "location", "description", "active", "seen", "prioritized", "mu", "sigma_sq"]
+    _default_fields = ["name", "location", "description", "active", "seen", "prioritized", "mu", "sigma_sq", "updated"]
 
     relations_keys = ("viewed", "flags")
 

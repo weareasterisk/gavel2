@@ -12,7 +12,7 @@
           Optionally, ending the session now will preserve the rankings shown.
         </p>
         <button class="normal-12 float-left white caps background-grey noborder inlineButton-32 w144" onclick="openModal('close')">CONTINUE JUDGING</button>
-        <form class="inline" style="margin-left: 8px;" action="/admin/queueshutdown" method="post" id="softClose">
+        <form class="inline" style="margin-left: 8px" action="/admin/queueshutdown" method="post" id="softClose">
           <input type="hidden" name="action" value="queue">
           <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           <button class="normal-12 white caps background-red noborder inlineButton-32 w144" type="submit">SOFT CLOSE</button>

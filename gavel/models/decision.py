@@ -12,11 +12,13 @@ class Decision(BaseModel):
     loser_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     loser = db.relationship('Item', foreign_keys=[loser_id], uselist=False)
     time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     _default_fields = ["annotator_id",
                        "winner_id",
                        "loser_id",
-                       "time"]
+                       "time",
+                       "updated"]
 
     def __init__(self, annotator, winner, loser):
         self.annotator = annotator

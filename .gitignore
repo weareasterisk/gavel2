@@ -13,3 +13,7 @@ venv/
 
 .env*
 !.env.example
+
+.vscode/
+
+celerybeat-schedule

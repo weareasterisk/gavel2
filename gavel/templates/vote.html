@@ -12,6 +12,7 @@
       border: 0;
     }
   </style>
+<div style="position: relative">
   <div class="item" style="padding-bottom: 80px;">
     <div class="projectInfo">
       <h2 class="projectScreenTitle">Evaluate the following project.</h2>
@@ -50,5 +51,6 @@
   {% with prev=prev, next=next %}
     {% include "./vote_components/vote_modal.html" %}
   {% endwith %}
+</div>
 
 {% endblock %}
