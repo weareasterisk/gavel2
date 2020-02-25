@@ -1029,12 +1029,17 @@ dl.instructions dt p {
   background-color: transparent;
 }
 
-.admin-data {
-  display: table-cell;
-}
+// .admin-data {
+//   display: table-cell;
+// }
 
 .admin-data-bar {
   padding-bottom: 36px;
+  flex-direction: row;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: 1;
+  max-width: 800px;
 }
 
 .admin-toggle {
