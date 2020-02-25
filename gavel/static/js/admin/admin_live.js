@@ -24,7 +24,7 @@ let itemData;
 let flagData;
 
 window.addEventListener("DOMContentLoaded", () => {
-  socket = io.connect( location.protocol === "https:" ? "wss: " : "ws:" + "//" + document.domain + ":" + location.port + "/admin", {transports: ['websocket']})
+  socket = io("/admin")
   
   initTables();
 
