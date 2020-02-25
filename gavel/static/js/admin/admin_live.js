@@ -24,7 +24,7 @@ let itemData;
 let flagData;
 
 window.addEventListener("DOMContentLoaded", () => {
-  socket = io("/admin", { secure: true, transports: [ "flashsocket","polling","websocket" ] })
+  socket = io("/admin", { secure: true, transports: [ "flashsocket","websocket" ] })
   
   initTables();
 
