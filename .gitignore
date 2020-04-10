@@ -17,3 +17,5 @@ venv/
 .vscode/
 
 celerybeat-schedule
+
+node_modules/

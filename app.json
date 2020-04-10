@@ -3,6 +3,14 @@
         "heroku-postgresql:hobby-dev",
         "heroku-redis:hobby-dev"
     ],
+    "buildpacks": [
+        {
+            "url": "https://github.com/heroku/heroku-buildpack-nodejs#v170"
+        },
+        {
+            "url": "heroku/python"
+        }
+    ],
     "formation": {
         "web": {
             "quantity": 1,

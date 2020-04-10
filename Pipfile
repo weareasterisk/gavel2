@@ -50,6 +50,7 @@ cssmin = "==0.2.0"
 flask-socketio = "==4.2.1"
 eventlet = "==0.25.1"
 psycopg2-binary = "*"
+libsass = "==0.19.4"
 
 [requires]
 python_version = "3.6"

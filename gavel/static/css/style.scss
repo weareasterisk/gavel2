@@ -1,4 +1,4 @@
-@import './constants';
+@import './constants.scss';
 
 * {
   -webkit-box-sizing: border-box;
@@ -11,10 +11,10 @@ html,
 body {
   margin: 0;
   padding: 0;
+  font-family: Rubik !important;
 }
 
 html {
-  font-family: $body-font,sans-serif;
   font-size: 16px;
   font-weight: 300;
   line-height: 1.5;

@@ -1,0 +1,39 @@
+{
+  "name": "gavel",
+  "version": "1.0.0",
+  "description": "Hackathon Judging System",
+  "repository": "git@github.com:weareasterisk/gavel.git",
+  "private": false,
+  "scripts": {
+    "build": "cross-env NODE_ENV=production postcss gavel/static/css/tailwind.scss -o gavel/static/generated.scss",
+    "build:watch": "cross-env NODE_ENV=development postcss gavel/static/css/tailwind.scss -o gavel/static/generated.scss -w"
+  },
+  "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^2.1.2",
+    "autoprefixer": "^9.7.6",
+    "cross-env": "^7.0.2",
+    "cssnano": "^4.1.10",
+    "postcss": "^7.0.27",
+    "postcss-cli": "^7.1.0",
+    "postcss-import": "^12.0.1",
+    "postcss-loader": "^3.0.0",
+    "postcss-modules": "^1.5.0",
+    "postcss-nested": "^4.2.1",
+    "postcss-preset-env": "^6.7.0",
+    "postcss-scss": "^2.0.0",
+    "postcss-url": "^8.0.0",
+    "tailwindcss": "^1.2.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
