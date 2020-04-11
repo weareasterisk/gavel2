@@ -70,6 +70,14 @@ bundles = {
 
 assets.register(bundles)
 
+@app.context_processor
+def inject_context():
+    return dict(
+      virtual=settings.VIRTUAL_EVENT,
+      finished_button_text=str("Finish Review" if settings.VIRTUAL_EVENT else "Done With Visit"),
+
+    )
+
 from celery import Celery
 
 app.config['CELERY_BROKER_URL'] = settings.BROKER_URI
