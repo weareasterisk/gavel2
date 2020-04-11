@@ -311,8 +311,12 @@ def item():
     if data:
       # validate data
       for index, row in enumerate(data):
-        if len(row) != 3:
-          return utils.user_error('Bad data: row %d has %d elements (expecting 3)' % (index + 1, len(row)))
+        if settings.VIRTUAL_EVENT:
+          if len(row) != 7:
+            return utils.user_error('Bad data: row %d has %d elements (expecting 7)' % (index + 1, len(row)))
+        else:
+          if len(row) != 3:
+            return utils.user_error('Bad data: row %d has %d elements (expecting 3)' % (index + 1, len(row)))
       def tx():
         for row in data:
           _item = Item(*row)
@@ -622,7 +626,7 @@ def annotator_detail(annotator_id):
 
 
 def annotator_link(annotator):
-  return urllib.parse.urljoin(settings.BASE_URL, url_for('login', secret=annotator.secret))
+  return url_for('login', secret=annotator.secret, _external=True)
 
 @async_action
 async def email_invite_links(annotators):
