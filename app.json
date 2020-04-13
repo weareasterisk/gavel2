@@ -32,7 +32,8 @@
             "generator": "secret"
         },
         "VIRTUAL_EVENT": {
-            "description": "Enables virtual event features if set to true."
+            "description": "Enables virtual event features if set to true.",
+            "value": "false"
         },
         "DISABLE_EMAIL": {
             "description": "Email sending is disabled if set to true.",
