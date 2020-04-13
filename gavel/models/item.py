@@ -59,6 +59,7 @@ class Item(BaseModel):
         self.name = name
         self.location = location
         self.description = description
+        self.tagline = tagline
         self.video_reference = video_reference
         self.submission_reference = submission_reference
         self.submission_website = submission_website
