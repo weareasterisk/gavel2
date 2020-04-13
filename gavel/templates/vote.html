@@ -12,32 +12,44 @@
       border: 0;
     }
   </style>
-<div style="position: relative">
-  <div class="item" style="padding-bottom: 80px;">
-    <div class="projectInfo">
-      <h2 class="projectScreenTitle">Evaluate the following project.</h2>
-      <p class="voteItemTeam" style="color: black; padding-bottom: 8px;">CURRENT PROJECT</p>
-      <div class="item projectItem" style="box-shadow: none; border: 1px solid #000F9B;">
+<div class="pb-8">
+  <div class="container">
+    <div class="w-full flex justify-between items-center">
+      <div>
+        <h2 class="text-indigo text-18 md:text-24 pb-.8 pt-1.6">Review the new Current Project.</h2>
+        <p class="text-gray text-12 md:text-14 pb-1.6">Click ‘{{ finished_button_text }}’ to select the better of the two projects.</p>
+      </div>
+      <div class="hidden md:flex items-center">
+        <button class="bg-red bg-flag h-4 w-4.8 rounded m-.6" type="button" id="reportbutton" onclick="toggleReport()"></button>
+        {% if not virtual %}
+        <button class="bg-purple bg-chevron h-4 w-4.8 rounded m-.6" type="button" id="skipButton" onclick="toggleSkip()"></button>
+        {% endif %}
+        <button class="bg-lightblue h-4 w-14.4 rounded flex-grow m-.6 text-white" type="button" id="doneButton" onclick="toggleModal()">{{ finished_button_text }}</button>
+      </div>
+    </div>
+    <div class="flex justify-between flex-wrap xl:flex-row flex-col pb-1.6 xl:-mx-2">
+      <div class="flex-grow xl:pb-3.4 pb-2.4 xl:mx-2">
+        <p class="uppercase text-indigo font-medium text-12 md:text-16 mb-1.2 border-b border-indigo">CURRENT PROJECT</p>
         {% with item=next %}
           {% include "_item.html" %}
         {% endwith %}
       </div>
-
-      <p class="voteItemTeam" style="color: black; padding-bottom: 8px; padding-top: 24px;">LAST PROJECT YOU VISITED</p>
-      <div class="item">
-        <div class="item projectItem" style="box-shadow: none;">
-          {% with item=prev %}
-            {% include "_item.html" %}
-          {% endwith %}
-        </div>
+      <div class="flex-grow xl:mx-2">
+        <p class="uppercase text-gray font-medium text-12 md:text-16 mb-1.2 border-b border-gray">LAST PROJECT YOU REVIEWED</p>
+        {% with item=prev %}
+          {% include "_item.html" %}
+        {% endwith %}
       </div>
     </div>
   </div>
 
-  <div class="bottomPanel">
-    <button class="flagButton" type="button" id="reportbutton" onclick="toggleReport()"></button>
-    <button class="skipButton" type="button" id="skipButton" onclick="toggleSkip()"></button>
-    <button class="doneButton doneButtonText" type="button" id="doneButton" onclick="toggleModal()">Done With Visit</button>
+  <div class="fixed md:hidden bottomPanel flex w-full flex-row inline-flex justify-between">
+    <button class="bg-red bg-flag h-4.8 w-6 rounded m-.6" title="Report" type="button" id="reportbutton" onclick="toggleReport()"></button>
+    
+    <button class="skipButton m-.6" type="button" title="Skip" id="skipButton" onclick="toggleSkip()"></button>
+    {% if not virtual %}
+    {% endif %}
+    <button class="doneButton doneButtonText flex-grow m-.6" type="button" title="Done" id="doneButton" onclick="toggleModal()">{{ finished_button_text }}</button>
   </div>
 
   {% with prev=prev, next=next %}
