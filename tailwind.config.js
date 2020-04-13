@@ -1,3 +1,5 @@
+const tinycolor = require("tinycolor2")
+
 module.exports = {
   prefix: '',
   important: false,
@@ -11,11 +13,16 @@ module.exports = {
       xl: '1280px',
     },
     colors: {
-      lightBlue: "#179BE8",
+      white: "#ffffff",
+      lightblue: "#179BE8",
+      fadedlightblue: tinycolor("#179BE8").setAlpha("0.15").toRgbString(),
       indigo: "#000F9B",
       red: "#FF6666",
+      fadedred: tinycolor("#FF6666").setAlpha("0.15").toRgbString(),
       purple: "#5F4BB6",
-      gray: "#B7B7B7"
+      fadedpurple: tinycolor('#5F4BB6').setAlpha("0.1").toRgbString(),
+      gray: "#898989",
+      lightgray: "#B7B7B7",
     },
     backgroundColor: theme => theme('colors'),
     borderColor: theme => ({
@@ -25,55 +32,34 @@ module.exports = {
     borderRadius: {
       none: '0',
       sm: '0.125rem',
-      default: '0.25rem',
+      default: '0.4rem',
+      '8': '0.8rem',
       lg: '0.5rem',
       full: '9999px',
+      '1/2': '50%',
+    },
+    borderWidth: {
+      default: '1px',
+      '0': '0',
+      '2': '.2rem',
+      '4': '.4rem',
+      '8': '8px',
+    },
+    borderWidth: {
+      default: '1px',
+      '0': '0',
+      '2': '2px',
+      '4': '4px',
+      '8': '8px',
     },
     spacing: {
-      px: '1px',
-      '0': '0',
-      '.25': '0.25rem',
-      '.5': '0.5rem',
-      '.75': '0.75rem',
-      '1': '1rem',
-      '1.25': '1.25rem',
-      '1.5': '1.5rem',
-      '1.75': '1.75rem',
-      '1.8125': "1.8125rem",
-      '2': '2rem',
-      '2.5': '2.5rem',
-      '3': '3rem',
-      '3.5': '3.5rem',
-      '4': '4rem',
-      '4.5': '4.5rem',
-      '5': '5rem',
-      '6': '6rem',
-      '7': '7rem',
-      '8': '8rem',
-      '8.5': '8.5rem',
-      '9': '9rem',
-      '10': '10rem',
-      '11': '11rem',
-      '12': '12rem',
-      '14': '14rem',
-      '16': '16rem',
-      '18': '18rem',
-      '18.75': '18.75rem',
-      '20': '20rem',
-      '25': '25rem',
-      '28': '28rem',
-      '30': '30rem',
-      '35': '35rem',
-      '36': '36rem',
-      '40': '40rem',
-      '42': '42rem',
-      'full': '100%'
+      ...require('./tailwind.spacing')
     },
     padding: theme => theme('spacing'),
     textColor: theme => theme('colors'),
     container: {
       center: true,
-      padding: "2.5rem"
+      padding: "1.6rem"
     },
     cursor: {
       auto: 'auto',
@@ -147,6 +133,17 @@ module.exports = {
       '4xl': '2.25rem',
       '5xl': '3rem',
       '6xl': '4rem',
+      '4': '0.4rem',
+      '8': '0.8rem',
+      '12': '1.2rem',
+      '14': '1.4rem',
+      '16': '1.6rem',
+      '18': '1.8rem',
+      '20': '2.0rem',
+      '22': '2.2rem',
+      '24': '2.4rem',
+      '26': '2.6rem',
+      '28': '2.8rem',
     },
     fontWeight: {
       hairline: '100',
@@ -159,6 +156,9 @@ module.exports = {
       extrabold: '800',
       black: '900',
     },
+    lineHeight: theme => ({
+      ...theme('spacing')
+    }),
     height: theme => ({
       auto: 'auto',
       ...theme('spacing'),
@@ -173,6 +173,12 @@ module.exports = {
     }),
     maxWidth: theme => ({
       ...theme('spacing'),
+      '1/2': "50%",
+      full: '100%',
+    }),
+    minWidth: theme => ({
+      ...theme('spacing'),
+      '1/2': "50%",
       full: '100%',
     }),
     extend: {},
@@ -191,6 +197,37 @@ module.exports = {
       '4/5': '80%',
       full: '100%',
       screen: '100vw',
+    }),
+    zIndex: {
+      auto: 'auto',
+      '0': '0',
+      '10': '10',
+      '20': '20',
+      '30': '30',
+      '40': '40',
+      '50': '50',
+      '500': '500',
+    },
+    customForms: theme => ({
+      default: {
+        select: {
+          icon: '<svg fill="#e2e8f0" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>',
+        },
+        checkbox: {
+          icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none"><path d="M8 17.008l5 6 11-14" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+          '&:focus': undefined
+        },
+        radio: {
+          icon: '<svg fill="#fff" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3"/></svg>',
+          '&:focus': {
+            boxShadow: undefined
+          }
+        },
+      },
+    }),
+    inset: theme => ({
+      ...theme('spacing'),
+      auto: 'auto',
     }),
   },
   variants: {
@@ -261,5 +298,7 @@ module.exports = {
     wordBreak: ['responsive'],
     zIndex: ['responsive'],
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/custom-forms'),
+  ],
 }
