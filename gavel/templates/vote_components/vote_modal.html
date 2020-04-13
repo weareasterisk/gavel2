@@ -1,8 +1,9 @@
 {% block content %}
   <script>
-    function toggleModal() {
+    function toggleModal(state=true) {
       let modal = document.getElementById('doneModal');
-      modal.style.display = modal.style.display === "block" ? "none" : "block";
+      modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+      if (!state) modal.style.display = "none"
     }
     function activatePrevious() {
       let prev = document.getElementById('previousProject');
@@ -36,38 +37,69 @@
       topText.classList = ['selectedText selectedNotSelected'];
       bottomText.classList = ['selectedText selectedSelected'];
     }
+    function setProjects() {
+      let button = document.getElementById('modalDoneButton')
+      let buttonText = document.getElementById('modalDoneText')
+      let radios = document.forms['doneForm'].elements['action'];
+      let radioCount = 0;
+      for(let i = 0; i < radios.length; i++) {
+        if (radios[i].checked) {
+          radioCount++;
+        }
+      }
+
+      buttonText.classList.toggle("text-lightblue", radioCount > 0);
+      buttonText.classList.toggle("text-lightgray", radioCount < 1);
+      button.classList.toggle('bg-fadedlightblue', radioCount > 0);
+      button.classList.toggle('md:bg-lightblue', radioCount > 0);
+      button.classList.toggle('md:bg-lightgray', radioCount < 1);
+      button.type = radioCount > 0 ? 'submit' : 'button';
+    }
   </script>
-  <div class="modal" id="doneModal">
-    <div class="modal-content">
-      <div class="modal-content-projects-container">
-        <h2 class="projectScreenTitle" style="margin-bottom: 16px; padding-bottom: 0;">Select the better project to continue.</h2>
-        <p class="voteItemTeam purpleBold" style="color: black; padding-bottom: 8px; padding-top: 0;">CURRENT PROJECT</p>
-        <div class="item projectItem" style="padding-bottom:0" id="nextProject" onclick="activateNext()">
-          {% with item=next %}
-            {% include "_strippeditem.html" %}
-          {% endwith %}
-          <p class="selectedText" id="bottomText"></p>
-        </div>
-        <p class="voteItemTeam" style="color: black; padding-bottom: 8px; padding-top: 16px; margin-top: 0;">PREVIOUS PROJECT</p>
-        <div class="item projectItem" style="padding-bottom:0" id="previousProject" onclick="activatePrevious()">
-          {% with item=prev %}
-            {% include "_strippeditem.html" %}
-          {% endwith %}
-          <p class="selectedText" id="topText"></p>
+  <div class="modal md:justify-center md:items-center z-0 pointer" id="doneModal">
+    <div class="fixed bottom-0 bg-white md:flex md:bottom-auto w-full md:w-44 z-500 flex-wrap md:rounded-8 cursor-default">
+      <div class="bg-cross hidden md:block md:absolute top-2.4 right-2.4 cursor-pointer h-1.2 w-1.2" onclick="toggleModal(false)"></div>
+      <div class="md:m-2.4 m-1.6">
+        <h2 class="pb-1.6 text-18 md:pr-2.4 text-indigo">Select the better project to continue</h2>
+        <div class="flex flex-wrap flex-col">
+          <label class="inline-flex items-center mb-1.6 pointer">
+            <input form="doneForm" type="radio" class="form-radio border-lightblue border-2 text-lightblue h-3.2 w-3.2 md:h-2.4 md:w-2.4 pointer" id="doneRadioOne" value="Current" name="action" onclick="setProjects()">
+            <div class="flex-col ml-2">
+              <p class="uppercase text-indigo text-12 font-medium">current project</p>
+              <p class="text-18">{{ next.name }}</p>
+            </div>
+          </label>
+          <label class="inline-flex items-center mb-1.6 pointer">
+            <input form="doneForm" type="radio" class="form-radio border-lightblue border-2 text-lightblue h-3.2 w-3.2 md:h-2.4 md:w-2.4 pointer" id="doneRadioTwo" value="Previous" name="action" onclick="setProjects()">
+            <div class="flex-col ml-2">
+              <p class="uppercase text-lightgray text-12 font-medium">previous project</p>
+              <p class="text-18">{{ prev.name }}</p>
+            </div>
+          </label>
         </div>
       </div>
-      <div class="modal-close">
-        <span class="modal-button-text" id="modalCloseButton" style="height: 100%; margin-top: 0; padding-top: 24px;" onclick="toggleModal()">CLOSE</span>
-      </div>
-      <div class="modal-next">
-        <form action="/vote" method="post" class="submit-form">
-          <button id="modalNextButton" class="modal-next-button-button" name="action" type="button" value=""
-                  style="background: 0; border: 0;"><a class="modal-button-text" id="modalNextText" style="margin: 0;">NEXT PROJECT</a></button>
-          <input type="hidden" name="prev_id" value="{{ prev.id }}">
-          <input type="hidden" name="next_id" value="{{ next.id }}">
-          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-        </form>
+
+      <div class="w-full flex flex-no-wrap h-6.4 md:h-auto md:border-none border-t border-lightgray md:justify-end md:mx-2.4 md:mb-2.4">
+        <div class="w-1/2 text-center flex justify-around border-r border-lightgray md:hidden">
+          <span class="h-full w-full flex items-center justify-around text-12 center uppercase text-indigo pointer" id="doneCloseButton" onclick="toggleModal(false)">CLOSE</span>
+        </div>
+        <div class="w-1/2 md:w-auto text-center flex justify-around md:justify-end md:text-white">
+          <form action="/vote" method="post" class="h-full w-full flex items-center justify-around text-12 center uppercase text-indigo" id="doneForm">
+            <button id="modalDoneButton" class="w-full h-full md:h-4 md:bg-lightgray pointer md:rounded md:px-1.4" type="submit"><a class="uppercase text-lightgray text-bold md:text-white" id="modalDoneText" style="margin: 0;">NEXT PROJECT</a></button>
+            <input type="hidden" name="prev_id" value="{{ prev.id }}">
+            <input type="hidden" name="next_id" value="{{ next.id }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          </form>
+        </div>
       </div>
     </div>
   </div>
+  <script>
+    
+    document.getElementById("doneModal").onclick = (event) => {
+      if (event.target == doneModal) {
+        toggleModal(false)
+      }
+    }
+  </script>
 {% endblock %}
