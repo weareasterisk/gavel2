@@ -20,14 +20,14 @@
         <p class="text-gray text-12 md:text-14 pb-1.6">Click ‘{{ finished_button_text }}’ to select the better of the two projects.</p>
       </div>
       <div class="hidden md:flex items-center">
-        <button class="bg-red bg-flag h-4 w-4.8 rounded m-.6" type="button" id="reportbutton" onclick="toggleReport()"></button>
+        <button class="bg-red bg-flag h-4 w-4.8 rounded m-.6" title="Report" type="button" id="reportbutton" onclick="toggleReport()"></button>
         {% if not virtual %}
-        <button class="bg-purple bg-chevron h-4 w-4.8 rounded m-.6" type="button" id="skipButton" onclick="toggleSkip()"></button>
+        <button class="bg-purple bg-chevron h-4 w-4.8 rounded m-.6" title="Skip" type="button" id="skipButton" onclick="toggleSkip()"></button>
         {% endif %}
-        <button class="bg-lightblue h-4 w-14.4 rounded flex-grow m-.6 text-white" type="button" id="doneButton" onclick="toggleModal()">{{ finished_button_text }}</button>
+        <button class="bg-lightblue h-4 w-14.4 rounded flex-grow m-.6 text-white" title="Done" type="button" id="doneButton" onclick="toggleModal()">{{ finished_button_text }}</button>
       </div>
     </div>
-    <div class="flex justify-between flex-wrap xl:flex-row flex-col pb-1.6 xl:-mx-2">
+    <div class="flex justify-between flex-shrink-0 xl:flex-row flex-col pb-1.6 xl:-mx-2">
       <div class="flex-grow xl:pb-3.4 pb-2.4 xl:mx-2">
         <p class="uppercase text-indigo font-medium text-12 md:text-16 mb-1.2 border-b border-indigo">CURRENT PROJECT</p>
         {% with item=next %}
@@ -45,9 +45,8 @@
 
   <div class="fixed md:hidden bottomPanel flex w-full flex-row inline-flex justify-between">
     <button class="bg-red bg-flag h-4.8 w-6 rounded m-.6" title="Report" type="button" id="reportbutton" onclick="toggleReport()"></button>
-    
-    <button class="skipButton m-.6" type="button" title="Skip" id="skipButton" onclick="toggleSkip()"></button>
     {% if not virtual %}
+    <button class="skipButton m-.6" type="button" title="Skip" id="skipButton" onclick="toggleSkip()"></button>
     {% endif %}
     <button class="doneButton doneButtonText flex-grow m-.6" type="button" title="Done" id="doneButton" onclick="toggleModal()">{{ finished_button_text }}</button>
   </div>

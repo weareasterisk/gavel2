@@ -149,6 +149,20 @@ hr {
   border-bottom: 1px solid #fff;
 }
 
+.videoWrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow:hidden;
+}
+.videoWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .item-container {
 
 }
@@ -700,7 +714,7 @@ dl.instructions dt p {
   top: 0;
   width: 100%;
   height: 100vh;
-  position: absolute;
+  position: fixed;
   overflow: auto;
   background: rgba(0, 0, 0, .2);
   backdrop-filter: blur(6px);
