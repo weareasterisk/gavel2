@@ -5,38 +5,6 @@
       modal.style.display = modal.style.display === "flex" ? "none" : "flex";
       if (!state) modal.style.display = "none"
     }
-    function activatePrevious() {
-      let prev = document.getElementById('previousProject');
-      let next = document.getElementById('nextProject');
-      let button = document.getElementById('modalNextButton');
-      let bottomText = document.getElementById('bottomText');
-      let topText = document.getElementById('topText');
-      let buttonText = document.getElementById('modalNextText');
-      next.classList = ['item projectItem'];
-      prev.classList = ['item projectItem enabledProjectItem'];
-      button.value = 'Previous';
-      button.type='submit';
-      button.classList = ['modal-next-button-button active-button'];
-      buttonText.classList = ['modal-button-text modal-button-text-active'];
-      topText.classList = ['selectedText selectedSelected'];
-      bottomText.classList = ['selectedText selectedNotSelected'];
-    }
-    function activateNext() {
-      let prev = document.getElementById('previousProject');
-      let next = document.getElementById('nextProject');
-      let button = document.getElementById('modalNextButton');
-      let bottomText = document.getElementById('bottomText');
-      let topText = document.getElementById('topText');
-      let buttonText = document.getElementById('modalNextText');
-      next.classList = ['item projectItem enabledProjectItem'];
-      prev.classList = ['item projectItem'];
-      button.value = 'Current';
-      button.type='submit';
-      button.classList = ['modal-next-button-button active-button'];
-      buttonText.classList = ['modal-button-text modal-button-text-active'];
-      topText.classList = ['selectedText selectedNotSelected'];
-      bottomText.classList = ['selectedText selectedSelected'];
-    }
     function setProjects() {
       let button = document.getElementById('modalDoneButton')
       let buttonText = document.getElementById('modalDoneText')
@@ -72,7 +40,7 @@
           <label class="inline-flex items-center mb-1.6 pointer">
             <input form="doneForm" type="radio" class="form-radio border-lightblue border-2 text-lightblue h-3.2 w-3.2 md:h-2.4 md:w-2.4 pointer" id="doneRadioTwo" value="Previous" name="action" onclick="setProjects()">
             <div class="flex-col ml-2">
-              <p class="uppercase text-lightgray text-12 font-medium">previous project</p>
+              <p class="uppercase text-lightgray text-12 font-medium">last project you reviewed</p>
               <p class="text-18">{{ prev.name }}</p>
             </div>
           </label>
