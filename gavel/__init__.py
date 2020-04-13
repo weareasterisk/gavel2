@@ -12,6 +12,8 @@ from flask_socketio import SocketIO
 import eventlet
 eventlet.monkey_patch(os=True, select=True, socket=True, thread=True, time=True, psycopg=True)
 
+BASE_DIR = os.path.dirname(__file__)
+
 COMPRESS_MIMETYPES = [
   'text/html',
   'text/css',
@@ -54,9 +56,9 @@ assets.url = app.static_url_path
 
 bundles = {
   'scss_all': Bundle(
-    'css/style.scss',
+    'generated.scss',
     depends='**/*.scss',
-    filters=('pyscss','cssmin',),
+    filters=('libsass',),
     output='all.css'
   ),
   'admin_js': Bundle(
