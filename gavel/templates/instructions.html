@@ -8,63 +8,59 @@
       let text = document.getElementById('continueText');
       if(checkbox.checked) {
         button.style.backgroundColor = '#1EACFF';
-        text.classList.add("fillBlue");
         button.type = 'submit';
       } else {
-        button.style.backgroundColor = '#B7B7B7';
-        text.classList.remove("fillBlue");
+        button.style.backgroundColor = '#898989';
         button.type = 'button';
       }
     }
   </script>
 <div class="item">
-  <div class="info">
-    <div class="large-header">
+  <div class="container">
+    <div class="text-32 text-indigo pb-2.4 md:pb-4 pt-8 md:pt-14.4">
       <h1 class="page-title">Here's how to use Gavel.</h1>
     </div>
-    <div class="welcome-body">
-      <dl class="instructions">
-        <dt>
-          <p>Your first visit will require no action except to move on to the next project.</p>
-        </dt>
-        <dt>
-          <p>
-            With each subsequent visit, you will be presented with another project to evaluate with respect to the previous project.
-            Select the card with the better** project and click 'Continue' to move onto the next project.
-          </p>
-        </dt>
-        <dt>
-          <p>
-            If the project you are evaluating is inappropriate or suspicious as deemed by the judging criteria or rules of the event*,
-            flag the project before moving on. Event staff will be alerted to manually review this project.
-          </p>
-        </dt>
-        <dt>
-          <p>
-            If the project you are being asked to evaluate is a no show or currently occupied by another judge,
-            please select the corresponding option before moving on.
-          </p>
-        </dt>
-      </dl>
+    <div class="md:max-w-48">
+      <div class="w-full items-top flex pb-2.4">
+        <div class="border-2 border-indigo w-2.4 h-2.4 rounded-1/2 text-16 text-center text-indigo font-medium flex-none">1</div>
+        <div class="ml-1.6">Review your first project. There’s nothing to compare to yet! All you have to do is click ‘{{ finished_button_text }}.’</div>
+      </div>
+      <div class="w-full items-top flex pb-2.4">
+        <div class="border-2 border-indigo w-2.4 h-2.4 rounded-1/2 text-16 text-center text-indigo font-medium flex-none">2</div>
+        <div class="ml-1.6">With each subsequent review, you will be presented with a new current project to evaluate against the previous one. Select the project you feel is better** and click ‘{{ finished_button_text }}’ to move on to the next project.</div>
+      </div>
+      <div class="w-full items-top flex pb-2.4">
+        <div class="border-2 border-indigo w-2.4 h-2.4 rounded-1/2 text-16 text-center text-indigo font-medium flex-none">3</div>
+        <div class="ml-1.6">If the project you are evaluating is inappropriate or suspicious as deemed by the judging criteria or rules of the event**, flag the project before moving on. Event staff will be alerted to manually review this project.</div>
+      </div>
+      <div class="w-full items-top flex pb-2.4">
+        <div class="border-2 border-indigo w-2.4 h-2.4 rounded-1/2 text-16 text-center text-indigo font-medium flex-none">4</div>
+        <div class="ml-1.6">
+          {% if virtual %}
+          Keep going through projects until judging is closed or till the system tells you you’ve seen enough projects. Event staff will keep you updated throughout the judging period.
+          {% else %}
+          If the project you are being asked to evaluate is a no show or currently occupied presenting to another judge, please select the corresponding option before moving on. 
+          {% endif %}
+        </div>
+      </div>
     </div>
-    <div>
+    <div class="md:max-w-48">
       <p class="instructionsAsterisk">
-        ** Consult your event’s judging coordinator for criteria that makes one team “better” than another as well as what
+        ** Consult your event’s judging coordinator for criteria that makes one team “better” than another as well as what 
         the event considers inappropriate, suspicious, cheating, or grounds for potential disqualification.
       </p>
     </div>
   </div>
 </div>
 <div class="item">
-  <div class="info bottom-button">
-    <div class="continueCheckboxContainer">
-      <input type="checkbox" id="continueCheckbox" onclick="onCheckboxChange()">
-      <label class="continueLabel" id="continueText" for="continueCheckbox"></label>
-      <p class="continueText">
-        Before you continue, please acknowledge that you have read and understand the above instructions.
-      </p>
+  <div class="container">
+    <div class="md:max-w-48">
+      <label class="inline-flex items-center pointer">
+        <input type="checkbox" class="form-checkbox border-lightblue border-2 h-3.2 w-3.2 md:h-2.4 md:w-2.4 pointer" id="continueCheckbox" onclick="onCheckboxChange()">
+        <span class="ml-2 text-14">Before you continue, please acknowledge that you have read and understand the above instructions.</span>
+      </label>
     </div>
-    <form action="/welcome/done" method="post" id="continueForm">
+    <form action="/welcome/done" method="post" id="continueForm" class="flex md:flex w-full md:w-16">
         {#    Type is changed to submit when above is checked          #}
       <button type="button" value="Done" name="action" class="continue-button" id="continueButton"> Continue </button>
       <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
