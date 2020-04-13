@@ -9,43 +9,21 @@
 
 html,
 body {
-  margin: 0;
-  padding: 0;
   font-family: Rubik !important;
 }
 
 html {
-  font-size: 16px;
-  font-weight: 300;
-  line-height: 1.5;
+  font-size: 62.5%;
 }
 
 body {
+  font-size: 1.6rem;
   color: $text-color;
   background-color: $light;
 }
 
-div {
-  padding: 0;
-  margin: 0;
-}
-
 button {
   cursor: pointer;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  line-height: 1.25;
-  margin: 0;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  font-family: $heading-font;
-  font-weight: bold;
 }
 
 h1.page-title {
@@ -62,10 +40,6 @@ h1.page-title {
 
 .large-header {
   padding-top: 120px;
-}
-
-p {
-  padding-bottom: 0.25rem;
 }
 
 .preserve-formatting {
@@ -150,7 +124,6 @@ input[type=text] {
 a {
   text-decoration: none;
   color: inherit;
-  font-weight: bold;
 }
 
 a.colored {
@@ -551,15 +524,6 @@ dl.instructions dt p {
 }
 
 .voteItemTeam {
-  font-family: Rubik;
-  font-style: normal;
-  font-weight: normal;
-  line-height: normal;
-  font-size: 12px;
-  text-transform: uppercase;
-  padding: 0;
-  margin: 0;
-  color: #B7B7B7;
 }
 
 .voteItemTeamContent {
@@ -628,7 +592,7 @@ dl.instructions dt p {
 .bottomPanel {
   position: fixed;
   bottom: 0;
-  height: 80px;
+  padding: .6rem;
   width: 100%;
   box-shadow: 0px -2px 8px #B7B7B7;
   background-color: white;
@@ -641,8 +605,6 @@ dl.instructions dt p {
 }
 
 .flagButton {
-  margin-top: 1rem !important;
-  margin-left: 1rem !important;
   background: $branding-red;
   height: 48px !important;
   width: 60px !important;
@@ -654,9 +616,21 @@ dl.instructions dt p {
   background: url('/static/img/flag_button.svg') center center no-repeat;
 }
 
+.bg-flag {
+  background-image: url('/static/img/flag.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.bg-chevron {
+  background-image: url('/static/img/chevron.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
 .skipButton {
-  margin-top: 1rem;
-  margin-left: 1rem;
   background: $branding-dark;
   height: 48px !important;
   width: 60px !important;
@@ -695,14 +669,9 @@ dl.instructions dt p {
 }
 
 .doneButton {
-  float: right !important;
-  margin-top: 1rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
   background: $branding-blue !important;
   background-color: $branding-blue;
   height: 48px !important;
-  width: calc(100% - 60px - 60px - 60px - 12px);
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
@@ -1425,10 +1394,8 @@ dl.instructions dt p {
   font-family: Rubik;
   font-style: normal;
   font-weight: normal;
-  line-height: normal;
   font-size: 18px;
   text-align: center;
-
   color: #000000;
 }
 
@@ -1643,6 +1610,12 @@ color: #000000;
   cursor: pointer;
 }
 
+.bg-cross {
+  background-image: url("/static/img/close-cross.svg");
+  background-position: center center;
+  background-repeat: no-repeat
+}
+
 .upload-judges-button {
   position: relative;
   display: inline-block;
@@ -1839,10 +1812,6 @@ border-radius: 4px;
 
 .h-32 {
   height: 32px;
-}
-
-.text-12 {
-  font-size: 12px;
 }
 
 .text-bold {
