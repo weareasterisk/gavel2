@@ -1,36 +1,34 @@
 {% extends "layout.html" %}
 {% block title %}Welcome{% endblock %}
 {% block content %}
-<div class="item">
-  <div class="info">
-    <div class="large-header">
-      <h1 class="page-title">Welcome to Gavel.</h1>
-    </div>
-    <div class="welcome-body">
-      <p>
-        Gavel is an expo judging platform that continuously compares each project you visit against the last project you visited.
-        Easy, right? By looking at your comparison patterns as well as those of the other judges,
-        Gavel will determine relative rankings for all of the participating projects.
-      </p>
+  <div class="container">
+    <div class="w-full">
+      <div class="text-32 text-indigo pb-2.4 md:pb-4 pt-8 md:pt-14.4">
+        <h1 class="page-title">Welcome to Gavel.</h1>
+      </div>
+      <div class="md:max-w-48">
+        <p class="text-16 pb-1.6 md:pb-2.4">
+          Gavel is a judging platform that makes expo judging easier. Judges are asked to compare each project they review 
+          against the previous project and make a simple decision on which of the two is better. By looking at your 
+          comparison patterns as well as those of the other judges, Gavel determines rankings for all of the participating projects.
+        </p>
 
-      <p>
-        Gavel is just a tool. It does not take into consideration any specific judging criteria or the possible weighting of
-        such criteria in the evaluation of projects.
-      </p>
+        <p class="text-16 pb-1.6 md:pb-2.4">
+          Gavel does not take into consideration any specific judging criteria set by event staff or the possible weighting of such 
+          criteria in the evaluation of projects.
+        </p>
 
-      <p>
-        Please consult your event's judging coordinator or equivalent staff member if you are unclear on how to use Gavel
-        or have any questions regarding judging criteria set by the event staff.
-      </p>
+        <p class="text-16 pb-1.6 md:pb-3.2">
+          Please consult your event’s judging coordinator or equivalent staff member if you are unclear on how to use Gavel or have 
+          any questions regarding judging criteria set by event staff.
+        </p>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="item">
-  <div class="info bottom-button">
-    <form action="/welcome/instructions" method="get">
+  <div class="container">
+    <form action="/welcome/instructions" method="get" class="flex md:flex w-full md:w-16">
       <button type="submit" class="button-full"> Continue </button>
     </form>
   </div>
-</div>
 {% endblock %}
