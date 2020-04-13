@@ -31,6 +31,9 @@
             "description": "Secret key used to hash requests and keys.",
             "generator": "secret"
         },
+        "VIRTUAL_EVENT": {
+            "description": "Enables virtual event features if set to true."
+        },
         "DISABLE_EMAIL": {
             "description": "Email sending is disabled if set to true.",
             "value": "false"
