@@ -7,10 +7,15 @@ let socket;
 * */
 
 let token;
+let isVirtual;
 
 function setToken(t) { token = t }
 
 function getToken() { return token }
+
+function setIsVirtual(v) { isVirtual = !!v }
+
+function getIsVirtual() { return isVirtual }
 
 const tableBody = document.getElementById("admin-table-body");
 const tableHead = document.getElementById("admin-table-head");
@@ -305,24 +310,24 @@ const buildItemActions = ({id, prioritized, active}) => {
   return `
   <div className="font-16">
     <span onclick="openProject(${id})" class="inline-block">
-      <button class="nobackgroundnoborder" title="Edit Project">
+      <button class="nobackgroundnoborder px-.6" title="Edit Project">
         <i class="fas fa-edit"></i>
       </button>
     </span>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="${(prioritized ? 'Cancel' : 'Prioritize')}"><i class="fas ${(prioritized ? 'fa-arrow-down' : 'fa-arrow-up')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.6" title="${(prioritized ? 'Cancel' : 'Prioritize')}"><i class="fas ${(prioritized ? 'fa-arrow-down' : 'fa-arrow-up')}"></i></button>
       <input type="hidden" name="action" value="${(prioritized ? 'Cancel' : 'Prioritize')}" class="${(prioritized ? 'negative' : 'positive')}">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="${(active ? 'Deactivate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.6" title="${(active ? 'Deactivate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
       <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="Delete"><i class="fas fa-trash"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.6" title="Delete"><i class="fas fa-trash"></i></button>
       <input type="hidden" name="action" value="Delete" class="negative">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
@@ -335,24 +340,24 @@ const buildAnnotatorActions = ({id, active}) => {
   return `
   <div className="font-16">
     <span onclick="openJudge(${id})" class="inline-block">
-      <button class="nobackgroundnoborder" title="Edit Judge">
+      <button class="nobackgroundnoborder px-.6" title="Edit Judge">
         <i class="fas fa-edit"></i>
       </button>
     </span>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="Send Email"><i class="fas fa-envelope"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.6" title="Send Email"><i class="fas fa-envelope"></i></button>
       <input type="hidden" name="action" value="Email" class="neutral">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="${(active ? 'De-Activate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.6" title="${(active ? 'De-Activate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
       <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="Delete"><i class="fas fa-trash"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.6" title="Delete"><i class="fas fa-trash"></i></button>
       <input type="hidden" name="action" value="Delete" class="negative">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
