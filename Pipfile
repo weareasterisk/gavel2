@@ -51,6 +51,7 @@ flask-socketio = "==4.2.1"
 eventlet = "==0.25.1"
 psycopg2-binary = "*"
 libsass = "==0.19.4"
+flask-json = "*"
 
 [requires]
 python_version = "3.6"
