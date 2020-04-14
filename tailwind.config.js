@@ -14,6 +14,7 @@ module.exports = {
     },
     colors: {
       white: "#ffffff",
+      black: "#000000",
       lightblue: "#179BE8",
       fadedlightblue: tinycolor("#179BE8").setAlpha("0.15").toRgbString(),
       indigo: "#000F9B",

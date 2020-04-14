@@ -1258,14 +1258,7 @@ dl.instructions dt p {
 }
 
 .admin-switcher {
-  position: relative;
-  display: inline-block;
-  background: #000F9B;
   box-shadow: 0px 2px 10px #B7B7B7;
-  border-radius: 3px;
-  width: 188px;
-  height: 40px;
-  cursor: pointer;
 }
 
 
@@ -1586,10 +1579,6 @@ color: #000000;
   text-align: center;
 }
 
-#add-text {
-  padding-top: 14px;
-}
-
 .admin-add-button>span{
   padding-left: 24px;
 
@@ -1599,11 +1588,6 @@ color: #000000;
   cursor: pointer;
 }
 
-.admin-batch-button {
-  display: inline-block;
-  height: 40px!important;
-  line-height: 40px;
-}
 .admin-batch-button>span{
   cursor: pointer;
   vertical-align: center;

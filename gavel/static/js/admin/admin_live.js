@@ -310,24 +310,24 @@ const buildItemActions = ({id, prioritized, active}) => {
   return `
   <div className="font-16">
     <span onclick="openProject(${id})" class="inline-block">
-      <button class="nobackgroundnoborder px-.6" title="Edit Project">
+      <button class="nobackgroundnoborder px-.4" title="Edit Project">
         <i class="fas fa-edit"></i>
       </button>
     </span>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder px-.6" title="${(prioritized ? 'Cancel' : 'Prioritize')}"><i class="fas ${(prioritized ? 'fa-arrow-down' : 'fa-arrow-up')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="${(prioritized ? 'Cancel' : 'Prioritize')}"><i class="fas ${(prioritized ? 'fa-arrow-down' : 'fa-arrow-up')}"></i></button>
       <input type="hidden" name="action" value="${(prioritized ? 'Cancel' : 'Prioritize')}" class="${(prioritized ? 'negative' : 'positive')}">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder px-.6" title="${(active ? 'Deactivate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="${(active ? 'Deactivate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
       <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder px-.6" title="Delete"><i class="fas fa-trash"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="Delete"><i class="fas fa-trash"></i></button>
       <input type="hidden" name="action" value="Delete" class="negative">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
@@ -340,24 +340,24 @@ const buildAnnotatorActions = ({id, active}) => {
   return `
   <div className="font-16">
     <span onclick="openJudge(${id})" class="inline-block">
-      <button class="nobackgroundnoborder px-.6" title="Edit Judge">
+      <button class="nobackgroundnoborder px-.4" title="Edit Judge">
         <i class="fas fa-edit"></i>
       </button>
     </span>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder px-.6" title="Send Email"><i class="fas fa-envelope"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="Send Email"><i class="fas fa-envelope"></i></button>
       <input type="hidden" name="action" value="Email" class="neutral">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder px-.6" title="${(active ? 'De-Activate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="${(active ? 'De-Activate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
       <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder px-.6" title="Delete"><i class="fas fa-trash"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="Delete"><i class="fas fa-trash"></i></button>
       <input type="hidden" name="action" value="Delete" class="negative">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
@@ -603,13 +603,14 @@ async function refresh() {
 * END REFRESH FUNCTION
 * */
 
-function toggleSelector() {
+function toggleSelector(state = true) {
   const selectorModal = document.getElementById("selector");
-  selectorModal.style.display = selectorModal.style.display === "block" ? "none" : "block";
+  selectorModal.style.display = selectorModal.style.display === "flex" ? "none" : "flex";
+  if (!state) selectorModal.style.display = "none";
 }
 
 function showTab(e) {
-  const content = document.getElementById("admin-switcher-content");
+  const content = document.getElementById("adminSwitcherContent");
   const batch = document.getElementById("batchPanel");
   
   const annotators = document.getElementById("annotator-table")
@@ -628,12 +629,12 @@ function showTab(e) {
   switch (localStorage.getItem("currentTab")) {
     case "annotators":
       content.innerText = "Manage Judges";
-      batch.style.display = "inline-block";
+      batch.style.display = "flex";
       annotators.style.display = "block"
       break;
     case "items":
       content.innerText = "Manage Projects";
-      batch.style.display = "inline-block";
+      batch.style.display = "flex";
       items.style.display = "block"
       break;
     case "flags":
@@ -654,22 +655,25 @@ function setAddButtonState() {
   const text = document.getElementById('add-text');
   const add = document.getElementById('add');
   if (tab === "annotators") {
-    text.innerText = "+ Add Judges";
+    text.innerText = "Add Judges";
     text.onclick = function () {
       openModal('add-judges')
     };
+    add.style.display = "flex"
     //text.addEventListener('onclick', openModal('add-judges'));
   }
   if (tab === "items") {
-    text.innerText = "+ Add Projects";
+    text.innerText = "Add Projects";
     text.onclick = function () {
       openModal('add-projects')
     };
+    add.style.display = "flex"
     //text.addEventListener('onclick', openModal('add-projects'));
   }
   if (tab === "flags") {
     text.innerText = "";
     text.onclick = null;
+    add.style.display = "none"
   }
 }
 
@@ -741,10 +745,7 @@ $(document).ready(() => {
 
   window.onclick = function(e) {
     if (!$(e.target).closest('#switcher').length) {
-    var dropdown = document.getElementById("selector");
-      if (dropdown.style.display === "block") {
-        dropdown.style.display = "none"
-      }
+      this.toggleSelector(false)
     }
   }
 
