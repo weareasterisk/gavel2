@@ -9,6 +9,7 @@ from flask import Flask
 from flask_compress import Compress
 from flask_minify import minify
 from flask_socketio import SocketIO
+from flask_json import FlaskJSON
 import eventlet
 eventlet.monkey_patch(os=True, select=True, socket=True, thread=True, time=True, psycopg=True)
 
@@ -26,9 +27,14 @@ COMPRESS_MIN_SIZE = 500
 
 compress = Compress()
 
+JSON = FlaskJSON()
+
 
 def start_app():
   gavel = Flask(__name__)
+  
+  JSON.init_app(gavel)
+
   compress.init_app(gavel)
 
   minify(app=gavel)
