@@ -86,24 +86,6 @@ def injectItem(target, target_dumped):
   })
   return target_dumped
 
-CONNECT = 'connected'
-
-ANNOTATOR_INSERTED = 'annotator.inserted'
-ANNOTATOR_UPDATED = 'annotator.updated'
-ANNOTATOR_DELETED = 'annotator.deleted'
-
-ITEM_INSERTED = 'item.inserted'
-ITEM_UPDATED = 'item.updated'
-ITEM_DELETED = 'item.deleted'
-
-FLAG_INSERTED = 'flag.inserted'
-FLAG_UPDATED = 'flag.updated'
-FLAG_DELETED = 'flag.deleted'
-
-SETTING_INSERTED = 'setting.inserted'
-SETTING_UPDATED = 'setting.updated'
-SETTING_DELETED = 'setting.deleted'
-
 @socketio.on('user.connected', namespace='/admin')
 def test_connect(data):
   emit(CONNECT, data, namespace='/admin')

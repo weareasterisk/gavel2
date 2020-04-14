@@ -20,6 +20,9 @@ function getIsVirtual() { return isVirtual }
 const tableBody = document.getElementById("admin-table-body");
 const tableHead = document.getElementById("admin-table-head");
 
+const SOFT_CLOSE = "soft"
+const HARD_CLOSE = "hard"
+
 let annotatorTable;
 let itemTable;
 let flagTable;
@@ -56,6 +59,8 @@ window.addEventListener("DOMContentLoaded", () => {
   socket.on('flag.updated', (message) => standardize(message, handleFlagUpdate))
   socket.on('flag.deleted', (message) => standardize(message, handleFlagDelete))
 
+  socket.on('session.updated', (message) => standardize(message, handleSessionUpdate))
+
   // TODO: Figure this out
   // socket.on('setting.inserted', (message) => standardize(message, handleSettingInsert))
   // socket.on('setting.updated', (message) => standardize(message, handleSettingUpdate))
@@ -65,7 +70,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function standardize({target}, handler) {
   console.log(target)
-  return handler(JSON.parse(target))
+  return handler(JSON.parse(JSON.stringify(target)))
 }
 
 async function updateAndTriggerUpdate(target, {api}) {
@@ -126,6 +131,12 @@ async function handleAnnotatorDelete(target) {
 async function handleFlagDelete(target) {
   Promise.resolve(flagData.api.updateRowData({delete: [target]}))
     .then(socket.emit('flag.deleted.confirmed'))
+}
+
+async function handleSessionUpdate(target) {
+  const { hard_state, soft_state } = target;
+  Promise.resolve(handleSessionButtonStateChange(!!hard_state, !!soft_state))
+    .then(socket.emit('session.updated.confirmed'))
 }
 
 // async function handleSettingDelete(target) {
@@ -564,6 +575,26 @@ async function spawnTable(id) {
 
 }
 
+function handleSessionButtonStateChange(setting_closed, setting_stop_queue) {
+  let session_button = document.getElementById("sessionButton")
+  if (setting_closed) {
+    session_button.innerText = "Start Session"
+    session_button.classList.add("bg-indigo")
+    session_button.classList.remove("bg-red")
+    session_button.setAttribute("onclick", 'handleSession("hard", "open")')
+  } else if (setting_stop_queue) {
+    session_button.innerText = "Stop Soft Close"
+    session_button.classList.add("bg-indigo")
+    session_button.classList.remove("bg-red")
+    session_button.setAttribute("onclick", 'handleSession("soft", "dequeue")')
+  } else {
+    session_button.innerText = "Stop Session"
+    session_button.classList.add("bg-red")
+    session_button.classList.remove("bg-indigo")
+    session_button.setAttribute("onclick", 'openModal("stop-session")')
+  }
+}
+
 async function refresh() {
   const data = $.ajax({
     url: "/admin/auxiliary",
@@ -576,11 +607,17 @@ async function refresh() {
       await data;
     }
   }).then((data) => {
-    const flag_count = data.flag_count;
-    const item_count = data.item_count;
-    const votes = data.votes;
-    const sigma = data.average_sigma;
-    const seen = data.average_seen;
+    const { 
+      flag_count,
+      item_count,
+      votes,
+      average_sigma: sigma,
+      average_seen: seen,
+      setting_closed,
+      setting_stop_queue
+    } = data
+
+    handleSessionButtonStateChange(setting_closed, setting_stop_queue)
 
     // Populate vote count
     let vote_count = document.getElementById("total-votes");
@@ -841,7 +878,7 @@ function time_ago(time) {
     [5806080000, 'Last century', 'Next century'], // 60*60*24*7*4*12*100*2
     [58060800000, 'centuries', 2903040000] // 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
   ];
-  const seconds = (+new Date() - time) / 1000,
+  let seconds = (+new Date() - time) / 1000,
     token = 'ago',
     list_choice = 1;
 

@@ -10,7 +10,12 @@ from flask import (
   render_template,
   request,
   url_for,
-  json)
+  json,
+  jsonify,
+  Response
+)
+from gavel import JSON
+from flask_json import json_response, as_json
 
 socket = socketio
 from sqlalchemy import event
@@ -406,6 +411,92 @@ def queue_shutdown():
   return redirect(url_for('admin'))
 
 
+@app.route('/admin/api/session/', methods=['GET','POST'])
+@utils.requires_auth
+def admin_api_session():
+  setting_stop_queue = Setting.value_of(SETTING_STOP_QUEUE) == SETTING_TRUE
+  setting_stop = Setting.value_of(SETTING_CLOSED) == SETTING_TRUE
+
+  affected_annotators = []
+  action = None
+  key = None
+
+  if request.method == "POST":
+
+    key = request.form['key']
+    # hard | soft
+
+    action = request.form['action']
+
+    # Hard shutdown
+    if key == 'hard':
+      # Close session
+      if action == 'close':
+        setting_stop = SETTING_TRUE
+      # Open session
+      elif action == 'open':
+        setting_stop = SETTING_FALSE
+      else:
+        pass
+      def tx():
+        Setting.set(SETTING_CLOSED, setting_stop)
+        db.session.commit()
+      with_retries(tx)
+    # Soft shutdown (await final judge submission)
+    elif key == 'soft':
+      annotators = Annotator.query.order_by(Annotator.id).all()
+      # Queue shutdown
+      print(action, str(setting_stop))
+      if action == 'queue' and not setting_stop:
+        print("here")
+        setting_stop_queue = SETTING_TRUE
+        def tx():
+          for an in annotators:
+            if an.active:
+              an.stop_next = True
+              affected_annotators.append(an.id)
+          db.session.commit()
+        with_retries(tx)
+      # Dequeue shutdown
+      elif action == 'dequeue':
+        setting_stop_queue = SETTING_FALSE
+        def tx():
+          for an in annotators:
+            if an.active:
+              an.stop_next = False
+              affected_annotators.append(an.id)
+          db.session.commit()
+        with_retries(tx)
+
+      else:
+        pass
+
+      def tx():
+        Setting.set(SETTING_STOP_QUEUE, setting_stop_queue)
+        db.session.commit()
+      with_retries(tx)
+
+    try:
+      socketio.emit(SESSION_UPDATED, {
+        'type': "session",
+        'target': {
+          "hard_state": setting_stop == SETTING_TRUE,
+          "soft_state": setting_stop_queue == SETTING_TRUE,
+          "action": action,
+          "key": key
+        }
+      }, namespace='/admin')
+    except Exception as ignored:
+      pass
+
+  return json_response(
+    hard_state=setting_stop,
+    soft_state=setting_stop_queue,
+    action=action,
+    key=key,
+    affected_annotators=affected_annotators
+  )
+
 @app.route('/admin/report', methods=['POST'])
 @utils.requires_auth
 def flag():
@@ -426,6 +517,30 @@ def flag():
     with_retries(tx)
   return redirect(url_for('admin'))
 
+@app.route('/admin/api/report', methods=['POST'])
+@utils.requires_auth
+def admin_api_report():
+  action = request.form['action']
+  flag_id = None
+  if action == 'resolve':
+    flag_id = request.form['flag_id']
+    target_state = action == 'resolve'
+    def tx():
+      Flag.by_id(flag_id).resolved = target_state
+      db.session.commit()
+    with_retries(tx)
+  elif action == 'open':
+    flag_id = request.form['flag_id']
+    target_state = 1 == 2
+    def tx():
+      Flag.by_id(flag_id).resolved = target_state
+      db.session.commit()
+    with_retries(tx)
+  
+  return json_response(
+    action=action,
+    affected_flag=flag_id
+  )
 
 def allowed_file(filename):
   return '.' in filename and \
@@ -466,6 +581,26 @@ def item_patch():
     db.session.commit()
   with_retries(tx)
   return redirect(url_for('item_detail', item_id=request.form['item_id']))
+
+@app.route('/admin/api/item_patch', methods=['POST'])
+@utils.requires_auth
+def admin_api_item_patch():
+  item_id = request.form['item_id']
+  def tx():
+    item = Item.by_id(item_id)
+    if not item:
+      return utils.user_error('Item %s not found ' % item_id)
+    if 'location' in request.form:
+      item.location = request.form['location']
+    if 'name' in request.form:
+      item.name = request.form['name']
+    if 'description' in request.form:
+      item.description = request.form['description']
+    db.session.commit()
+  with_retries(tx)
+  return json_response(
+
+  )
 
 
 @app.route('/admin/annotator_patch', methods=['POST'])
