@@ -4,7 +4,13 @@
     <div class="admin-modal-content add-modal">
       <div class="admin-close-button" onclick="openModal('close')"></div>
       <h4 class="normal-20">Add Projects</h4>
-      <p class="normal-12 compact">CSV Format: Project Name, Location, Description</p>
+      <p class="normal-12 compact">
+        {% if virtual %}
+        CSV Format: Project Name, Location, Description, Tagline, Video URL, Submission URL, Submission Website
+        {% else %}
+        CSV Format: Project Name, Location, Description
+        {% endif %}
+      </p>
       <label class="upload-judges-button bold-caps-white-12 compact" for="annotator-file">
         Upload Projects CSV File
         <input style="display: none" type="file" name="file" form="item_form" accept=".csv,.xls,.xlsx"
