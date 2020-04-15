@@ -69,13 +69,12 @@ window.addEventListener("DOMContentLoaded", () => {
 })
 
 function standardize({target}, handler) {
-  console.log(target)
-  return handler(JSON.parse(JSON.stringify(target)))
+  return handler(typeof target === "string" ? JSON.parse(target) : target)
 }
 
 async function updateAndTriggerUpdate(target, {api}) {
-  console.log(target)
-  Promise.resolve(api.updateRowData({update: [target]}))
+  console.log("updated", target)
+  Promise.resolve(api.getRowNode(target.id).setData(target))
 }
 
 async function handleItemUpdate(target) {
@@ -189,7 +188,7 @@ const defaultColDef = {
 }
 
 const annotatorDefs = [
-  {headerName:"Actions", ...standardActionOptions, cellRenderer: AnnotatorActionCellRenderer},
+  {headerName:"Actions", field: "data", ...standardActionOptions, cellRenderer: AnnotatorActionCellRenderer},
   {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: AnnotatorIdRenderer},
   {headerName:"Name", field:"name", width: standardNameWidth, minWidth: minDecimalWidth, filter: true},
   {headerName:"Email", field:"email", filter: true},
@@ -201,7 +200,7 @@ const annotatorDefs = [
 ]
 
 const itemDefs = [
-  {headerName:"Actions", ...standardActionOptions, cellRenderer: ItemActionCellRenderer, comparator: itemActionsComparator},
+  {headerName:"Actions", field: "data", ...standardActionOptions, cellRenderer: ItemActionCellRenderer, comparator: itemActionsComparator},
   {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: ItemIdRenderer},
   {headerName:"Project Name", width: standardNameWidth, minWidth: minDecimalWidth, field:"name", filter: true},
   {headerName:"Location", width: standardLocationWidth, minWidth: minDecimalWidth, field:"location", filter: true},
@@ -214,7 +213,7 @@ const itemDefs = [
 ]
 
 const flagDefs = [
-  {headerName:"Actions", ...standardActionOptions, cellRenderer: FlagActionCellRenderer, comparator: flagActionsComparator},
+  {headerName:"Actions", field: "resolved", ...standardActionOptions, cellRenderer: FlagActionCellRenderer, comparator: flagActionsComparator},
   {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: FlagIdRenderer},
   {headerName:"Judge Name", field:"annotator_name", width: standardNameWidth},
   {headerName:"Project Name", field:"item_name", width: standardNameWidth},
@@ -379,14 +378,7 @@ const buildAnnotatorActions = ({id, active}) => {
 
 const buildFlagActions = ({resolved, id}) => {
   return `
-  <div>
-    <form action="/admin/report" method="post" class="inline-block">
-      <button type="submit" class="button-full ${(resolved ? 'background-grey' : 'background-purple')} h-32 text-12 text-bold uppercase">${(resolved ? 'Open Flag' : 'Resolve Flag')}</button>
-      <input type="hidden" name="action" value="${resolved ? 'open' : 'resolve'}" class="${resolved ? 'negative' : 'positive'}">
-      <input type="hidden" name="flag_id" value="${id}">
-      <input type="hidden" name="_csrf_token" value="${token}">
-    </form>
-  </div>
+    <button type="button" onclick="handleFlagRequest(${id}, ${resolved ? "'open'" : "'resolve'" })" class="w-full m-.4 p-.4 text-white ${(resolved ? 'bg-lightgray' : 'bg-indigo')} h-32 text-12 text-bold uppercase rounded">${(resolved ? 'Re-Open Flag' : 'Resolve Flag')}</button>
   `
 }
 
@@ -441,7 +433,7 @@ AnnotatorActionCellRenderer.prototype.refresh = (params) => {
  */
 function FlagActionCellRenderer () {}
 FlagActionCellRenderer.prototype.init = (params) => {
-  this.eGui = document.createElement('div')
+  this.eGui = document.createElement('div');
   try {
     this.eGui.innerHTML = buildFlagActions(params.data)
   } catch (error) {
@@ -453,7 +445,9 @@ FlagActionCellRenderer.prototype.getGui = () => {
 }
 FlagActionCellRenderer.prototype.refresh = (params) => {
   try {
-    this.eGui.innerHTML = buildFlagActions(params.data)
+    this.eGui.innerHTML = '';
+    this.eGui.innerHTML = buildFlagActions({resolved: params.value, id: params.data.id})
+    return true;
   } catch (error) {
     console.log(error)
   }
@@ -474,6 +468,7 @@ ItemIdRenderer.prototype.getGui = () => {
 ItemIdRenderer.prototype.refresh = (params) => {
   const val = params.value
   this.eGui.innerHTML = `<a onclick="openProject(${val})" class="colored">${val}</a>`
+  return true;
 }
 ItemIdRenderer.prototype.destroy = () => {};
 
@@ -492,6 +487,7 @@ AnnotatorIdRenderer.prototype.getGui = () => {
 AnnotatorIdRenderer.prototype.refresh = (params) => {
   const val = params.value
   this.eGui.innerHTML = `<a onclick="openJudge(${val})" class="colored">${val}</a>`
+  return true;
 }
 AnnotatorIdRenderer.prototype.destroy = () => {}
 
@@ -508,8 +504,11 @@ FlagIdRenderer.prototype.getGui = () => {
   return this.eGui
 }
 FlagIdRenderer.prototype.refresh = (params) => {
+  console.log("flag id refreshed", params)
   const val = params.value
   this.eGui.innerHTML = `${val}`
+  console.log("flag ID", val)
+  return false;
 }
 FlagIdRenderer.prototype.destroy = () => {}
 
@@ -575,24 +574,56 @@ async function spawnTable(id) {
 
 }
 
+function handleSessionRequest(type, state) {
+  const sessionFormData = new FormData();
+  const sessionReqOptions = {
+    method: "POST",
+    body: sessionFormData,
+    redirect: 'follow'
+  }
+  sessionFormData.append("key", type)
+  sessionFormData.append("action", state)
+  sessionFormData.append("_csrf_token", getToken())
+  fetch("/admin/api/session", sessionReqOptions)
+    .then(res => console.log(res))
+    .then(result => console.log(result))
+    .then(() => {openModal('close')})
+    .catch(err => console.log("Error", err))
+}
+
 function handleSessionButtonStateChange(setting_closed, setting_stop_queue) {
   let session_button = document.getElementById("sessionButton")
   if (setting_closed) {
     session_button.innerText = "Start Session"
     session_button.classList.add("bg-indigo")
     session_button.classList.remove("bg-red")
-    session_button.setAttribute("onclick", 'handleSession("hard", "open")')
+    session_button.setAttribute("onclick", 'handleSessionRequest("hard", "open")')
   } else if (setting_stop_queue) {
     session_button.innerText = "Stop Soft Close"
     session_button.classList.add("bg-indigo")
     session_button.classList.remove("bg-red")
-    session_button.setAttribute("onclick", 'handleSession("soft", "dequeue")')
+    session_button.setAttribute("onclick", 'handleSessionRequest("soft", "dequeue")')
   } else {
     session_button.innerText = "Stop Session"
     session_button.classList.add("bg-red")
     session_button.classList.remove("bg-indigo")
     session_button.setAttribute("onclick", 'openModal("stop-session")')
   }
+}
+
+function handleFlagRequest(id, state) {
+  const formData = new FormData();
+  const reqOptions = {
+    method: "POST",
+    body: formData,
+    redirect: "follow"
+  }
+  formData.append("action", state);
+  formData.append("flag_id", id);
+  formData.append("_csrf_token", getToken());
+  fetch("/admin/api/flag", reqOptions)
+    .then(res => console.log(res))
+    .catch(err => console.log("Error", err))
 }
 
 async function refresh() {
@@ -805,7 +836,7 @@ $(document).ready(() => {
       console.log("annotators", selectedRows)
     }
     selectedRows.map((row) => {
-      form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + row.id + '"/>';
+      form.innerHTML += `<input type="hidden" name="ids" value="${row.id}"/>`;
     });
     try {
       form.serializeArray()
@@ -833,7 +864,7 @@ $(document).ready(() => {
       console.log("annotators", selectedRows)
     }
     selectedRows.map((row) => {
-      form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + row.id + '"/>';
+      form.innerHTML += `<input type='hidden' name='ids' value='${row.id}'/>`;
     });
     try {
       form.serializeArray();

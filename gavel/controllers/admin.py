@@ -517,11 +517,12 @@ def flag():
     with_retries(tx)
   return redirect(url_for('admin'))
 
-@app.route('/admin/api/report', methods=['POST'])
+@app.route('/admin/api/flag', methods=['POST'])
 @utils.requires_auth
 def admin_api_report():
   action = request.form['action']
   flag_id = None
+  target_state = None
   if action == 'resolve':
     flag_id = request.form['flag_id']
     target_state = action == 'resolve'
@@ -539,7 +540,8 @@ def admin_api_report():
   
   return json_response(
     action=action,
-    affected_flag=flag_id
+    affected_flag=flag_id,
+    state=target_state,
   )
 
 def allowed_file(filename):

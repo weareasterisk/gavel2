@@ -13,28 +13,10 @@
         </p>
         <div class="w-full flex justify-between">
           <button class="text-12 w-14.4 h-3.2 white uppercase bg-lightgray rounded pr-.4" onclick="openModal('close')">CONTINUE JUDGING</button>
-          <button class="text-12 w-14.4 h-3.2 white uppercase bg-red rounded px-.4" onclick="handleSession('soft', 'queue')">SOFT CLOSE</button>
-          <button class="text-12 w-14.4 h-3.2 white uppercase bg-red rounded pl-.4" onclick="handleSession('hard', 'close')">END SESSION NOW</button>
+          <button class="text-12 w-14.4 h-3.2 white uppercase bg-red rounded px-.4" onclick="handleSessionRequest('soft', 'queue')">SOFT CLOSE</button>
+          <button class="text-12 w-14.4 h-3.2 white uppercase bg-red rounded pl-.4" onclick="handleSessionRequest('hard', 'close')">END SESSION NOW</button>
         </div>
       </div>
     </div>
-    <script>
-      function handleSession(type, state) {
-        const sessionFormData = new FormData();
-        const sessionReqOptions = {
-          method: "POST",
-          body: sessionFormData,
-          redirect: 'follow'
-        }
-        sessionFormData.append("key", type)
-        sessionFormData.append("action", state)
-        sessionFormData.append("_csrf_token", getToken())
-        fetch("/admin/api/session", sessionReqOptions)
-          .then(res => console.log(res))
-          .then(result => console.log(result))
-          .then(() => {openModal('close')})
-          .catch(err => console.log("Error", err))
-      }
-    </script>
   </div>
 {% endblock %}
