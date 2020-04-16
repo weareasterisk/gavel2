@@ -83,7 +83,7 @@ def inject_context():
     return dict(
       virtual=settings.VIRTUAL_EVENT,
       finished_button_text=str("Finish Review" if settings.VIRTUAL_EVENT else "Done With Visit"),
-
+      debug_state=settings.DEBUG,
     )
 
 from celery import Celery

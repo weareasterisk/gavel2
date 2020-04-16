@@ -89,3 +89,4 @@ SENDGRID_API_KEY =    c.get('sendgrid_api_key','SENDGRID_API_KEY',         defau
 MAILGUN_DOMAIN   =    c.get('mailgun_domain',  'MAILGUN_DOMAIN',           default="")
 MAILGUN_API_KEY  =    c.get('mailgun_api_key', 'MAILGUN_API_KEY',          default="")
 VIRTUAL_EVENT = _bool(c.get('virtual_event', 'VIRTUAL_EVENT',              default=False))
+DEBUG         = _bool(c.get('debug_enabled', 'DEBUG',                      default=False))
