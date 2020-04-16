@@ -317,13 +317,17 @@ def item():
       # validate data
       for index, row in enumerate(data):
         if settings.VIRTUAL_EVENT:
-          if len(row) != 7:
-            return utils.user_error('Bad data: row %d has %d elements (expecting 7)' % (index + 1, len(row)))
+          if len(row) != 6:
+            return utils.user_error('Bad data: row %d has %d elements (expecting 6)' % (index + 1, len(row)))
         else:
           if len(row) != 3:
             return utils.user_error('Bad data: row %d has %d elements (expecting 3)' % (index + 1, len(row)))
       def tx():
         for row in data:
+          # This is REALLY REALLY bad I know...
+          # TODO: Tech Debt
+          if settings.VIRTUAL_EVENT:
+            row.insert(1, "N/A")
           _item = Item(*row)
           db.session.add(_item)
         db.session.commit()

@@ -8,14 +8,28 @@ let socket;
 
 let token;
 let isVirtual;
+let debugState;
 
 function setToken(t) { token = t }
 
 function getToken() { return token }
 
-function setIsVirtual(v) { isVirtual = !!v }
+function setIsVirtual(v) {
+  isVirtual = !!v
+}
 
-function getIsVirtual() { return isVirtual }
+function getIsVirtual() { 
+  return !!isVirtual
+}
+
+function setDebugState(v) {
+  console.log(v)
+  debugState = !!v
+}
+
+function getDebugState() {
+  return !!debugState
+}
 
 const tableBody = document.getElementById("admin-table-body");
 const tableHead = document.getElementById("admin-table-head");
@@ -43,7 +57,7 @@ window.addEventListener("DOMContentLoaded", () => {
   })
 
   socket.on('connected', (message) => {
-    console.log(socket.connected);
+    console.log(socket.connected ? "WebSocket Client Successfully Initialized" : "WebSocket Client Unable to be Initialized");
     console.log(message);
   })
 
@@ -65,7 +79,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // socket.on('setting.inserted', (message) => standardize(message, handleSettingInsert))
   // socket.on('setting.updated', (message) => standardize(message, handleSettingUpdate))
 
-  console.log("ready: ", socket)
+  console.log("WebSocket Liteners Initialized")
 })
 
 function standardize({target}, handler) {
@@ -73,7 +87,7 @@ function standardize({target}, handler) {
 }
 
 async function updateAndTriggerUpdate(target, {api}) {
-  console.log("updated", target)
+  if (getDebugState()) console.log("updated", target)
   Promise.resolve(api.getRowNode(target.id).setData(target))
 }
 
@@ -187,40 +201,6 @@ const defaultColDef = {
   unSortIcon: true
 }
 
-const annotatorDefs = [
-  {headerName:"Actions", field: "data", ...standardActionOptions, cellRenderer: AnnotatorActionCellRenderer},
-  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: AnnotatorIdRenderer},
-  {headerName:"Name", field:"name", width: standardNameWidth, minWidth: minDecimalWidth, filter: true},
-  {headerName:"Email", field:"email", filter: true},
-  {headerName:"Description", field: "description", ...standardDescriptionOptions},
-  {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
-  {headerName:"Next (ID)", field:"next_id", width: standardDecimalWidth},
-  {headerName:"Prev. (ID)", field:"prev_id", width: standardDecimalWidth},
-  {headerName:"Updated", field:"updated", ...standardUpdatedOptions},
-]
-
-const itemDefs = [
-  {headerName:"Actions", field: "data", ...standardActionOptions, cellRenderer: ItemActionCellRenderer, comparator: itemActionsComparator},
-  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: ItemIdRenderer},
-  {headerName:"Project Name", width: standardNameWidth, minWidth: minDecimalWidth, field:"name", filter: true},
-  {headerName:"Location", width: standardLocationWidth, minWidth: minDecimalWidth, field:"location", filter: true},
-  {headerName:"Description", field:"description", ...standardDescriptionOptions},
-  {headerName:"Mu", field:"mu", ...standardDecimalOptions, sort: 'desc'},
-  {headerName:"Sigma^2", field:"sigma_sq", ...standardDecimalOptions},
-  {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
-  {headerName:"Seen", field:"seen", minWidth: minDecimalWidth, width: standardDecimalWidth},
-  {headerName:"Skipped", field:"skipped", minWidth: minDecimalWidth, width: standardDecimalWidth},
-]
-
-const flagDefs = [
-  {headerName:"Actions", field: "resolved", ...standardActionOptions, cellRenderer: FlagActionCellRenderer, comparator: flagActionsComparator},
-  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: FlagIdRenderer},
-  {headerName:"Judge Name", field:"annotator_name", width: standardNameWidth},
-  {headerName:"Project Name", field:"item_name", width: standardNameWidth},
-  {headerName:"Project Location", field:"item_location", width: standardLocationWidth},
-  {headerName:"Reason", field:"reason", width: standardLocationWidth},
-]
-
 const commonDefs = {
   defaultColDef: defaultColDef,
   animateRows: true,
@@ -232,10 +212,60 @@ const commonDefs = {
   }
 }
 
+let annotatorDefs;
+let itemDefs;
+let flagDefs;
+
 async function initTables() {
   annotatorTable = document.getElementById("annotator-table")
   itemTable = document.getElementById("item-table")
   flagTable = document.getElementById("flag-table")
+
+  annotatorDefs = [
+    {headerName:"Actions", field: "data", ...standardActionOptions, cellRenderer: AnnotatorActionCellRenderer},
+    {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: AnnotatorIdRenderer},
+    {headerName:"Name", field:"name", width: standardNameWidth, minWidth: minDecimalWidth, filter: true},
+    {headerName:"Email", field:"email", filter: true},
+    {headerName:"Description", field: "description", ...standardDescriptionOptions},
+    {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
+    {headerName:"Next (ID)", field:"next_id", width: standardDecimalWidth},
+    {headerName:"Prev. (ID)", field:"prev_id", width: standardDecimalWidth},
+    {headerName:"Updated", field:"updated", ...standardUpdatedOptions},
+  ]
+  
+  itemDefs = [
+    {headerName:"Actions", field: "data", ...standardActionOptions, cellRenderer: ItemActionCellRenderer, comparator: itemActionsComparator},
+    {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: ItemIdRenderer},
+    {
+      headerName:"Details",
+      children: [
+        {headerName:"Project Name", width: standardNameWidth, minWidth: minDecimalWidth, field:"name", filter: true},
+        ...(!getIsVirtual() ? [{headerName:"Location", width: standardLocationWidth, minWidth: minDecimalWidth, field:"location", filter: true, columnGroupShow: "open"}] : []),
+        {headerName:"Description", field:"description", ...standardDescriptionOptions, columnGroupShow: "open"},
+        ...(getIsVirtual() ? [
+          {headerName:"Video", width: standardLocationWidth, minWidth: minDecimalWidth, field:"video_reference", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer},
+          {headerName:"Submission", width: standardLocationWidth, minWidth: minDecimalWidth, field:"submission_reference", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer},
+          {headerName:"Website", width: standardLocationWidth, minWidth: minDecimalWidth, field:"submission_website", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer}
+        ] : [])
+      ]
+    },
+    {headerName:"Mu", field:"mu", ...standardDecimalOptions, sort: 'desc'},
+    {headerName:"Sigma^2", field:"sigma_sq", ...standardDecimalOptions},
+    {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
+    {headerName:"Seen", field:"seen", minWidth: minDecimalWidth, width: standardDecimalWidth},
+    {headerName:"Skipped", field:"skipped", minWidth: minDecimalWidth, width: standardDecimalWidth},
+  ]
+  
+  flagDefs = [
+    {headerName:"Actions", field: "resolved", ...standardActionOptions, cellRenderer: FlagActionCellRenderer, comparator: flagActionsComparator},
+    {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: FlagIdRenderer},
+    {headerName:"Judge Name", field:"annotator_name", width: standardNameWidth},
+    {headerName:"Project Name", field:"item_name", width: standardNameWidth},
+    {headerName:"Project Location", field:"item_location", width: standardLocationWidth},
+    {headerName:"Reason", field:"reason", width: standardLocationWidth},
+  ]  
+
+  console.log("Virtual Context State:", getIsVirtual())
 
   annotatorData = {
     ...commonDefs,
@@ -504,13 +534,27 @@ FlagIdRenderer.prototype.getGui = () => {
   return this.eGui
 }
 FlagIdRenderer.prototype.refresh = (params) => {
-  console.log("flag id refreshed", params)
   const val = params.value
   this.eGui.innerHTML = `${val}`
-  console.log("flag ID", val)
-  return false;
+  return true;
 }
 FlagIdRenderer.prototype.destroy = () => {}
+
+function UrlRenderer () {}
+UrlRenderer.prototype.init = (params) => {
+  this.eGui = document.createElement('div')
+  const val = params.value
+  this.eGui.innerHTML = `<a href=${val} target="_blank" rel="noopener noreferrer">${val}</a>`
+}
+UrlRenderer.prototype.getGui = () => {
+  return this.eGui
+}
+UrlRenderer.prototype.refresh = (params) => {
+  const val = params.value
+  this.eGui.innerHTML = `<a href=${val} target="_blank" rel="noopener noreferrer">${val}</a>`
+  return true;
+}
+UrlRenderer.prototype.destroy = () => {}
 
 async function populateItems(data) {
   try {
@@ -585,8 +629,6 @@ function handleSessionRequest(type, state) {
   sessionFormData.append("action", state)
   sessionFormData.append("_csrf_token", getToken())
   fetch("/admin/api/session", sessionReqOptions)
-    .then(res => console.log(res))
-    .then(result => console.log(result))
     .then(() => {openModal('close')})
     .catch(err => console.log("Error", err))
 }
@@ -622,7 +664,6 @@ function handleFlagRequest(id, state) {
   formData.append("flag_id", id);
   formData.append("_csrf_token", getToken());
   fetch("/admin/api/flag", reqOptions)
-    .then(res => console.log(res))
     .catch(err => console.log("Error", err))
 }
 

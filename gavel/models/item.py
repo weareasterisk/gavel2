@@ -55,7 +55,7 @@ class Item(BaseModel):
 
     relations_keys = ("viewed", "flags")
 
-    def __init__(self, name, location, description, tagline="", video_reference="", submission_reference="", submission_website=""):
+    def __init__(self, name, location, description, tagline="N/A", video_reference="N/A", submission_reference="N/A", submission_website="N/A"):
         self.name = name
         self.location = location
         self.description = description
