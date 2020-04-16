@@ -11,6 +11,7 @@ from flask_minify import minify
 from flask_socketio import SocketIO
 from flask_json import FlaskJSON
 import eventlet
+
 eventlet.monkey_patch(os=True, select=True, socket=True, thread=True, time=True, psycopg=True)
 
 BASE_DIR = os.path.dirname(__file__)
@@ -93,6 +94,9 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
 from gavel.models import db, ma
+
+from gavel.models import *
+from gavel.schemas import *
 
 db.app = app
 db.init_app(app)

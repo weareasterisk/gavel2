@@ -14,19 +14,22 @@
           margin: 0;
         }
       </style>
-      <h4 class="normal-20" id="title">Project ID: <span id="id">{{ item.id }}</span></h4>
-      <p class="normal-14"><span class="bold-14">Name: </span><span>
-    <form action="/admin/item_patch" method="post" class="form-inline">
-            <input type="text" name="name" value="{{ item.name | safe }}">
-      <button type="submit" name="action" value="Update" >Update</button>
+      <h4 class="text-20" id="title">Project ID: <span id="id">{{ item.id }}</span></h4>
+      
+      <p class="normal-14"><span class="bold-14">Name: </span>
+        <span>
+          <form action="/admin/item_patch" method="post" class="form-inline">
+            <input type="text" class="form-input text-14" name="name" value="{{ item.name | safe }}">
+            <button type="submit" name="action" value="Update" >Update</button>
             <input type="hidden" name="item_id" value="{{ item.id }}">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           </form>
-  </span></p>
+        </span>
+      </p>
       <p class="normal-14"><span class="bold-14">Location: </span>
         <span>
     <form action="/admin/item_patch" method="post" class="form-inline">
-            <input type="text" name="location" value="{{ item.location | safe }}">
+            <input type="text" class="form-input" name="location" value="{{ item.location | safe }}">
       <button type="submit" name="action" value="Update">Update</button>
             <input type="hidden" name="item_id" value="{{ item.id }}">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">

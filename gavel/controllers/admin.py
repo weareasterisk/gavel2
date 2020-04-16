@@ -1,6 +1,7 @@
 from gavel import app
 from gavel import socketio
 from gavel.models import *
+from gavel.schemas import *
 from gavel.constants import *
 from functools import wraps
 import gavel.settings as settings
@@ -16,6 +17,7 @@ from flask import (
 )
 from gavel import JSON
 from flask_json import json_response, as_json
+from collections import defaultdict
 
 socket = socketio
 from sqlalchemy import event
@@ -130,6 +132,8 @@ def admin_items():
   annotators = Annotator.query.order_by(Annotator.id).all()
   decisions = Decision.query.all()
 
+  item_schema = ItemSchema()
+
   viewed = {}
   for i in items:
     viewed_holder = []
@@ -139,9 +143,11 @@ def admin_items():
 
   skipped = {}
   for a in annotators:
+    skipped_holder = []
     for i in a.ignore:
       if a.id not in viewed[i.id]:
-        skipped[i.id] = skipped.get(i.id, 0) + 1
+        skipped_holder.append(a.id)
+    skipped[i.id] = skipped_holder
 
   item_count = len(items)
 
@@ -158,14 +164,14 @@ def admin_items():
 
   for it in items:
     try:
-      item_dumped = it.to_dict()
+      item_dumped = item_schema.dump(it)
       item_dumped.update({
-        'viewed': len(viewed.get(it.id, 0)),
         'votes': item_counts.get(it.id, 0),
-        'skipped': skipped.get(it.id, 0)
+        'skipped': list(set(skipped.get(it.id, [])))
       })
       items_dumped.append(item_dumped)
-    except:
+    except Exception as e:
+      print(str(e))
       items_dumped.append({'null': 'null'})
 
   dump_data = {
@@ -188,10 +194,12 @@ def admin_flags():
   flags = Flag.query.order_by(Flag.id).all()
   flag_count = len(flags)
 
+  flag_schema = FlagSchema()
+
   flags_dumped = []
 
   for fl in flags:
-    flag_dumped = fl.to_dict()
+    flag_dumped = flag_schema.dump(fl)
     flag_dumped.update({
       'item_name': fl.item.name,
       'item_location': fl.item.location,
@@ -220,6 +228,8 @@ def admin_annotators():
   decisions = Decision.query.all()
   annotator_count = len(annotators)
 
+  annotator_schema = AnnotatorSchema()
+
   counts = {}
 
   for d in decisions:
@@ -232,7 +242,7 @@ def admin_annotators():
   
   for an in annotators:
     try:
-      annotator_dumped = an.to_dict()
+      annotator_dumped = annotator_schema.dump(an)
       annotator_dumped.update({
         'votes': counts.get(an.id, 0)
       })
@@ -584,6 +594,14 @@ def item_patch():
       item.name = request.form['name']
     if 'description' in request.form:
       item.description = request.form['description']
+    if 'tagline' in request.form:
+      item.tagline = request.form['tagline']
+    if 'video_reference' in request.form:
+      item.video_reference = request.form['tagline']
+    if 'submission_reference' in request.form:
+      item.submission_reference = request.form['submission_reference']
+    if 'submission_website' in request.form:
+      item.submission_website = request.form['submission_website']
     db.session.commit()
   with_retries(tx)
   return redirect(url_for('item_detail', item_id=request.form['item_id']))

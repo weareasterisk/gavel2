@@ -11,6 +11,7 @@
   </div>
   <script>
     async function openProject(id) {
+      console.log(itemData.api.getRowNode(id).data)
       const editProject = document.getElementById('itemframe');
       editProject.src = `/admin/item/${id}/`;
       openModal('edit-project');

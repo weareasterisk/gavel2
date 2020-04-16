@@ -228,8 +228,8 @@ async function initTables() {
     {headerName:"Email", field:"email", filter: true},
     {headerName:"Description", field: "description", ...standardDescriptionOptions},
     {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
-    {headerName:"Next (ID)", field:"next_id", width: standardDecimalWidth},
-    {headerName:"Prev. (ID)", field:"prev_id", width: standardDecimalWidth},
+    {headerName:"Next (ID)", field:"next", width: standardDecimalWidth},
+    {headerName:"Prev. (ID)", field:"prev", width: standardDecimalWidth},
     {headerName:"Updated", field:"updated", ...standardUpdatedOptions},
   ]
   
@@ -252,8 +252,8 @@ async function initTables() {
     {headerName:"Mu", field:"mu", ...standardDecimalOptions, sort: 'desc'},
     {headerName:"Sigma^2", field:"sigma_sq", ...standardDecimalOptions},
     {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
-    {headerName:"Seen", field:"seen", minWidth: minDecimalWidth, width: standardDecimalWidth},
-    {headerName:"Skipped", field:"skipped", minWidth: minDecimalWidth, width: standardDecimalWidth},
+    {headerName:"Seen", field:"viewed", minWidth: minDecimalWidth, width: standardDecimalWidth, valueFormatter: listLengthFormatter},
+    {headerName:"Skipped", field:"skipped", minWidth: minDecimalWidth, width: standardDecimalWidth, valueFormatter: listLengthFormatter},
   ]
   
   flagDefs = [
@@ -307,6 +307,10 @@ function decimalFormatter(params) {
 
 function updatedFormatter(params) {
   return params.value ? time_ago(new Date(params.value)) : "Never"
+}
+
+function listLengthFormatter(params) {
+  return Array.isArray(params.value) ? params.value.length : params.value
 }
 
 function itemActionsComparator(valueA, valueB, nodeA, nodeB, isInverted) {
@@ -870,11 +874,11 @@ $(document).ready(() => {
     if (tab === 'items') {
       form = document.getElementById('batchDeleteItems');
       selectedRows = itemData.api.getSelectedRows()
-      console.log("items", selectedRows)
+      if (getDebugState()) console.log("items", selectedRows)
     } else if (tab === 'annotators') {
       form = document.getElementById('batchDeleteAnnotators');
       selectedRows = annotatorData.api.getSelectedRows()
-      console.log("annotators", selectedRows)
+      if (getDebugState()) console.log("annotators", selectedRows)
     }
     selectedRows.map((row) => {
       form.innerHTML += `<input type="hidden" name="ids" value="${row.id}"/>`;
@@ -898,11 +902,11 @@ $(document).ready(() => {
     if (tab === 'items') {
       form = document.getElementById('batchDisableItems');
       selectedRows = itemData.api.getSelectedRows()
-      console.log("items", selectedRows)
+      if (getDebugState()) console.log("items", selectedRows)
     } else if (tab === 'annotators') {
       form = document.getElementById('batchDisableAnnotators');
       selectedRows = annotatorData.api.getSelectedRows()
-      console.log("annotators", selectedRows)
+      if (getDebugState()) console.log("annotators", selectedRows)
     }
     selectedRows.map((row) => {
       form.innerHTML += `<input type='hidden' name='ids' value='${row.id}'/>`;
