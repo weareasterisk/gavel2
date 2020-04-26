@@ -161,7 +161,7 @@ async function handleSessionUpdate(target) {
 const standardIdWidth = 80
 const standardNameWidth = 150
 const standardLocationWidth = 100
-const standardDescriptionWidth = 400
+const standardDescriptionWidth = 800
 const standardDecimalWidth = 80
 
 const minIdWidth = 50
@@ -178,7 +178,8 @@ const standardDescriptionOptions = {
 const standardDecimalOptions = {
   valueFormatter: decimalFormatter,
   minWidth: minDecimalWidth,
-  width: standardDecimalWidth
+  width: standardDecimalWidth,
+  maxWidth: standardDecimalWidth + 15
 }
 
 const standardUpdatedOptions = {
@@ -191,6 +192,7 @@ const standardActionOptions = {
   headerCheckboxSelectionFilteredOnly: true,
   checkboxSelection: true,
   minWidth: standardNameWidth,
+  maxWidth: standardNameWidth + 10,
   pinned: 'left',
   filter: false
 }
@@ -243,6 +245,7 @@ async function initTables() {
         ...(!getIsVirtual() ? [{headerName:"Location", width: standardLocationWidth, minWidth: minDecimalWidth, field:"location", filter: true, columnGroupShow: "open"}] : []),
         {headerName:"Description", field:"description", ...standardDescriptionOptions, columnGroupShow: "open"},
         ...(getIsVirtual() ? [
+          {headerName:"Tagline", field:"tagline", ...standardDescriptionOptions, columnGroupShow: "open"},
           {headerName:"Video", width: standardLocationWidth, minWidth: minDecimalWidth, field:"video_reference", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer},
           {headerName:"Submission", width: standardLocationWidth, minWidth: minDecimalWidth, field:"submission_reference", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer},
           {headerName:"Website", width: standardLocationWidth, minWidth: minDecimalWidth, field:"submission_website", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer}
@@ -299,6 +302,9 @@ async function initTables() {
   flagData.getRowNodeId = function(data) {
     return data.id;
   };
+  annotatorData.api.resetRowHeights()
+  itemData.api.resetRowHeights()
+  flagData.api.resetRowHeights()
 }
 
 function decimalFormatter(params) {
@@ -352,7 +358,7 @@ function flagActionsComparator(valueA, valueB, nodeA, nodeB, isInverted) {
  */
 const buildItemActions = ({id, prioritized, active}) => {
   return `
-  <div className="font-16">
+  <div className="text-20">
     <span onclick="openProject(${id})" class="inline-block">
       <button class="nobackgroundnoborder px-.4" title="Edit Project">
         <i class="fas fa-edit"></i>
@@ -382,7 +388,7 @@ const buildItemActions = ({id, prioritized, active}) => {
 
 const buildAnnotatorActions = ({id, active}) => {
   return `
-  <div className="font-16">
+  <div className="text-20">
     <span onclick="openJudge(${id})" class="inline-block">
       <button class="nobackgroundnoborder px-.4" title="Edit Judge">
         <i class="fas fa-edit"></i>

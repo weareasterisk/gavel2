@@ -29,7 +29,7 @@
   <div class="w-full flex-grow md:max-w-56">
     <p class="uppercase text-12 md:text-16 text-indigo font-medium pb-.8">video submission</p>
     <div class="h-auto w-full block pb-1.6">
-      {% with url=item.video_reference, id=(range(1, 51) | random) %}
+      {% with url=item.video_reference, id=(range(1, 50000) | random) %}
         {% include "vote_components/video_display.html" %}
       {% endwith %}
     </div>
