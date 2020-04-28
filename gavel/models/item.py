@@ -66,29 +66,29 @@ class Item(BaseModel):
         self.mu = crowd_bt.MU_PRIOR
         self.sigma_sq = crowd_bt.SIGMA_SQ_PRIOR
 
-    @validates('tagline')
-    def require_tagline_on_virtual(self, key, tagline):
-        if settings.VIRTUAL_EVENT:
-            assert tagline
-        return tagline
+    # @validates('tagline')
+    # def require_tagline_on_virtual(self, key, tagline):
+    #     if settings.VIRTUAL_EVENT:
+    #         assert tagline
+    #     return tagline
     
-    @validates('video_reference')
-    def require_video_reference_on_virtual(self, key, video_reference):
-        if settings.VIRTUAL_EVENT:
-            assert video_reference
-        return video_reference
+    # @validates('video_reference')
+    # def require_video_reference_on_virtual(self, key, video_reference):
+    #     if settings.VIRTUAL_EVENT:
+    #         assert video_reference
+    #     return video_reference
     
-    @validates('submission_reference')
-    def require_submission_reference_on_virtual(self, key, submission_reference):
-        if settings.VIRTUAL_EVENT:
-            assert submission_reference
-        return submission_reference
+    # @validates('submission_reference')
+    # def require_submission_reference_on_virtual(self, key, submission_reference):
+    #     if settings.VIRTUAL_EVENT:
+    #         assert submission_reference
+    #     return submission_reference
     
-    @validates('submission_website')
-    def require_submission_website_on_virtual(self, key, submission_website):
-        if settings.VIRTUAL_EVENT:
-            assert submission_website
-        return submission_website
+    # @validates('submission_website')
+    # def require_submission_website_on_virtual(self, key, submission_website):
+    #     if settings.VIRTUAL_EVENT:
+    #         assert submission_website
+    #     return submission_website
 
     @property
     def seen(self):
