@@ -9,6 +9,7 @@
         Upload Judges CSV File
         <input style="display: none" type="file" name="file" form="annotator_form" accept=".csv,.xls,.xlsx" id="annotator-file">
       </label>
+      <p class="hidden text-12" id="annotatorFileCheck"><i class="fas fa-check"></i> File Selected: <span id="annotatorFileSelected"></span></p>
       <p class="normal-12 compact">Manually Add New Judges</p>
       <textarea name="data" form="annotator_form" class="admin-textarea"></textarea>
       <button class="inlineButton-32 normal-caps-white-15 noborder float-left" onclick="openModal(null)">Cancel</button>
@@ -20,5 +21,17 @@
       </form>
     </div>
   </div>
+  <script>
+    const annotatorFileInput = document.getElementById("annotator-file")
+    const annotatorFileSelected = document.getElementById("annotatorFileSelected")
+    const annotatorCheck = document.getElementById("annotatorFileCheck")
+    annotatorFileInput.value = null;
+    annotatorFileInput.onchange = (e) => {
+      console.log("ONCHANGE")
+      annotatorFileSelected.innerText = annotatorFileInput.files[0].name
+      annotatorCheck.classList.remove("hidden")
+    }
+
+  </script>
 </div>
 {% endblock %}
