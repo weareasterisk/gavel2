@@ -597,7 +597,7 @@ def item_patch():
     if 'tagline' in request.form:
       item.tagline = request.form['tagline']
     if 'video_reference' in request.form:
-      item.video_reference = request.form['tagline']
+      item.video_reference = request.form['video_reference']
     if 'submission_reference' in request.form:
       item.submission_reference = request.form['submission_reference']
     if 'submission_website' in request.form:
