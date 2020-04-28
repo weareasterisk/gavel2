@@ -33,7 +33,6 @@
     const itemCheck = document.getElementById("itemFileCheck")
     itemFileInput.value = null;
     itemFileInput.onchange = (e) => {
-      console.log("ONCHANGE")
       itemFileSelected.innerText = itemFileInput.files[0].name
       itemCheck.classList.remove("hidden")
     }
