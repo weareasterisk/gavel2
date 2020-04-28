@@ -27,7 +27,6 @@
     const annotatorCheck = document.getElementById("annotatorFileCheck")
     annotatorFileInput.value = null;
     annotatorFileInput.onchange = (e) => {
-      console.log("ONCHANGE")
       annotatorFileSelected.innerText = annotatorFileInput.files[0].name
       annotatorCheck.classList.remove("hidden")
     }
