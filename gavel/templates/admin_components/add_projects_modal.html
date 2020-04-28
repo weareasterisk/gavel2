@@ -11,11 +11,11 @@
         CSV Format: Project Name, Location, Description
         {% endif %}
       </p>
-      <label class="upload-judges-button bold-caps-white-12 compact" for="annotator-file">
+      <label class="upload-judges-button bold-caps-white-12 compact" for="item-file">
         Upload Projects CSV File
-        <input style="display: none" type="file" name="file" form="item_form" accept=".csv,.xls,.xlsx"
-               id="item-file">
+        <input style="display: none" type="file" name="file" form="item_form" accept=".csv,.xls,.xlsx" id="item-file">
       </label>
+      <p class="hidden text-12" id="itemFileCheck"><i class="fas fa-check"></i> File Selected: <span id="itemFileSelected"></span></p>
       <p class="normal-12 compact">Manually Add New Projects</p>
       <textarea name="data" form="item_form" class="admin-textarea"></textarea>
       <button class="inlineButton-32 normal-caps-white-15 noborder" onclick="openModal('close')">Cancel</button>
@@ -27,5 +27,16 @@
       </form>
     </div>
   </div>
+  <script>
+    const itemFileInput = document.getElementById("item-file")
+    const itemFileSelected = document.getElementById("itemFileSelected")
+    const itemCheck = document.getElementById("itemFileCheck")
+    itemFileInput.value = null;
+    itemFileInput.onchange = (e) => {
+      itemFileSelected.innerText = itemFileInput.files[0].name
+      itemCheck.classList.remove("hidden")
+    }
+
+  </script>
 </div>
 {% endblock %}

@@ -312,7 +312,7 @@ function decimalFormatter(params) {
 }
 
 function updatedFormatter(params) {
-  console.log(params.value)
+  // Convert date from flask into proper UTC time string
   return params.value ? time_ago(new Date(new Date(params.value).toString() + " UTC")) : "Never"
 }
 
