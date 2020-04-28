@@ -8,15 +8,15 @@
         th {
           text-align: left;
         }
-
-        p {
-          line-height: 0;
-          margin: 0;
-        }
       </style>
       <h4 class="text-20" id="title">Project ID: <span id="id">{{ item.id }}</span></h4>
       
-      <p class="normal-14"><span class="bold-14">Name: </span>
+      <label class="block">
+        <span class="text-bold text-12">Name</span>
+        <input form="itemUpdateForm" name="name" type="text" class="form-input block w-full text-12" placeholder="Project Name" value="{{ item.name | safe }}">
+      </label>
+
+      <!-- <p class="normal-14"><span class="bold-14">Name: </span>
         <span>
           <form action="/admin/item_patch" method="post" class="form-inline">
             <input type="text" class="form-input text-14" name="name" value="{{ item.name | safe }}">
@@ -25,47 +25,84 @@
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           </form>
         </span>
-      </p>
-      <p class="normal-14"><span class="bold-14">Location: </span>
+      </p> -->
+      <!-- <p class="normal-14"><span class="bold-14">Location: </span>
         <span>
-    <form action="/admin/item_patch" method="post" class="form-inline">
+          <form action="/admin/item_patch" method="post" class="form-inline">
             <input type="text" class="form-input" name="location" value="{{ item.location | safe }}">
-      <button type="submit" name="action" value="Update">Update</button>
-            <input type="hidden" name="item_id" value="{{ item.id }}">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-          </form>
-  </span>
-      </p>
-    <p class="normal-14">
-      <span class="bold-14">Description:</span>
-      <br>
-      <span>
-        <textarea name="description" form="description_form" style="max-width: 100%;">{{ item.description | safe }}</textarea>
-          <form action="/admin/item_patch" method="post" id="description_form" class="form-inline">
-            <input type="hidden" name="item_id" value="{{ item.id }}">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
             <button type="submit" name="action" value="Update">Update</button>
+            <input type="hidden" name="item_id" value="{{ item.id }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           </form>
+        </span>
+      </p> -->
+      {% if not virtual %}
+      <label class="block">
+        <span class="text-bold text-12">Location</span>
+        <input form="itemUpdateForm" name="location" type="text" class="form-input block w-full text-12" placeholder="Project Location" value="{{ item.location | safe }}">
+      </label>
+      {% endif %}
+      <div>
+        <label class="block">
+          <span class="text-bold text-12">Description</span>
+          <textarea form="itemUpdateForm" name="description" class="form-textarea block w-full text-12" rows="5" placeholder="Project Description">{{ item.description | safe }}</textarea>
+        </label>
+      </div>
+      {% if virtual %}
+      <label class="block">
+        <span class="text-bold text-12">Tagline</span>
+        <input form="itemUpdateForm" name="tagline" type="text" class="form-input block w-full text-12" placeholder="Project Tagline" value="{{ item.tagline | safe }}">
+      </label>
+      <label class="block">
+        <span class="text-bold text-12">Video URL</span>
+        <input form="itemUpdateForm" name="video_reference" type="text" class="form-input block w-full text-12" placeholder="Project Video URL" value="{{ item.video_reference | safe }}">
+      </label>
+      <label class="block">
+        <span class="text-bold text-12">Submission URL</span>
+        <input form="itemUpdateForm" name="submission_reference" type="text" class="form-input block w-full text-12" placeholder="Project Submission URL" value="{{ item.submission_reference | safe }}">
+      </label>
+      <label class="block">
+        <span class="text-bold text-12">Website URL</span>
+        <input form="itemUpdateForm" name="submission_website" type="text" class="form-input block w-full text-12" placeholder="Project Website URL" value="{{ item.submission_website | safe }}">
+      </label>
+      {% endif %}
+      <!-- <p class="normal-14">
+        <span class="bold-14">Description:</span>
+        <br>
+        <span>
+          <textarea name="description" form="description_form" style="max-width: 100%;">{{ item.description | safe }}</textarea>
+            <form action="/admin/item_patch" method="post" id="description_form" class="form-inline">
+              <input type="hidden" name="item_id" value="{{ item.id }}">
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" name="action" value="Update">Update</button>
+            </form>
+        </span>
+      </p> -->
+      <p class="text-12 mt-1.2"><strong>Mu: </strong>{{ item.mu }}</p>
+      <p class="text-12"><strong>Sigma Squared: </strong>{{ item.sigma_sq }}</p>
+      <p class="text-12"><strong>Seen By Judges: </strong>
+      <span>
+        {% for annotator in item.viewed %}
+                  <span><a href="{{ url_for('annotator_detail', annotator_id=annotator.id) }}"
+                        class="colored">{{ annotator.id }},</a></span>
+                {% endfor %}
       </span>
-    </p>
-    <p class="normal-14"><span class="bold-14">Mu: </span>{{ item.mu }}</p>
-    <p class="normal-14"><span class="bold-14">Sigma Squared: </span>{{ item.sigma_sq }}</p>
-    <p class="normal-14"><span class="bold-14">Seen By Judges: </span>
-    <span>
-      {% for annotator in item.viewed %}
-                <span><a href="{{ url_for('annotator_detail', annotator_id=annotator.id) }}"
-                       class="colored">{{ annotator.id }},</a></span>
-              {% endfor %}
-    </span>
-    </p>
-    <p class="normal-14"><span class="bold-14">Skipped By Judges: </span>
-    <span>
-      {% for annotator in skipped %}
-                <span><a href="{{ url_for('annotator_detail', annotator_id=annotator.id) }}"
-                       class="colored">{{ annotator.id }},</a></span>
-              {% endfor %}
-    </span>
-    </p>
+      </p>
+      <p class="text-12"><strong>Skipped By Judges: </strong>
+      <span>
+        {% for annotator in skipped %}
+                  <span><a href="{{ url_for('annotator_detail', annotator_id=annotator.id) }}"
+                        class="colored">{{ annotator.id }},</a></span>
+                {% endfor %}
+      </span>
+      </p>
+
+      <form action="/admin/item_patch" method="post" id="itemUpdateForm">
+        <input type="hidden" name="item_id" value="{{ item.id }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button id="descriptionFormButton" class="w-full h-3 mt-1.2 text-12 text-white bg-indigo uppercase rounded">update</button>
+      </form>
+
     </div>
   </div>
 {% endblock %}
