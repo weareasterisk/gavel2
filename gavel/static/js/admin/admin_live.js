@@ -312,7 +312,8 @@ function decimalFormatter(params) {
 }
 
 function updatedFormatter(params) {
-  return params.value ? time_ago(new Date(params.value)) : "Never"
+  console.log(params.value)
+  return params.value ? time_ago(new Date(new Date(params.value).toString() + " UTC")) : "Never"
 }
 
 function listLengthFormatter(params) {
@@ -930,7 +931,6 @@ $(document).ready(() => {
 })
 
 function time_ago(time) {
-
   switch (typeof time) {
     case 'number':
       break;
