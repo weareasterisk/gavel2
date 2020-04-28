@@ -7,13 +7,35 @@ let socket;
 * */
 
 let token;
+let isVirtual;
+let debugState;
 
 function setToken(t) { token = t }
 
 function getToken() { return token }
 
+function setIsVirtual(v) {
+  isVirtual = !!v
+}
+
+function getIsVirtual() { 
+  return !!isVirtual
+}
+
+function setDebugState(v) {
+  console.log(v)
+  debugState = !!v
+}
+
+function getDebugState() {
+  return !!debugState
+}
+
 const tableBody = document.getElementById("admin-table-body");
 const tableHead = document.getElementById("admin-table-head");
+
+const SOFT_CLOSE = "soft"
+const HARD_CLOSE = "hard"
 
 let annotatorTable;
 let itemTable;
@@ -35,7 +57,7 @@ window.addEventListener("DOMContentLoaded", () => {
   })
 
   socket.on('connected', (message) => {
-    console.log(socket.connected);
+    console.log(socket.connected ? "WebSocket Client Successfully Initialized" : "WebSocket Client Unable to be Initialized");
     console.log(message);
   })
 
@@ -51,21 +73,22 @@ window.addEventListener("DOMContentLoaded", () => {
   socket.on('flag.updated', (message) => standardize(message, handleFlagUpdate))
   socket.on('flag.deleted', (message) => standardize(message, handleFlagDelete))
 
+  socket.on('session.updated', (message) => standardize(message, handleSessionUpdate))
+
   // TODO: Figure this out
   // socket.on('setting.inserted', (message) => standardize(message, handleSettingInsert))
   // socket.on('setting.updated', (message) => standardize(message, handleSettingUpdate))
 
-  console.log("ready: ", socket)
+  console.log("WebSocket Liteners Initialized")
 })
 
 function standardize({target}, handler) {
-  console.log(target)
-  return handler(JSON.parse(target))
+  return handler(typeof target === "string" ? JSON.parse(target) : target)
 }
 
 async function updateAndTriggerUpdate(target, {api}) {
-  console.log(target)
-  Promise.resolve(api.updateRowData({update: [target]}))
+  if (getDebugState()) console.log("updated", target)
+  Promise.resolve(api.getRowNode(target.id).setData(target))
 }
 
 async function handleItemUpdate(target) {
@@ -123,6 +146,12 @@ async function handleFlagDelete(target) {
     .then(socket.emit('flag.deleted.confirmed'))
 }
 
+async function handleSessionUpdate(target) {
+  const { hard_state, soft_state } = target;
+  Promise.resolve(handleSessionButtonStateChange(!!hard_state, !!soft_state))
+    .then(socket.emit('session.updated.confirmed'))
+}
+
 // async function handleSettingDelete(target) {
 //   Promise.resolve(settingD.api.updateRowData({delete: [target]}))
 //     .then(socket.emit('item.deleted.confirmed'))
@@ -132,7 +161,7 @@ async function handleFlagDelete(target) {
 const standardIdWidth = 80
 const standardNameWidth = 150
 const standardLocationWidth = 100
-const standardDescriptionWidth = 400
+const standardDescriptionWidth = 800
 const standardDecimalWidth = 80
 
 const minIdWidth = 50
@@ -149,7 +178,8 @@ const standardDescriptionOptions = {
 const standardDecimalOptions = {
   valueFormatter: decimalFormatter,
   minWidth: minDecimalWidth,
-  width: standardDecimalWidth
+  width: standardDecimalWidth,
+  maxWidth: standardDecimalWidth + 15
 }
 
 const standardUpdatedOptions = {
@@ -162,6 +192,7 @@ const standardActionOptions = {
   headerCheckboxSelectionFilteredOnly: true,
   checkboxSelection: true,
   minWidth: standardNameWidth,
+  maxWidth: standardNameWidth + 10,
   pinned: 'left',
   filter: false
 }
@@ -171,40 +202,6 @@ const defaultColDef = {
   sortable: true,
   unSortIcon: true
 }
-
-const annotatorDefs = [
-  {headerName:"Actions", ...standardActionOptions, cellRenderer: AnnotatorActionCellRenderer},
-  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: AnnotatorIdRenderer},
-  {headerName:"Name", field:"name", width: standardNameWidth, minWidth: minDecimalWidth, filter: true},
-  {headerName:"Email", field:"email", filter: true},
-  {headerName:"Description", field: "description", ...standardDescriptionOptions},
-  {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
-  {headerName:"Next (ID)", field:"next_id", width: standardDecimalWidth},
-  {headerName:"Prev. (ID)", field:"prev_id", width: standardDecimalWidth},
-  {headerName:"Updated", field:"updated", ...standardUpdatedOptions},
-]
-
-const itemDefs = [
-  {headerName:"Actions", ...standardActionOptions, cellRenderer: ItemActionCellRenderer, comparator: itemActionsComparator},
-  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: ItemIdRenderer},
-  {headerName:"Project Name", width: standardNameWidth, minWidth: minDecimalWidth, field:"name", filter: true},
-  {headerName:"Location", width: standardLocationWidth, minWidth: minDecimalWidth, field:"location", filter: true},
-  {headerName:"Description", field:"description", ...standardDescriptionOptions},
-  {headerName:"Mu", field:"mu", ...standardDecimalOptions, sort: 'desc'},
-  {headerName:"Sigma^2", field:"sigma_sq", ...standardDecimalOptions},
-  {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
-  {headerName:"Seen", field:"seen", minWidth: minDecimalWidth, width: standardDecimalWidth},
-  {headerName:"Skipped", field:"skipped", minWidth: minDecimalWidth, width: standardDecimalWidth},
-]
-
-const flagDefs = [
-  {headerName:"Actions", ...standardActionOptions, cellRenderer: FlagActionCellRenderer, comparator: flagActionsComparator},
-  {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: FlagIdRenderer},
-  {headerName:"Judge Name", field:"annotator_name", width: standardNameWidth},
-  {headerName:"Project Name", field:"item_name", width: standardNameWidth},
-  {headerName:"Project Location", field:"item_location", width: standardLocationWidth},
-  {headerName:"Reason", field:"reason", width: standardLocationWidth},
-]
 
 const commonDefs = {
   defaultColDef: defaultColDef,
@@ -217,10 +214,61 @@ const commonDefs = {
   }
 }
 
+let annotatorDefs;
+let itemDefs;
+let flagDefs;
+
 async function initTables() {
   annotatorTable = document.getElementById("annotator-table")
   itemTable = document.getElementById("item-table")
   flagTable = document.getElementById("flag-table")
+
+  annotatorDefs = [
+    {headerName:"Actions", field: "data", ...standardActionOptions, cellRenderer: AnnotatorActionCellRenderer},
+    {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: AnnotatorIdRenderer},
+    {headerName:"Name", field:"name", width: standardNameWidth, minWidth: minDecimalWidth, filter: true},
+    {headerName:"Email", field:"email", filter: true},
+    {headerName:"Description", field: "description", ...standardDescriptionOptions},
+    {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
+    {headerName:"Next (ID)", field:"next", width: standardDecimalWidth},
+    {headerName:"Prev. (ID)", field:"prev", width: standardDecimalWidth},
+    {headerName:"Updated", field:"updated", ...standardUpdatedOptions},
+  ]
+  
+  itemDefs = [
+    {headerName:"Actions", field: "data", ...standardActionOptions, cellRenderer: ItemActionCellRenderer, comparator: itemActionsComparator},
+    {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: ItemIdRenderer},
+    {
+      headerName:"Details",
+      children: [
+        {headerName:"Project Name", width: standardNameWidth, minWidth: minDecimalWidth, field:"name", filter: true},
+        ...(!getIsVirtual() ? [{headerName:"Location", width: standardLocationWidth, minWidth: minDecimalWidth, field:"location", filter: true, columnGroupShow: "open"}] : []),
+        {headerName:"Description", field:"description", ...standardDescriptionOptions, columnGroupShow: "open"},
+        ...(getIsVirtual() ? [
+          {headerName:"Tagline", field:"tagline", ...standardDescriptionOptions, columnGroupShow: "open"},
+          {headerName:"Video", width: standardLocationWidth, minWidth: minDecimalWidth, field:"video_reference", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer},
+          {headerName:"Submission", width: standardLocationWidth, minWidth: minDecimalWidth, field:"submission_reference", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer},
+          {headerName:"Website", width: standardLocationWidth, minWidth: minDecimalWidth, field:"submission_website", filter: true, columnGroupShow: "open", cellRenderer: UrlRenderer}
+        ] : [])
+      ]
+    },
+    {headerName:"Mu", field:"mu", ...standardDecimalOptions, sort: 'desc'},
+    {headerName:"Sigma^2", field:"sigma_sq", ...standardDecimalOptions},
+    {headerName:"Votes", field:"votes", minWidth: minDecimalWidth, width: standardDecimalWidth},
+    {headerName:"Seen", field:"viewed", minWidth: minDecimalWidth, width: standardDecimalWidth, valueFormatter: listLengthFormatter},
+    {headerName:"Skipped", field:"skipped", minWidth: minDecimalWidth, width: standardDecimalWidth, valueFormatter: listLengthFormatter},
+  ]
+  
+  flagDefs = [
+    {headerName:"Actions", field: "resolved", ...standardActionOptions, cellRenderer: FlagActionCellRenderer, comparator: flagActionsComparator},
+    {headerName:"ID", field: "id", width: standardIdWidth, minWidth: minIdWidth, cellRenderer: FlagIdRenderer},
+    {headerName:"Judge Name", field:"annotator_name", width: standardNameWidth},
+    {headerName:"Project Name", field:"item_name", width: standardNameWidth},
+    {headerName:"Project Location", field:"item_location", width: standardLocationWidth},
+    {headerName:"Reason", field:"reason", width: standardLocationWidth},
+  ]  
+
+  console.log("Virtual Context State:", getIsVirtual())
 
   annotatorData = {
     ...commonDefs,
@@ -254,6 +302,9 @@ async function initTables() {
   flagData.getRowNodeId = function(data) {
     return data.id;
   };
+  annotatorData.api.resetRowHeights()
+  itemData.api.resetRowHeights()
+  flagData.api.resetRowHeights()
 }
 
 function decimalFormatter(params) {
@@ -261,7 +312,12 @@ function decimalFormatter(params) {
 }
 
 function updatedFormatter(params) {
-  return params.value ? time_ago(new Date(params.value)) : "Never"
+  console.log(params.value)
+  return params.value ? time_ago(new Date(new Date(params.value).toString() + " UTC")) : "Never"
+}
+
+function listLengthFormatter(params) {
+  return Array.isArray(params.value) ? params.value.length : params.value
 }
 
 function itemActionsComparator(valueA, valueB, nodeA, nodeB, isInverted) {
@@ -303,26 +359,26 @@ function flagActionsComparator(valueA, valueB, nodeA, nodeB, isInverted) {
  */
 const buildItemActions = ({id, prioritized, active}) => {
   return `
-  <div className="font-16">
+  <div className="text-20">
     <span onclick="openProject(${id})" class="inline-block">
-      <button class="nobackgroundnoborder" title="Edit Project">
+      <button class="nobackgroundnoborder px-.4" title="Edit Project">
         <i class="fas fa-edit"></i>
       </button>
     </span>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="${(prioritized ? 'Cancel' : 'Prioritize')}"><i class="fas ${(prioritized ? 'fa-arrow-down' : 'fa-arrow-up')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="${(prioritized ? 'Cancel' : 'Prioritize')}"><i class="fas ${(prioritized ? 'fa-arrow-down' : 'fa-arrow-up')}"></i></button>
       <input type="hidden" name="action" value="${(prioritized ? 'Cancel' : 'Prioritize')}" class="${(prioritized ? 'negative' : 'positive')}">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="${(active ? 'Deactivate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="${(active ? 'Deactivate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
       <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/item" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="Delete"><i class="fas fa-trash"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="Delete"><i class="fas fa-trash"></i></button>
       <input type="hidden" name="action" value="Delete" class="negative">
       <input type="hidden" name="item_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
@@ -333,26 +389,26 @@ const buildItemActions = ({id, prioritized, active}) => {
 
 const buildAnnotatorActions = ({id, active}) => {
   return `
-  <div className="font-16">
+  <div className="text-20">
     <span onclick="openJudge(${id})" class="inline-block">
-      <button class="nobackgroundnoborder" title="Edit Judge">
+      <button class="nobackgroundnoborder px-.4" title="Edit Judge">
         <i class="fas fa-edit"></i>
       </button>
     </span>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="Send Email"><i class="fas fa-envelope"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="Send Email"><i class="fas fa-envelope"></i></button>
       <input type="hidden" name="action" value="Email" class="neutral">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="${(active ? 'De-Activate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="${(active ? 'De-Activate' : 'Activate')}"><i class="fas ${(active ? 'fa-eye' : 'fa-eye-slash')}"></i></button>
       <input type="hidden" name="action" value="${(active ? 'Disable' : 'Enable')}" class="${(active ? 'negative' : 'positive')}">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
     </form>
     <form action="/admin/annotator" method="post" class="inline-block">
-      <button type="submit" class="nobackgroundnoborder" title="Delete"><i class="fas fa-trash"></i></button>
+      <button type="submit" class="nobackgroundnoborder px-.4" title="Delete"><i class="fas fa-trash"></i></button>
       <input type="hidden" name="action" value="Delete" class="negative">
       <input type="hidden" name="annotator_id" value="${id}">
       <input type="hidden" name="_csrf_token" value="${token}">
@@ -363,14 +419,7 @@ const buildAnnotatorActions = ({id, active}) => {
 
 const buildFlagActions = ({resolved, id}) => {
   return `
-  <div>
-    <form action="/admin/report" method="post" class="inline-block">
-      <button type="submit" class="button-full ${(resolved ? 'background-grey' : 'background-purple')} h-32 text-12 text-bold uppercase">${(resolved ? 'Open Flag' : 'Resolve Flag')}</button>
-      <input type="hidden" name="action" value="${resolved ? 'open' : 'resolve'}" class="${resolved ? 'negative' : 'positive'}">
-      <input type="hidden" name="flag_id" value="${id}">
-      <input type="hidden" name="_csrf_token" value="${token}">
-    </form>
-  </div>
+    <button type="button" onclick="handleFlagRequest(${id}, ${resolved ? "'open'" : "'resolve'" })" class="w-full m-.4 p-.4 text-white ${(resolved ? 'bg-lightgray' : 'bg-indigo')} h-32 text-12 text-bold uppercase rounded">${(resolved ? 'Re-Open Flag' : 'Resolve Flag')}</button>
   `
 }
 
@@ -425,7 +474,7 @@ AnnotatorActionCellRenderer.prototype.refresh = (params) => {
  */
 function FlagActionCellRenderer () {}
 FlagActionCellRenderer.prototype.init = (params) => {
-  this.eGui = document.createElement('div')
+  this.eGui = document.createElement('div');
   try {
     this.eGui.innerHTML = buildFlagActions(params.data)
   } catch (error) {
@@ -437,7 +486,9 @@ FlagActionCellRenderer.prototype.getGui = () => {
 }
 FlagActionCellRenderer.prototype.refresh = (params) => {
   try {
-    this.eGui.innerHTML = buildFlagActions(params.data)
+    this.eGui.innerHTML = '';
+    this.eGui.innerHTML = buildFlagActions({resolved: params.value, id: params.data.id})
+    return true;
   } catch (error) {
     console.log(error)
   }
@@ -458,6 +509,7 @@ ItemIdRenderer.prototype.getGui = () => {
 ItemIdRenderer.prototype.refresh = (params) => {
   const val = params.value
   this.eGui.innerHTML = `<a onclick="openProject(${val})" class="colored">${val}</a>`
+  return true;
 }
 ItemIdRenderer.prototype.destroy = () => {};
 
@@ -476,6 +528,7 @@ AnnotatorIdRenderer.prototype.getGui = () => {
 AnnotatorIdRenderer.prototype.refresh = (params) => {
   const val = params.value
   this.eGui.innerHTML = `<a onclick="openJudge(${val})" class="colored">${val}</a>`
+  return true;
 }
 AnnotatorIdRenderer.prototype.destroy = () => {}
 
@@ -494,8 +547,25 @@ FlagIdRenderer.prototype.getGui = () => {
 FlagIdRenderer.prototype.refresh = (params) => {
   const val = params.value
   this.eGui.innerHTML = `${val}`
+  return true;
 }
 FlagIdRenderer.prototype.destroy = () => {}
+
+function UrlRenderer () {}
+UrlRenderer.prototype.init = (params) => {
+  this.eGui = document.createElement('div')
+  const val = params.value
+  this.eGui.innerHTML = `<a href=${val} target="_blank" rel="noopener noreferrer">${val}</a>`
+}
+UrlRenderer.prototype.getGui = () => {
+  return this.eGui
+}
+UrlRenderer.prototype.refresh = (params) => {
+  const val = params.value
+  this.eGui.innerHTML = `<a href=${val} target="_blank" rel="noopener noreferrer">${val}</a>`
+  return true;
+}
+UrlRenderer.prototype.destroy = () => {}
 
 async function populateItems(data) {
   try {
@@ -559,6 +629,55 @@ async function spawnTable(id) {
 
 }
 
+function handleSessionRequest(type, state) {
+  const sessionFormData = new FormData();
+  const sessionReqOptions = {
+    method: "POST",
+    body: sessionFormData,
+    redirect: 'follow'
+  }
+  sessionFormData.append("key", type)
+  sessionFormData.append("action", state)
+  sessionFormData.append("_csrf_token", getToken())
+  fetch("/admin/api/session", sessionReqOptions)
+    .then(() => {openModal('close')})
+    .catch(err => console.log("Error", err))
+}
+
+function handleSessionButtonStateChange(setting_closed, setting_stop_queue) {
+  let session_button = document.getElementById("sessionButton")
+  if (setting_closed) {
+    session_button.innerText = "Start Session"
+    session_button.classList.add("bg-indigo")
+    session_button.classList.remove("bg-red")
+    session_button.setAttribute("onclick", 'handleSessionRequest("hard", "open")')
+  } else if (setting_stop_queue) {
+    session_button.innerText = "Stop Soft Close"
+    session_button.classList.add("bg-indigo")
+    session_button.classList.remove("bg-red")
+    session_button.setAttribute("onclick", 'handleSessionRequest("soft", "dequeue")')
+  } else {
+    session_button.innerText = "Stop Session"
+    session_button.classList.add("bg-red")
+    session_button.classList.remove("bg-indigo")
+    session_button.setAttribute("onclick", 'openModal("stop-session")')
+  }
+}
+
+function handleFlagRequest(id, state) {
+  const formData = new FormData();
+  const reqOptions = {
+    method: "POST",
+    body: formData,
+    redirect: "follow"
+  }
+  formData.append("action", state);
+  formData.append("flag_id", id);
+  formData.append("_csrf_token", getToken());
+  fetch("/admin/api/flag", reqOptions)
+    .catch(err => console.log("Error", err))
+}
+
 async function refresh() {
   const data = $.ajax({
     url: "/admin/auxiliary",
@@ -571,11 +690,17 @@ async function refresh() {
       await data;
     }
   }).then((data) => {
-    const flag_count = data.flag_count;
-    const item_count = data.item_count;
-    const votes = data.votes;
-    const sigma = data.average_sigma;
-    const seen = data.average_seen;
+    const { 
+      flag_count,
+      item_count,
+      votes,
+      average_sigma: sigma,
+      average_seen: seen,
+      setting_closed,
+      setting_stop_queue
+    } = data
+
+    handleSessionButtonStateChange(setting_closed, setting_stop_queue)
 
     // Populate vote count
     let vote_count = document.getElementById("total-votes");
@@ -598,13 +723,14 @@ async function refresh() {
 * END REFRESH FUNCTION
 * */
 
-function toggleSelector() {
+function toggleSelector(state = true) {
   const selectorModal = document.getElementById("selector");
-  selectorModal.style.display = selectorModal.style.display === "block" ? "none" : "block";
+  selectorModal.style.display = selectorModal.style.display === "flex" ? "none" : "flex";
+  if (!state) selectorModal.style.display = "none";
 }
 
 function showTab(e) {
-  const content = document.getElementById("admin-switcher-content");
+  const content = document.getElementById("adminSwitcherContent");
   const batch = document.getElementById("batchPanel");
   
   const annotators = document.getElementById("annotator-table")
@@ -623,12 +749,12 @@ function showTab(e) {
   switch (localStorage.getItem("currentTab")) {
     case "annotators":
       content.innerText = "Manage Judges";
-      batch.style.display = "inline-block";
+      batch.style.display = "flex";
       annotators.style.display = "block"
       break;
     case "items":
       content.innerText = "Manage Projects";
-      batch.style.display = "inline-block";
+      batch.style.display = "flex";
       items.style.display = "block"
       break;
     case "flags":
@@ -649,22 +775,25 @@ function setAddButtonState() {
   const text = document.getElementById('add-text');
   const add = document.getElementById('add');
   if (tab === "annotators") {
-    text.innerText = "+ Add Judges";
+    text.innerText = "Add Judges";
     text.onclick = function () {
       openModal('add-judges')
     };
+    add.style.display = "flex"
     //text.addEventListener('onclick', openModal('add-judges'));
   }
   if (tab === "items") {
-    text.innerText = "+ Add Projects";
+    text.innerText = "Add Projects";
     text.onclick = function () {
       openModal('add-projects')
     };
+    add.style.display = "flex"
     //text.addEventListener('onclick', openModal('add-projects'));
   }
   if (tab === "flags") {
     text.innerText = "";
     text.onclick = null;
+    add.style.display = "none"
   }
 }
 
@@ -736,10 +865,7 @@ $(document).ready(() => {
 
   window.onclick = function(e) {
     if (!$(e.target).closest('#switcher').length) {
-    var dropdown = document.getElementById("selector");
-      if (dropdown.style.display === "block") {
-        dropdown.style.display = "none"
-      }
+      this.toggleSelector(false)
     }
   }
 
@@ -755,14 +881,14 @@ $(document).ready(() => {
     if (tab === 'items') {
       form = document.getElementById('batchDeleteItems');
       selectedRows = itemData.api.getSelectedRows()
-      console.log("items", selectedRows)
+      if (getDebugState()) console.log("items", selectedRows)
     } else if (tab === 'annotators') {
       form = document.getElementById('batchDeleteAnnotators');
       selectedRows = annotatorData.api.getSelectedRows()
-      console.log("annotators", selectedRows)
+      if (getDebugState()) console.log("annotators", selectedRows)
     }
     selectedRows.map((row) => {
-      form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + row.id + '"/>';
+      form.innerHTML += `<input type="hidden" name="ids" value="${row.id}"/>`;
     });
     try {
       form.serializeArray()
@@ -783,14 +909,14 @@ $(document).ready(() => {
     if (tab === 'items') {
       form = document.getElementById('batchDisableItems');
       selectedRows = itemData.api.getSelectedRows()
-      console.log("items", selectedRows)
+      if (getDebugState()) console.log("items", selectedRows)
     } else if (tab === 'annotators') {
       form = document.getElementById('batchDisableAnnotators');
       selectedRows = annotatorData.api.getSelectedRows()
-      console.log("annotators", selectedRows)
+      if (getDebugState()) console.log("annotators", selectedRows)
     }
     selectedRows.map((row) => {
-      form.innerHTML = form.innerHTML + '<input type="hidden" name="ids" value="' + row.id + '"/>';
+      form.innerHTML += `<input type='hidden' name='ids' value='${row.id}'/>`;
     });
     try {
       form.serializeArray();
@@ -805,7 +931,6 @@ $(document).ready(() => {
 })
 
 function time_ago(time) {
-
   switch (typeof time) {
     case 'number':
       break;
@@ -835,7 +960,7 @@ function time_ago(time) {
     [5806080000, 'Last century', 'Next century'], // 60*60*24*7*4*12*100*2
     [58060800000, 'centuries', 2903040000] // 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
   ];
-  const seconds = (+new Date() - time) / 1000,
+  let seconds = (+new Date() - time) / 1000,
     token = 'ago',
     list_choice = 1;
 

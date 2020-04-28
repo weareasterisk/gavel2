@@ -192,3 +192,9 @@ mailgun_domain: null
 #
 # This setting must be populated if the email_provider is mailgun
 mailgun_api_key: null
+
+# can also be spefified as the 'VIRTUAL_EVENT' environment variable
+# defaults to False
+#
+# This setting should be set to True if the event in question is a virtual event
+virtual_event: True

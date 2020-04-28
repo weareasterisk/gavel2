@@ -4,6 +4,7 @@ from gavel import socketio
 from flask_socketio import emit
 from gavel.constants import *
 from gavel.models import *
+from gavel.schemas import ItemSchema, AnnotatorSchema, FlagSchema, SettingSchema
 import gavel.settings as settings
 import gavel.utils as utils
 from sqlalchemy import event
@@ -14,31 +15,37 @@ import asyncio
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
+item_schema = ItemSchema()
+annotator_schema = AnnotatorSchema()
+flag_schema = FlagSchema()
+setting_schema = SettingSchema()
+
 def standardize(target):
   try:
     name = target.__tablename__
     if str(name) == 'annotator':
       return {
         'type': name,
-        'target': json.dumps(injectAnnotator(target, target.to_dict()))
+        'target': json.dumps(injectAnnotator(target, annotator_schema.dump(target)))
       }
     elif str(name) == 'flag':
       return {
         'type': name,
-        'target': json.dumps(injectFlag(target, target.to_dict()))
+        'target': json.dumps(injectFlag(target, flag_schema.dump(target)))
       }
     elif str(name) == 'item':
       return {
         'type': name,
-        'target': json.dumps(injectItem(target, target.to_dict()))
+        'target': json.dumps(injectItem(target, item_schema.dump(target)))
       }
     elif str(name) == 'setting':
       settings = Setting.query.all()
       return {
         'type': name,
-        'target': json.dumps([it.to_dict() for it in Setting.query.all()])
+        'target': json.dumps([setting_schema.dump(it) for it in settings])
       }
     else:
+      # Legacy to_dict() due to schema ambiguity
       return {
         'type': name,
         'target': json.dumps(target.to_dict())
@@ -86,24 +93,6 @@ def injectItem(target, target_dumped):
   })
   return target_dumped
 
-CONNECT = 'connected'
-
-ANNOTATOR_INSERTED = 'annotator.inserted'
-ANNOTATOR_UPDATED = 'annotator.updated'
-ANNOTATOR_DELETED = 'annotator.deleted'
-
-ITEM_INSERTED = 'item.inserted'
-ITEM_UPDATED = 'item.updated'
-ITEM_DELETED = 'item.deleted'
-
-FLAG_INSERTED = 'flag.inserted'
-FLAG_UPDATED = 'flag.updated'
-FLAG_DELETED = 'flag.deleted'
-
-SETTING_INSERTED = 'setting.inserted'
-SETTING_UPDATED = 'setting.updated'
-SETTING_DELETED = 'setting.deleted'
-
 @socketio.on('user.connected', namespace='/admin')
 def test_connect(data):
   emit(CONNECT, data, namespace='/admin')
@@ -119,7 +108,7 @@ def triggerRelatedItemUpdates(data):
     ignore_ids = {i['id'] for i in data['ignore']}
     items = Item.query.filter(Item.id.in_(ignore_ids))
     for i in items:
-      socketio.emit(ITEM_UPDATED, {'type': "item", 'target': json.dumps(injectItem.delay(i, i.to_dict()))}, namespace='/admin')
+      socketio.emit(ITEM_UPDATED, {'type': "item", 'target': json.dumps(injectItem.delay(i, item_schema.dump(i)))}, namespace='/admin')
   except Exception as e:
     return
 
@@ -137,7 +126,7 @@ def annotator_listen_modify(mapper, connection, target):
 @utils.requires_auth
 def annotator_listen_delete(mapper, connection, target):
   print(str(target), str(mapper))
-  socketio.emit(ANNOTATOR_DELETED, {"target": json.dumps(target.to_dict())}, namespace='/admin')
+  socketio.emit(ANNOTATOR_DELETED, {"target": json.dumps(annotator_schema.dump(target))}, namespace='/admin')
 
 @event.listens_for(Item, 'after_insert')
 @utils.requires_auth
@@ -153,7 +142,7 @@ def item_listen_modify(mapper, connection, target):
 @utils.requires_auth
 def item_listen_delete(mapper, connection, target):
   print(str(target), str(mapper))
-  socketio.emit(ITEM_DELETED, {"target": json.dumps(target.to_dict())}, namespace='/admin')
+  socketio.emit(ITEM_DELETED, {"target": item_schema.dump(target)}, namespace='/admin')
 
 @event.listens_for(Flag, 'after_insert')
 @utils.requires_auth
@@ -169,7 +158,7 @@ def flag_listen_update(mapper, connection, target):
 @utils.requires_auth
 def flag_listen_delete(mapper, connection, target):
   print(str(target), str(mapper))
-  socketio.emit(FLAG_DELETED, {"target": json.dumps(target.to_dict())}, namespace='/admin')
+  socketio.emit(FLAG_DELETED, {"target": json.dumps(flag_schema.dump(target))}, namespace='/admin')
 
 @event.listens_for(Setting, 'after_insert')
 @utils.requires_auth

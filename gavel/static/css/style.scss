@@ -1,4 +1,4 @@
-@import './constants';
+@import './constants.scss';
 
 * {
   -webkit-box-sizing: border-box;
@@ -9,43 +9,21 @@
 
 html,
 body {
-  margin: 0;
-  padding: 0;
+  font-family: Rubik !important;
 }
 
 html {
-  font-family: $body-font,sans-serif;
-  font-size: 16px;
-  font-weight: 300;
-  line-height: 1.5;
+  font-size: 62.5%;
 }
 
 body {
+  font-size: 1.6rem;
   color: $text-color;
   background-color: $light;
 }
 
-div {
-  padding: 0;
-  margin: 0;
-}
-
 button {
   cursor: pointer;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  line-height: 1.25;
-  margin: 0;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  font-family: $heading-font;
-  font-weight: bold;
 }
 
 h1.page-title {
@@ -62,10 +40,6 @@ h1.page-title {
 
 .large-header {
   padding-top: 120px;
-}
-
-p {
-  padding-bottom: 0.25rem;
 }
 
 .preserve-formatting {
@@ -150,7 +124,6 @@ input[type=text] {
 a {
   text-decoration: none;
   color: inherit;
-  font-weight: bold;
 }
 
 a.colored {
@@ -174,6 +147,20 @@ hr {
   border: 0;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #fff;
+}
+
+.videoWrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow:hidden;
+}
+.videoWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .item-container {
@@ -551,15 +538,6 @@ dl.instructions dt p {
 }
 
 .voteItemTeam {
-  font-family: Rubik;
-  font-style: normal;
-  font-weight: normal;
-  line-height: normal;
-  font-size: 12px;
-  text-transform: uppercase;
-  padding: 0;
-  margin: 0;
-  color: #B7B7B7;
 }
 
 .voteItemTeamContent {
@@ -628,7 +606,7 @@ dl.instructions dt p {
 .bottomPanel {
   position: fixed;
   bottom: 0;
-  height: 80px;
+  padding: .6rem;
   width: 100%;
   box-shadow: 0px -2px 8px #B7B7B7;
   background-color: white;
@@ -641,8 +619,6 @@ dl.instructions dt p {
 }
 
 .flagButton {
-  margin-top: 1rem !important;
-  margin-left: 1rem !important;
   background: $branding-red;
   height: 48px !important;
   width: 60px !important;
@@ -654,9 +630,21 @@ dl.instructions dt p {
   background: url('/static/img/flag_button.svg') center center no-repeat;
 }
 
+.bg-flag {
+  background-image: url('/static/img/flag.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.bg-chevron {
+  background-image: url('/static/img/chevron.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
 .skipButton {
-  margin-top: 1rem;
-  margin-left: 1rem;
   background: $branding-dark;
   height: 48px !important;
   width: 60px !important;
@@ -695,14 +683,9 @@ dl.instructions dt p {
 }
 
 .doneButton {
-  float: right !important;
-  margin-top: 1rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
   background: $branding-blue !important;
   background-color: $branding-blue;
   height: 48px !important;
-  width: calc(100% - 60px - 60px - 60px - 12px);
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
@@ -731,7 +714,7 @@ dl.instructions dt p {
   top: 0;
   width: 100%;
   height: 100vh;
-  position: absolute;
+  position: fixed;
   overflow: auto;
   background: rgba(0, 0, 0, .2);
   backdrop-filter: blur(6px);
@@ -1275,14 +1258,7 @@ dl.instructions dt p {
 }
 
 .admin-switcher {
-  position: relative;
-  display: inline-block;
-  background: #000F9B;
   box-shadow: 0px 2px 10px #B7B7B7;
-  border-radius: 3px;
-  width: 188px;
-  height: 40px;
-  cursor: pointer;
 }
 
 
@@ -1425,10 +1401,8 @@ dl.instructions dt p {
   font-family: Rubik;
   font-style: normal;
   font-weight: normal;
-  line-height: normal;
   font-size: 18px;
   text-align: center;
-
   color: #000000;
 }
 
@@ -1605,10 +1579,6 @@ color: #000000;
   text-align: center;
 }
 
-#add-text {
-  padding-top: 14px;
-}
-
 .admin-add-button>span{
   padding-left: 24px;
 
@@ -1618,11 +1588,6 @@ color: #000000;
   cursor: pointer;
 }
 
-.admin-batch-button {
-  display: inline-block;
-  height: 40px!important;
-  line-height: 40px;
-}
 .admin-batch-button>span{
   cursor: pointer;
   vertical-align: center;
@@ -1641,6 +1606,12 @@ color: #000000;
   top: 12px;
   position: absolute;
   cursor: pointer;
+}
+
+.bg-cross {
+  background-image: url("/static/img/close-cross.svg");
+  background-position: center center;
+  background-repeat: no-repeat
 }
 
 .upload-judges-button {
@@ -1839,10 +1810,6 @@ border-radius: 4px;
 
 .h-32 {
   height: 32px;
-}
-
-.text-12 {
-  font-size: 12px;
 }
 
 .text-bold {

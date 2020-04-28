@@ -15,14 +15,18 @@ html, body, #content {
 {% endblock %}
 {% block content %}
 <div style="height: 100%">
+  <script>
+    setToken("{{ csrf_token() }}");
+    setIsVirtual("{{ virtual }}" === "True");
+    setDebugState("{{ debug_state }}" === "True");
+  </script>
 <div class="admin-container">
   <div class="banner-branded">Gavel Admin Dashboard<span style="cursor: pointer;" onclick="toggleAutoRefresh(!livereload)" class="live-active" id="live"> Live</span>
     <div class="admin-toggle float-right">
       <button
         id="sessionButton"
-        class="normal-white-18 noborder {{ 'admin-judging-active' if setting_closed or setting_stop_queue else 'admin-judging-inactive' }}"
-        onclick="{{ "document.getElementById('admin-judge-setting-form').submit()" if setting_closed or setting_stop_queue else ("openModal('stop-session')")}}">
-        {{ ('Stop Soft Close' if setting_stop_queue else 'Stop Session') if not setting_closed else 'Start Session' }}
+        class="text-18 w-16.2 h-4 text-white rounded"
+        onclick="">
       </button>
       <div id="judgeSettingFormHolder">
       </div>
@@ -46,31 +50,36 @@ html, body, #content {
       <div class="admin-data-text" id="average-seen"></div>
     </div>
   </div>
-  <div class="admin-options row">
-    <div class="admin-switcher" id="switcher" onclick="toggleSelector()">
-      <span id="admin-switcher-content">Manage Flags</span>
-      <a class="admin-drop-single-chevron center"></a>
-      <div class="admin-switcher-modal modal-autoclose" id="selector">
-        <div class="full" onclick="showTab('flags')">
-          <h3 class="admin-switcher-modal-text">Manage Flags</h3>
+  <div class="overflow-visible mb-.8 flex justify-between flex-wrap">
+    <div class="flex flex-row flex-no-wrap">
+      <div class="flex relative flex-col flex-wrap w-18.8 z-10" onclick="toggleSelector(true)" id="switcher">
+        <div class="bg-white w-full absolute flex flex-col top-0 text-18 rounded admin-switcher font-medium z-500 hidden" id="selector">
+          <div class="w-full h-4 hover:bg-lightgray" onclick="showTab('flags')">
+            <h3 class="admin-switcher-modal-text leading-4">Manage Flags</h3>
+          </div>
+          <div class="w-full h-4 hover:bg-lightgray" onclick="showTab('items')">
+            <h3 class="admin-switcher-modal-text leading-4">Manage Projects</h3>
+          </div>
+          <div class="w-full h-4 hover:bg-lightgray" onclick="showTab('annotators')">
+            <h3 class="admin-switcher-modal-text leading-4">Manage Judges</h3>
+          </div>
         </div>
-        <div class="full" onclick="showTab('items')">
-          <h3 class="admin-switcher-modal-text">Manage Projects</h3>
-        </div>
-        <div class="full" onclick="showTab('annotators')">
-          <h3 class="admin-switcher-modal-text">Manage Judges</h3>
+        <div class="w-full h-4 flex items-center justify-between rounded bg-indigo text-white text-18">
+          <p class="ml-1.2" id="adminSwitcherContent">Manage Flags</p>
+          <i class="admin-drop-single-chevron"></i>
         </div>
       </div>
+      <div class="flex text-center items-center pl-2.4 pointer inline-flex text-indigo font-medium" id="add">
+        <span class="text-18 leading-none pr-.8">+</span><span class="text-indigo text-14 uppercase" id="add-text"></span>
+      </div>
+
     </div>
-    <div class="admin-add-button" id="add">
-      <span class="normal-caps-purple-14" id="add-text"></span>
-    </div>
-    <div class="admin-batch-button float-right" id="batchPanel">
-      <div class="normal-caps-14 inline pointer" id="" style="margin-right: 24px;" onclick="openModal('disable-entries')"><span class="disabledeye"></span><span>BATCH DISABLE</span></div>
-      <div class="normal-caps-red-14 inline pointer" id="" onclick="openModal('delete-entries')"><span class="trashcan"></span>BATCH DELETE</div>
+    <div class="flex items-center flex-row leading-4" id="batchPanel">
+      <div class="text-14 cursor-pointer font-medium mr-2.4"><a onclick="openModal('disable-entries')"><span class="disabledeye"></span>BATCH DISABLE</a></div>
+      <div class="text-14 cursor-pointer text-red font-medium"><a onclick="openModal('delete-entries')"><span class="trashcan"></span>BATCH DELETE</a></div>
     </div>
   </div>
-  <div class="admin-tabs live-table">
+  <div class="admin-tabs live-table z-0">
     <div id="admin-table-wrapper" class="admin-table live-table" style="height: 100%">
       <div id="annotator-table" style="height: 100%;width:100%;display:none" class="ag-theme-balham"></div>
       <div id="item-table" style="height: 100%;width:100%;display: none" class="ag-theme-balham"></div>
@@ -97,9 +106,6 @@ html, body, #content {
 {% block end %}
 <link async rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-grid.css" integrity="sha256-H0ca4WfnE9lTQHMMYeE496cyBHytqYGWGSZrs9ooYvs=" crossorigin="anonymous" />
 <link async rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/styles/ag-theme-balham.css" integrity="sha256-iaqOsROIW6yuu8eiBD6JHAo4rdCtkPDgF8WbCfIekqA=" crossorigin="anonymous" />
-<script>
-  setToken("{{ csrf_token() }}");
-</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/js/all.min.js" integrity="sha256-iZGp5HAiwRmkbOKVYv5FUER4iXp5QbiEudkZOdwLrjw=" crossorigin="anonymous" async></script>
 <style>
   tr {

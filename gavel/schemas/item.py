@@ -1,15 +1,9 @@
-from marshmallow_sqlalchemy import ModelSchema, fields
-from marshmallow_sqlalchemy.fields import Nested
+from gavel.models import ma
 
-from gavel.models import Item, Annotator
+from gavel.models import Item
 
 
-class ItemSchema(ModelSchema):
-    viewed = Nested('AnnotatorSchema',
-                    exclude=Annotator.relations_keys,
-                    dump_only=True,
-                    many=True)
-
+class ItemSchema(ma.ModelSchema):
     class Meta:
         model = Item
 

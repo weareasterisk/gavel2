@@ -1,6 +1,27 @@
 ANNOTATOR_ID = 'annotator_id'
 TELEMETRY_URL = 'https://telemetry.anish.io/api/v1/submit'
 
+# Socket events
+CONNECT = 'connected'
+
+ANNOTATOR_INSERTED = 'annotator.inserted'
+ANNOTATOR_UPDATED = 'annotator.updated'
+ANNOTATOR_DELETED = 'annotator.deleted'
+
+ITEM_INSERTED = 'item.inserted'
+ITEM_UPDATED = 'item.updated'
+ITEM_DELETED = 'item.deleted'
+
+FLAG_INSERTED = 'flag.inserted'
+FLAG_UPDATED = 'flag.updated'
+FLAG_DELETED = 'flag.deleted'
+
+SETTING_INSERTED = 'setting.inserted'
+SETTING_UPDATED = 'setting.updated'
+SETTING_DELETED = 'setting.deleted'
+
+SESSION_UPDATED = 'session.updated'
+
 # Setting
 # keys
 SETTING_CLOSED = 'closed' # boolean

@@ -2,65 +2,130 @@
 {% block title %}Judge{% endblock %}
 {% block content %}
   <div class="item" >
-    <div class="info" style="padding: 0;">
+    <div class="container" style="padding: 0;">
     <base target="_self"/>
       <style>
         th {
           text-align: left;
         }
-        p {
-          line-height: 0;
-          margin: 0;
-        }
       </style>
-      <h4 class="normal-20" id="title">Judge ID: <span id="id">{{ annotator.id }}</span></h4>
-      <p class="normal-14"><span class="bold-14">Name: </span><span id="name">{{ annotator.name | safe }}</span></p>
-      <p class="normal-14"><span class="bold-14">Email: </span><span id="email">{{ annotator.email | safe }}</span></p>
-      <p class="normal-14"><span class="bold-14">Description: </span><span
-        id="description">{{ annotator.description | safe }}</span></p>
-      <p class="normal-14"><span class="bold-14">Login URL: </span><span id="login"><a
-        href="{{ login_link }}" target="_parent" class="normal-purple-14" style="overflow: hidden;">LOGIN ID:{{ annotator.id }}</a></span></p>
-      <p class="normal-14"><span class="bold-14">Total Votes: </span>
+      <h4 class="text-20" id="title">Judge ID: <span id="id">{{ annotator.id }}</span></h4>
+
+      <label class="block">
+        <span class="text-bold text-12">Name</span>
+        <input form="annotatorUpdateForm" name="name" type="text" class="form-input block w-full text-12" placeholder="Judge Name" value="{{ annotator.name | safe }}">
+      </label>
+
+      <label class="block">
+        <span class="text-bold text-12">Email</span>
+        <input form="annotatorUpdateForm" name="email" type="email" class="form-input block w-full text-12" placeholder="Judge Email" value="{{ annotator.email | safe }}">
+      </label>
+
+      <label class="block mb-1.2">
+        <span class="text-bold text-12">Description</span>
+        <textarea form="annotatorUpdateForm" name="description" class="form-textarea block w-full text-12" rows="2" placeholder="Judge Description">{{ annotator.description | safe }}</textarea>
+      </label>
+
+      <p class="text-12">
+        <strong>Login URL: </strong>
+        <span id="login">
+          <a href="{{ login_link }}" target="_parent" class="text-indigo text-bold" style="overflow: hidden;">LOGIN ID:{{ annotator.id }}</a>
+        </span>
+        <span>
+          <button class="px-.4" onclick="sendToClipboard('{{ login_link }}')">
+            <i class="far fa-copy"></i>
+          </button>
+          <span class="hidden" id="copyCheckMark">
+            <i class="far fa-check-circle text-green-300"></i>
+            <!-- This is for you Sam -->
+            link copied
+          </span>
+        </span>
+      </p>
+      <p class="text-12">
+        <strong>Total Votes: </strong>
         <span id="votes">
             {{ seen | length }}
-      </span>
+        </span>
       </p>
-      <p class="normal-14"><span class="bold-14">Current Team: </span><span id="team">
-      {% if annotator.next %}
-        <span>{{ annotator.next_id }}</span>
-      {% else %}
-        <td>None</td>
-      {% endif %}
-    </span></p>
-      <p class="normal-14"><span class="bold-14">Previous Team: </span><span id="previous">
-      {% if annotator.prev %}
-        <span>{{ annotator.prev_id }}</span>
-      {% else %}
-        <td>None</td>
-      {% endif %}
-    </span></p>
-      <p class="normal-14"><span class="bold-14">Updated: </span><span id="updated">
-      {{ annotator.updated | safe }}
-    </span></p>
-      <p class="normal-14"><span class="bold-14">Avg Pace: </span><span id="pace">
-      TBI
-    </span></p>
-      <p class="normal-14"><span class="bold-14">Alpha: </span><span id="alpha">
-      {{ annotator.alpha | safe }}
-    </span></p>
-      <p class="normal-14"><span class="bold-14">Beta: </span><span id="beta">
-      {{ annotator.beta | safe }}
-    </span></p>
-      <p class="normal-14"><span class="bold-14">Seen Teams: </span><span id="seen">
-      {% for item in seen %}
-        <span>{{ item.id }},</span>
-      {% endfor %}
-    </span></p>
-      <p class="normal-14"><span class="bold-14">Skipped Teams: </span><span id="skipped">
-      {% for item in skipped %}
-        <span>{{ item.id }},</span>
-      {% endfor %}
-    </span></p>
+      <p class="text-12">
+        <strong>Current Team: </strong>
+        <span id="team">
+        {% if annotator.next %}
+          <span>{{ annotator.next_id }}</span>
+        {% else %}
+          <td>None</td>
+        {% endif %}
+        </span>
+      </p>
+      <p class="text-12">
+        <strong>Previous Team: </strong>
+        <span id="previous">
+        {% if annotator.prev %}
+          <span>{{ annotator.prev_id }}</span>
+        {% else %}
+          <td>None</td>
+        {% endif %}
+        </span>
+      </p>
+      <p class="text-12">
+        <strong>Updated: </strong>
+        <span id="updated">
+        {{ annotator.updated | safe }}
+        </span>
+      </p>
+      <p class="text-12"><strong>Avg Pace: </strong>
+        <!-- TODO: Me am lazy -->
+        <span id="pace">
+          TBI
+        </span>
+      </p>
+      <p class="text-12">
+        <strong>Alpha: </strong>
+        <span id="alpha">
+        {{ annotator.alpha | safe }}
+        </span>
+      </p>
+      <p class="text-12">
+        <strong>Beta: </strong>
+        <span id="beta">
+        {{ annotator.beta | safe }}
+        </span>
+      </p>
+      <p class="text-12">
+        <strong>Seen Teams: </strong>
+        <span id="seen">
+        {% for item in seen %}
+          <span>{{ item.id }},</span>
+        {% endfor %}
+        </span>
+      </p>
+      <p class="text-12">
+        <strong>Skipped Teams: </strong>
+          <span id="skipped">
+          {% for item in skipped %}
+            <span>{{ item.id }},</span>
+          {% endfor %}
+        </span>
+      </p>
+
+      <form action="/admin/annotator_patch" method="post" id="annotatorUpdateForm">
+        <input type="hidden" name="annotator_id" value="{{ annotator.id }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button id="descriptionFormButton" class="w-full h-3 mt-1.2 text-12 text-white bg-indigo uppercase rounded">update</button>
+      </form>
     </div>
+    <script>
+      const checkmark = document.getElementById("copyCheckMark")
+      function sendToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          checkmark.classList.remove("hidden")
+        }, () => {
+          checkmark.classList.add("hidden")
+        })
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/regular.min.js" integrity="sha256-H0NvRuA8S2idTs4I6NzvHRkonlIQNO9wGutAM0//9YU=" crossorigin="anonymous" async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/fontawesome.min.js" integrity="sha256-NP9NujdEzS5m4ZxvNqkcbxyHB0dTRy9hG13RwTVBGwo=" crossorigin="anonymous" async></script>
   </div>
 {% endblock %}

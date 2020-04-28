@@ -11,6 +11,7 @@
   </div>
   <script>
     async function openJudge(id) {
+      console.log(id)
       const editJudge = document.getElementById('annotatorframe');
       editJudge.src = `/admin/annotator/${id}/`;
       openModal('edit-judge');
@@ -21,12 +22,12 @@
       let newwidth;
 
       if(document.getElementById){
-        newheight = await document.getElementById(id).contentWindow.document .getElementById("content").scrollHeight;
-        newwidth = await document.getElementById(id).contentWindow.document .getElementById("content").scrollWidth;
+        newheight = await document.getElementById(id).contentWindow.document.getElementById("content").scrollHeight;
+        newwidth = await document.getElementById(id).contentWindow.document.getElementById("content").scrollWidth;
       }
 
-      document.getElementById(id).height= `${(newheight + 16)}px`;
-      document.getElementById(id).width= `${((newwidth < 400) ? 416 : newwidth)}px` ;
+      document.getElementById(id).height= `${(newheight % 2 === 0 ) ? newheight : newheight+1}px`;
+      document.getElementById(id).width= `${((newwidth < 400) ? 416 : newwidth % 2 === 0 ? newwidth : newwidth+1)}px` ;
     }
   </script>
 {% endblock %}

@@ -1,6 +1,7 @@
 from gavel import app
 from gavel import socketio
 from gavel.models import *
+from gavel.schemas import *
 from gavel.constants import *
 from functools import wraps
 import gavel.settings as settings
@@ -10,7 +11,13 @@ from flask import (
   render_template,
   request,
   url_for,
-  json)
+  json,
+  jsonify,
+  Response
+)
+from gavel import JSON
+from flask_json import json_response, as_json
+from collections import defaultdict
 
 socket = socketio
 from sqlalchemy import event
@@ -125,6 +132,8 @@ def admin_items():
   annotators = Annotator.query.order_by(Annotator.id).all()
   decisions = Decision.query.all()
 
+  item_schema = ItemSchema()
+
   viewed = {}
   for i in items:
     viewed_holder = []
@@ -134,9 +143,11 @@ def admin_items():
 
   skipped = {}
   for a in annotators:
+    skipped_holder = []
     for i in a.ignore:
       if a.id not in viewed[i.id]:
-        skipped[i.id] = skipped.get(i.id, 0) + 1
+        skipped_holder.append(a.id)
+    skipped[i.id] = skipped_holder
 
   item_count = len(items)
 
@@ -153,14 +164,14 @@ def admin_items():
 
   for it in items:
     try:
-      item_dumped = it.to_dict()
+      item_dumped = item_schema.dump(it)
       item_dumped.update({
-        'viewed': len(viewed.get(it.id, 0)),
         'votes': item_counts.get(it.id, 0),
-        'skipped': skipped.get(it.id, 0)
+        'skipped': list(set(skipped.get(it.id, [])))
       })
       items_dumped.append(item_dumped)
-    except:
+    except Exception as e:
+      print(str(e))
       items_dumped.append({'null': 'null'})
 
   dump_data = {
@@ -183,10 +194,12 @@ def admin_flags():
   flags = Flag.query.order_by(Flag.id).all()
   flag_count = len(flags)
 
+  flag_schema = FlagSchema()
+
   flags_dumped = []
 
   for fl in flags:
-    flag_dumped = fl.to_dict()
+    flag_dumped = flag_schema.dump(fl)
     flag_dumped.update({
       'item_name': fl.item.name,
       'item_location': fl.item.location,
@@ -215,6 +228,8 @@ def admin_annotators():
   decisions = Decision.query.all()
   annotator_count = len(annotators)
 
+  annotator_schema = AnnotatorSchema()
+
   counts = {}
 
   for d in decisions:
@@ -227,7 +242,7 @@ def admin_annotators():
   
   for an in annotators:
     try:
-      annotator_dumped = an.to_dict()
+      annotator_dumped = annotator_schema.dump(an)
       annotator_dumped.update({
         'votes': counts.get(an.id, 0)
       })
@@ -311,10 +326,18 @@ def item():
     if data:
       # validate data
       for index, row in enumerate(data):
-        if len(row) != 3:
-          return utils.user_error('Bad data: row %d has %d elements (expecting 3)' % (index + 1, len(row)))
+        if settings.VIRTUAL_EVENT:
+          if len(row) != 6:
+            return utils.user_error('Bad data: row %d has %d elements (expecting 6)' % (index + 1, len(row)))
+        else:
+          if len(row) != 3:
+            return utils.user_error('Bad data: row %d has %d elements (expecting 3)' % (index + 1, len(row)))
       def tx():
         for row in data:
+          # This is REALLY REALLY bad I know...
+          # TODO: Tech Debt
+          if settings.VIRTUAL_EVENT:
+            row.insert(1, "N/A")
           _item = Item(*row)
           db.session.add(_item)
         db.session.commit()
@@ -402,6 +425,92 @@ def queue_shutdown():
   return redirect(url_for('admin'))
 
 
+@app.route('/admin/api/session/', methods=['GET','POST'])
+@utils.requires_auth
+def admin_api_session():
+  setting_stop_queue = Setting.value_of(SETTING_STOP_QUEUE) == SETTING_TRUE
+  setting_stop = Setting.value_of(SETTING_CLOSED) == SETTING_TRUE
+
+  affected_annotators = []
+  action = None
+  key = None
+
+  if request.method == "POST":
+
+    key = request.form['key']
+    # hard | soft
+
+    action = request.form['action']
+
+    # Hard shutdown
+    if key == 'hard':
+      # Close session
+      if action == 'close':
+        setting_stop = SETTING_TRUE
+      # Open session
+      elif action == 'open':
+        setting_stop = SETTING_FALSE
+      else:
+        pass
+      def tx():
+        Setting.set(SETTING_CLOSED, setting_stop)
+        db.session.commit()
+      with_retries(tx)
+    # Soft shutdown (await final judge submission)
+    elif key == 'soft':
+      annotators = Annotator.query.order_by(Annotator.id).all()
+      # Queue shutdown
+      print(action, str(setting_stop))
+      if action == 'queue' and not setting_stop:
+        print("here")
+        setting_stop_queue = SETTING_TRUE
+        def tx():
+          for an in annotators:
+            if an.active:
+              an.stop_next = True
+              affected_annotators.append(an.id)
+          db.session.commit()
+        with_retries(tx)
+      # Dequeue shutdown
+      elif action == 'dequeue':
+        setting_stop_queue = SETTING_FALSE
+        def tx():
+          for an in annotators:
+            if an.active:
+              an.stop_next = False
+              affected_annotators.append(an.id)
+          db.session.commit()
+        with_retries(tx)
+
+      else:
+        pass
+
+      def tx():
+        Setting.set(SETTING_STOP_QUEUE, setting_stop_queue)
+        db.session.commit()
+      with_retries(tx)
+
+    try:
+      socketio.emit(SESSION_UPDATED, {
+        'type': "session",
+        'target': {
+          "hard_state": setting_stop == SETTING_TRUE,
+          "soft_state": setting_stop_queue == SETTING_TRUE,
+          "action": action,
+          "key": key
+        }
+      }, namespace='/admin')
+    except Exception as ignored:
+      pass
+
+  return json_response(
+    hard_state=setting_stop,
+    soft_state=setting_stop_queue,
+    action=action,
+    key=key,
+    affected_annotators=affected_annotators
+  )
+
 @app.route('/admin/report', methods=['POST'])
 @utils.requires_auth
 def flag():
@@ -422,6 +531,32 @@ def flag():
     with_retries(tx)
   return redirect(url_for('admin'))
 
+@app.route('/admin/api/flag', methods=['POST'])
+@utils.requires_auth
+def admin_api_report():
+  action = request.form['action']
+  flag_id = None
+  target_state = None
+  if action == 'resolve':
+    flag_id = request.form['flag_id']
+    target_state = action == 'resolve'
+    def tx():
+      Flag.by_id(flag_id).resolved = target_state
+      db.session.commit()
+    with_retries(tx)
+  elif action == 'open':
+    flag_id = request.form['flag_id']
+    target_state = 1 == 2
+    def tx():
+      Flag.by_id(flag_id).resolved = target_state
+      db.session.commit()
+    with_retries(tx)
+  
+  return json_response(
+    action=action,
+    affected_flag=flag_id,
+    state=target_state,
+  )
 
 def allowed_file(filename):
   return '.' in filename and \
@@ -459,9 +594,37 @@ def item_patch():
       item.name = request.form['name']
     if 'description' in request.form:
       item.description = request.form['description']
+    if 'tagline' in request.form:
+      item.tagline = request.form['tagline']
+    if 'video_reference' in request.form:
+      item.video_reference = request.form['video_reference']
+    if 'submission_reference' in request.form:
+      item.submission_reference = request.form['submission_reference']
+    if 'submission_website' in request.form:
+      item.submission_website = request.form['submission_website']
     db.session.commit()
   with_retries(tx)
   return redirect(url_for('item_detail', item_id=request.form['item_id']))
+
+@app.route('/admin/api/item_patch', methods=['POST'])
+@utils.requires_auth
+def admin_api_item_patch():
+  item_id = request.form['item_id']
+  def tx():
+    item = Item.by_id(item_id)
+    if not item:
+      return utils.user_error('Item %s not found ' % item_id)
+    if 'location' in request.form:
+      item.location = request.form['location']
+    if 'name' in request.form:
+      item.name = request.form['name']
+    if 'description' in request.form:
+      item.description = request.form['description']
+    db.session.commit()
+  with_retries(tx)
+  return json_response(
+
+  )
 
 
 @app.route('/admin/annotator_patch', methods=['POST'])
@@ -622,7 +785,7 @@ def annotator_detail(annotator_id):
 
 
 def annotator_link(annotator):
-  return urllib.parse.urljoin(settings.BASE_URL, url_for('login', secret=annotator.secret))
+  return url_for('login', secret=annotator.secret, _external=True)
 
 @async_action
 async def email_invite_links(annotators):

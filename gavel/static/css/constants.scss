@@ -1,13 +1,19 @@
+$light-blue: #179BE8;
+$indigo: #000F9B;
+$red: #FF6666;
+$purple: #5F4BB6;
+$gray: #B7B7B7;
+
 $branding-orange: #ffbc29;
 $branding-turquoise: #4ecdc4;
-$branding-red: #FF6666;
+$branding-red: $red;
 $branding-yellow: #ffe86b;
 $branding-green: #c9d41b;
 $branding-dark: #363946;
-$branding-blue: #00A1FF;
-$branding-purple: #000F9B;
+$branding-blue: $light-blue;
+$branding-purple: $indigo;
 $branding-background: #E5E5E5;
-$branding-grey: #B7B7B7;
+$branding-grey: $gray;
 $branding-darkgrey: #363946;
 
 $wait-color: $branding-yellow;
@@ -19,7 +25,7 @@ $vote-skip-color: $branding-yellow;
 $vote-done-color: $branding-green;
 $admin-color: $branding-dark;
 $disabled-color: mix($branding-red, white, 25%);
-$prioritized-color: mix($branding-blue, white, 25%);
+$prioritized-color: mix($purple, white, 25%);
 $selected-color: mix($branding-orange, white, 25%);
 $positive-color: $branding-green;
 $negative-color: $branding-red;

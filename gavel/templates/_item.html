@@ -1,16 +1,48 @@
-<div class="projectInfoInner">
-  <div class="voteItemTop">
-    <div class="voteItemTopTitles">
-      <span class="voteItemTeam left">PROJECT NAME</span>
-      <span class="voteItemTeam right">LOCATION</span>
-      <br>
+<div class="flex flex-col">
+  <div class="w-full flex justify-between">
+    <div class="flex flex-grow flex-col">
+      <!-- <p class="text-lg md:text-2xl uppercase">project name</p> -->
+      <p class="text-18 md:text-24">{{ item.name | safe }}</p>
     </div>
-    <span class="voteItemTeamContent left name-overflow-hidden">{{ item.name | safe }}</span>
-    <span class="voteItemTeamContent right">{{ item.location | safe }}</span>
-    <br>
+    {% if not virtual %}
+    <div class="flex flex-end flex-col -mt-.6">
+      <p class="text-14 md:text-18 uppercase font-medium">location</p>
+      <p class="text-12 md:text-16 text-right">{{ item.location | safe }}</p>
+    </div>
+    {% endif %}
   </div>
 
-  <span class="voteItemTeam left">PROJECT DESCRIPTION</span>
-  <br>
-  <span class="voteItemTeamDescription" style="white-space: pre-wrap; max-width: 100%;">{{ item.description | safe }}</span>
+  <div class="w-full">
+    <p class="w-full text-14 md:text-18 text-gray pb-1.6">
+      {{ item.tagline | safe }}
+    </p>
+
+    <p class="capitalize text-12 md:text-16 text-indigo font-medium pb-.8">Project Details</p>
+    <p class="whitespace-pre-wrap w-full max-w-full text-12 md:text-14 pb-1.2">{{ item.description | safe }}</p>
+  </div>
+
+  {% if virtual %}
+  <div class="flex flex-wrap flex-row pb-1.6">
+    <a class="bg-indigo rounded text-white text-center py-.8 px-1.2 text-14 mr-.8 autourl" href="{{ item.submission_reference | safe }}" target="_blank" rel="noopener noreferrer">View Full Submission</a>
+    <a class="bg-indigo rounded text-white text-center py-.8 px-1.2 text-14 autourl" href="{{ item.submission_website | safe }}" target="_blank" rel="noopener noreferrer">Project Site</a>
+  </div>
+  <div class="w-full flex-grow md:max-w-56">
+    <p class="uppercase text-12 md:text-16 text-indigo font-medium pb-.8">video submission</p>
+    <div class="h-auto w-full block pb-1.6">
+      {% with url=item.video_reference, id=(range(1, 50000) | random) %}
+        {% include "vote_components/video_display.html" %}
+      {% endwith %}
+    </div>
+    <a class="bg-indigo rounded text-white text-center py-.8 px-1.2 text-14 autourl" href="{{ item.video_reference if item.video_reference else '' | safe }}" target="_blank" rel="noopener noreferrer">Click to View</a>
+  </div>
+  {% endif %}
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      Array.from( document.querySelectorAll( '.autourl' ) ).forEach( a => {
+        a.classList.add( location.hostname === a.hostname || !a.hostname.length ? 'bg-gray' : 'external' );
+        if (location.hostname === a.hostname || !a.hostname.length) a.removeAttribute("href")
+      });
+    })
+
+  </script>
 </div>

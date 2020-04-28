@@ -2,20 +2,18 @@
 {% block title %}Error{% endblock %}
 {% block content %}
 <div class="item">
-  <div class="info">
+  <div class="container">
     <div class="large-header">
       <h1 class="page-title">Uh oh.</h1>
-    </div>
-    <div class="welcome-body">
-      {{ message }}
+      <p class="text-16">{{ message }}</p>
     </div>
   </div>
 </div>
 
 <div class="item" style="padding-bottom: 24px; padding-top: 70px;">
-  <div class="info bottom-button">
+  <div class="container bottom-button">
     <form>
-      <button type="button" class="button-full" onclick="history.back()"> Go Back </button>
+      <button type="button" class="bg-lightblue h-4.8 rounded text-20 text-white w-16 md:w-full md:flex-grow" onclick="history.back()"> Go Back </button>
     </form>
   </div>
 </div>

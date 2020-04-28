@@ -3,6 +3,14 @@
         "heroku-postgresql:hobby-dev",
         "heroku-redis:hobby-dev"
     ],
+    "buildpacks": [
+        {
+            "url": "https://github.com/heroku/heroku-buildpack-nodejs#v170"
+        },
+        {
+            "url": "heroku/python"
+        }
+    ],
     "formation": {
         "web": {
             "quantity": 1,
@@ -22,6 +30,10 @@
         "SECRET_KEY": {
             "description": "Secret key used to hash requests and keys.",
             "generator": "secret"
+        },
+        "VIRTUAL_EVENT": {
+            "description": "Enables virtual event features if set to true.",
+            "value": "false"
         },
         "DISABLE_EMAIL": {
             "description": "Email sending is disabled if set to true.",

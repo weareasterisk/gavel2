@@ -1,0 +1,50 @@
+{% block content %}
+<script>
+  function generateSource(url) {
+    const youtubeRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const vimeoRexExp = /^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/
+
+    const youtubeMatch = url.match(youtubeRegExp)
+    const vimeoMatch = url.match(vimeoRexExp)
+
+    const matchType = !!youtubeMatch && !!youtubeMatch[2]
+    ? "youtube"
+    : !!vimeoMatch && !!vimeoMatch[5]
+    ? "vimeo"
+    : "none";
+
+    console.log(vimeoMatch, youtubeMatch, matchType)
+
+    switch(matchType) {
+      case("youtube"): {
+        return `<iframe src="https://www.youtube.com/embed/${youtubeMatch[2]}?autoplay=0&modestbranding=1" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+      }
+      case("vimeo"): {
+        return `<iframe src="https://player.vimeo.com/video/${vimeoMatch[5]}" frameborder="0" allow="fullscreen" allowfullscreen></iframe>`
+      }
+      default: {
+        return null
+      }
+    }
+  }
+
+  function generateVideoView(url) {
+    const source = generateSource(url);
+    console.log(source)
+    return !!source
+    ? `<div class="videoWrapper pb-1.2">
+        ${source}
+      </div>
+      `
+    : ``
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const wrapper = document.getElementById("embedvideo-{{ id }}")
+    wrapper.innerHTML = generateVideoView("{{ url }}")
+  })
+</script>
+<div id="embedvideo-{{ id }}" class="block">
+  
+</div>
+{% endblock %}

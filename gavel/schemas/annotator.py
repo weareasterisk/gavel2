@@ -1,11 +1,8 @@
-from marshmallow_sqlalchemy import ModelSchema, fields
+from gavel.models import ma
 
-from gavel.models import Annotator, Item
+from gavel.models import Annotator
 
 
-class AnnotatorSchema(ModelSchema):
-    next = fields.Nested('ItemSchema')
-    prev = fields.Nested('ItemSchema')
-
+class AnnotatorSchema(ma.ModelSchema):
     class Meta:
         model = Annotator
