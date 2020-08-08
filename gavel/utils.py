@@ -24,10 +24,11 @@ loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
 def async_action(f):
-  @wraps(f)
-  def wrapped(*args, **kwargs):
-    return loop.run_until_complete(f(*args, **kwargs))
-  return wrapped
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        return loop.run_until_complete(f(*args, **kwargs))
+    return wrapped
+
 
 def async_future(f):
     @wraps(f)
@@ -35,17 +36,22 @@ def async_future(f):
         return asyncio.Future(f(*args, **kwargs))
     return wrapped
 
+
 sendgrid_url = "https://api.sendgrid.com/v3/mail/send"
+
 
 def gen_secret(length):
     return base64.b32encode(os.urandom(length))[:length].decode('utf8').lower()
 
+
 def check_auth(username, password):
     return username == 'admin' and password == settings.ADMIN_PASSWORD
+
 
 def authenticate():
     return Response('Access denied.', 401,
         {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
 
 def requires_auth(f):
     @wraps(f)
@@ -56,21 +62,25 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
+
 def data_to_csv_string(data):
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerows(data)
     return output.getvalue()
 
+
 def data_from_csv_string(string):
     data_input = io.StringIO(string)
     reader = csv.reader(data_input)
     return list(reader)
 
+
 def get_paragraphs(message):
     paragraphs = re.split(r'\n\n+', message)
     paragraphs = [i.replace('\n', ' ') for i in paragraphs if i]
     return paragraphs
+
 
 @celery.task(name='utils.send_emails')
 def send_emails(emails):
@@ -167,9 +177,9 @@ async def mailgun_send_email(to_address, subject, body):
         api_url,
         auth=("api", mailgun_key),
         data={"from": settings.EMAIL_FROM,
-              "to": [to_address],
-              "subject": subject,
-              "text": body})
+                "to": [to_address],
+                "subject": subject,
+                "text": body})
     return response
 
 def render_markdown(content):
