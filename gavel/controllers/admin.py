@@ -460,9 +460,7 @@ def admin_api_session():
     elif key == 'soft':
       annotators = Annotator.query.order_by(Annotator.id).all()
       # Queue shutdown
-      print(action, str(setting_stop))
       if action == 'queue' and not setting_stop:
-        print("here")
         setting_stop_queue = SETTING_TRUE
         def tx():
           for an in annotators:

@@ -15,10 +15,10 @@ class Decision(BaseModel):
     updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     _default_fields = ["annotator_id",
-                       "winner_id",
-                       "loser_id",
-                       "time",
-                       "updated"]
+                        "winner_id",
+                        "loser_id",
+                        "time",
+                        "updated"]
 
     def __init__(self, annotator, winner, loser):
         self.annotator = annotator
