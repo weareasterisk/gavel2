@@ -10,10 +10,10 @@ if __name__ == '__main__':
 
     extra_files = []
     if os.environ.get('DEBUG', False):
-        app.debug = True
+        socketio.debug = True
         extra_files.append('./config.yaml')
 
-    app.jinja_env.cache = {}
+    socketio.jinja_env.cache = {}
     
     socketio.run(
         host='0.0.0.0',
