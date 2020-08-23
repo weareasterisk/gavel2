@@ -51,6 +51,7 @@ psycopg2-binary = "==2.8.5"
 libsass = "==0.19.4"
 flask-json = "==0.3.4"
 setuptools = "==45"
+dnspython = "==1.16.0"
 
 [requires]
 python_version = "3.6"
