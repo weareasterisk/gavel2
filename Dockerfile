@@ -1,4 +1,4 @@
-FROM python:3.6.9-slim
+FROM python:3.6.12-slim
 
 RUN apt update
 
@@ -15,6 +15,6 @@ COPY . /web
 
 ENV PORT 5000
 
-EXPOSE 5000
+EXPOSE ${PORT}
 
 CMD ["python","initialize.py","&&","gunicorn", "-b","0.0.0.0:$PORT","gavel:app","-w","3"]
