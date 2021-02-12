@@ -106,6 +106,7 @@ def vote():
                 annotator.ignore.append(annotator.prev)
             if annotator.stop_next:
                 annotator.active = False
+                annotator.stop_next = False
             annotator.update_next(choose_next(annotator))
             db.session.commit()
     with_retries(tx)
@@ -151,6 +152,7 @@ def begin():
                 annotator.next = None # will be reset in index
             if annotator.stop_next:
                 annotator.active = False
+                annotator.stop_next = False
             db.session.commit()
     with_retries(tx)
     return redirect(url_for('index'))
