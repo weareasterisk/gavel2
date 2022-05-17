@@ -52,6 +52,10 @@ libsass = "==0.19.4"
 flask-json = "==0.3.4"
 setuptools = "==45"
 dnspython = "==1.16.0"
+bidict = "==0.21.0"
+importlib-metadata = "==1.7.0"
+marshmallow = "==3.7.1"
+zipp = "==3.1.0"
 
 [requires]
 python_version = "3.6"
