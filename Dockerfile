@@ -1,4 +1,4 @@
-FROM python:3.6.12-slim
+FROM python:3.8-slim
 
 RUN apt update
 

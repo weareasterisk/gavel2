@@ -2,7 +2,7 @@
 {% block title %}Admin{% endblock %}
 {% block head %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" crossorigin="anonymous"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" integrity="sha256-Dul4c09cdrWKXVtallPxF558lwxMwCC8dXJdZ0PVW54=" crossorigin="anonymous"></script>
+<script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ag-grid/21.2.2/ag-grid-community.noStyle.js" integrity="sha256-qcdR2/GdAtCsM12+Xx0YtI0qG1WyG4ehmhFfPyfOpiU=" crossorigin="anonymous"></script>
 <style>
 html, body, #content {
@@ -96,7 +96,7 @@ html, body, #content {
   {% include './admin_components/edit_judge_modal.html' %}
 
   {% include './admin_components/edit_project_modal.html' %}
-  
+
   {% include './admin_components/delete_entries_modal.html' %}
 
   {% include './admin_components/disable_entries_modal.html' %}
