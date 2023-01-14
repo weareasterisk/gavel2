@@ -15,11 +15,11 @@
     "formation": {
         "web": {
             "quantity": 1,
-            "size": "free"
+            "size": "eco"
         },
         "worker": {
             "quantity": 1,
-            "size": "free"
+            "size": "eco"
         }
     },
     "description": "An awesome judging system for hackathons",
