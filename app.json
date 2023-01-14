@@ -1,8 +1,8 @@
 {
     "stack": "heroku-20",
     "addons": [
-        "heroku-postgresql:hobby-dev",
-        "heroku-redis:hobby-dev"
+        "heroku-postgresql:mini",
+        "heroku-redis:mini"
     ],
     "buildpacks": [
         {
