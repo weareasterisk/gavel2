@@ -1,8 +1,8 @@
 {
     "stack": "heroku-20",
     "addons": [
-        "heroku-postgresql:hobby-dev",
-        "heroku-redis:hobby-dev"
+        "heroku-postgresql:mini",
+        "heroku-redis:mini"
     ],
     "buildpacks": [
         {
@@ -15,11 +15,11 @@
     "formation": {
         "web": {
             "quantity": 1,
-            "size": "free"
+            "size": "eco"
         },
         "worker": {
             "quantity": 1,
-            "size": "free"
+            "size": "eco"
         }
     },
     "description": "An awesome judging system for hackathons",
