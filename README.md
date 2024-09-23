@@ -2,6 +2,6 @@
 
 **Gavel** is a project expo judging system.
 
-[Click here to create a Heroku instance](https://dashboard.heroku.com/new?template=https%3A%2F%2Fgithub.com%2Fweareasterisk%2Fgavel2%2Ftree%2Fmaster)
+[Click here to create a Heroku instance](https://dashboard.heroku.com/new?template=https://github.com/tamuhack-org/gavel/tree/master)
 
 [Gavel Documentation](https://gavel.weareasterisk.com/)
