@@ -19,3 +19,5 @@ venv/
 celerybeat-schedule
 
 node_modules/
+
+.DS_Store
